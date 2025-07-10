@@ -14,6 +14,7 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  loader: () => ({ crumb: "Dashboard" }),
   component: () => (
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

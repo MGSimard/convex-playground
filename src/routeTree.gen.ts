@@ -9,38 +9,84 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OrganizationSettingsRouteRouteImport } from './routes/organization-settings/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
+import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 
+const OrganizationSettingsRouteRoute =
+  OrganizationSettingsRouteRouteImport.update({
+    id: '/organization-settings',
+    path: '/organization-settings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationSettingsIndexRoute =
+  OrganizationSettingsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => OrganizationSettingsRouteRoute,
+  } as any)
+const OrganizationSettingsTeamRoute =
+  OrganizationSettingsTeamRouteImport.update({
+    id: '/team',
+    path: '/team',
+    getParentRoute: () => OrganizationSettingsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/organization-settings/team': typeof OrganizationSettingsTeamRoute
+  '/organization-settings/': typeof OrganizationSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/organization-settings/team': typeof OrganizationSettingsTeamRoute
+  '/organization-settings': typeof OrganizationSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/organization-settings/team': typeof OrganizationSettingsTeamRoute
+  '/organization-settings/': typeof OrganizationSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/organization-settings'
+    | '/organization-settings/team'
+    | '/organization-settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/organization-settings/team' | '/organization-settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/organization-settings'
+    | '/organization-settings/team'
+    | '/organization-settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/organization-settings': {
+      id: '/organization-settings'
+      path: '/organization-settings'
+      fullPath: '/organization-settings'
+      preLoaderRoute: typeof OrganizationSettingsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +94,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organization-settings/': {
+      id: '/organization-settings/'
+      path: '/'
+      fullPath: '/organization-settings/'
+      preLoaderRoute: typeof OrganizationSettingsIndexRouteImport
+      parentRoute: typeof OrganizationSettingsRouteRoute
+    }
+    '/organization-settings/team': {
+      id: '/organization-settings/team'
+      path: '/team'
+      fullPath: '/organization-settings/team'
+      preLoaderRoute: typeof OrganizationSettingsTeamRouteImport
+      parentRoute: typeof OrganizationSettingsRouteRoute
+    }
   }
 }
 
+interface OrganizationSettingsRouteRouteChildren {
+  OrganizationSettingsTeamRoute: typeof OrganizationSettingsTeamRoute
+  OrganizationSettingsIndexRoute: typeof OrganizationSettingsIndexRoute
+}
+
+const OrganizationSettingsRouteRouteChildren: OrganizationSettingsRouteRouteChildren =
+  {
+    OrganizationSettingsTeamRoute: OrganizationSettingsTeamRoute,
+    OrganizationSettingsIndexRoute: OrganizationSettingsIndexRoute,
+  }
+
+const OrganizationSettingsRouteRouteWithChildren =
+  OrganizationSettingsRouteRoute._addFileChildren(
+    OrganizationSettingsRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -12,7 +12,9 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@auth/core": "0.37.0",
     "@base-ui-components/react": "1.0.0-beta.1",
+    "@convex-dev/auth": "^0.0.87",
     "@convex-dev/react-query": "0.0.0-alpha.11",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-avatar": "^1.1.10",

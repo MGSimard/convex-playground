@@ -4,7 +4,10 @@ https://docs.convex.dev/home
 
 ## Convex Auth
 
-https://labs.convex.dev/auth
+Auth: https://labs.convex.dev/auth
+OAuth: https://labs.convex.dev/auth/config/oauth
+Magic Links: https://labs.convex.dev/auth/config/email
+OTPs: https://labs.convex.dev/auth/config/otps
 
 ## Convex + TanStack Query
 

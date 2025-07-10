@@ -5,11 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
-
 import { routeTree } from "./routeTree.gen";
 import "@/_styles/global.css";
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 const convexQueryClient = new ConvexQueryClient(convex);
 const queryClient = new QueryClient({
   defaultOptions: {

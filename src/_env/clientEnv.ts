@@ -1,8 +1,9 @@
+/// <reference types="vite/client" />
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 // Client environment variables (PUBLIC)
-export const env = createEnv({
+export const clientEnv = createEnv({
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
@@ -16,7 +17,7 @@ export const env = createEnv({
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */
-  runtimeEnv: import.meta.env,
+  runtimeEnv: process.env,
 
   /**
    * By default, this library will feed the environment variables directly to

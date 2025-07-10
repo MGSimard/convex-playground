@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as OrganizationSettingsRouteRouteImport } from './routes/organization-settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizationSettingsRouteRoute =
   OrganizationSettingsRouteRouteImport.update({
     id: '/organization-settings',
@@ -41,11 +47,13 @@ const OrganizationSettingsTeamRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/sign-in': typeof SignInRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings': typeof OrganizationSettingsIndexRoute
 }
@@ -53,6 +61,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/sign-in': typeof SignInRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
 }
@@ -61,14 +70,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/organization-settings'
+    | '/sign-in'
     | '/organization-settings/team'
     | '/organization-settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/organization-settings/team' | '/organization-settings'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/organization-settings/team'
+    | '/organization-settings'
   id:
     | '__root__'
     | '/'
     | '/organization-settings'
+    | '/sign-in'
     | '/organization-settings/team'
     | '/organization-settings/'
   fileRoutesById: FileRoutesById
@@ -76,10 +91,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
+  SignInRoute: typeof SignInRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organization-settings': {
       id: '/organization-settings'
       path: '/organization-settings'
@@ -130,6 +153,7 @@ const OrganizationSettingsRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
+  SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

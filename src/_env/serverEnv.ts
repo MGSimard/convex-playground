@@ -2,9 +2,9 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 // Server environment variables (SECRET)
-export const env = createEnv({
+export const serverEnv = createEnv({
   server: {},
-  runtimeEnv: import.meta.env,
+  runtimeEnv: process.env,
 
   /**
    * By default, this library will feed the environment variables directly to

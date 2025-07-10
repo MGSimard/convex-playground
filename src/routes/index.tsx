@@ -16,7 +16,7 @@ function PageDashboard() {
     gcTime: 10000, // stay subscribed for 10 seconds after this component unmounts
   });
 
-  const { mutate, isPending: mutationPending } = useMutation({
+  const { mutate, isPending: _ } = useMutation({
     mutationFn: useConvexMutation(api.tasks.add),
   });
 
@@ -44,6 +44,8 @@ function PageDashboard() {
 
         <button type="submit">Add Task</button>
       </form>
+      {isPending && <div>Loading...</div>}
+      {error && <div>Error: {error.message}</div>}
       {data.map((task) => (
         <div key={task._id}>{task.text}</div>
       ))}

@@ -37,8 +37,8 @@ export const NAV_LINKS = {
       icon: NotepadText,
     },
     {
-      title: "Tldraw",
-      url: "/tldraw",
+      title: "Trace",
+      url: "/trace",
       icon: PencilRuler,
     },
   ],

@@ -11,7 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OrganizationSettingsRouteRouteImport } from './routes/organization-settings/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TldrawIndexRouteImport } from './routes/tldraw/index'
+import { Route as TraceIndexRouteImport } from './routes/trace/index'
+import { Route as SyncIndexRouteImport } from './routes/sync/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 
@@ -26,9 +27,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TldrawIndexRoute = TldrawIndexRouteImport.update({
-  id: '/tldraw/',
-  path: '/tldraw/',
+const TraceIndexRoute = TraceIndexRouteImport.update({
+  id: '/trace/',
+  path: '/trace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SyncIndexRoute = SyncIndexRouteImport.update({
+  id: '/sync/',
+  path: '/sync/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizationSettingsIndexRoute =
@@ -49,13 +55,15 @@ export interface FileRoutesByFullPath {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
-  '/tldraw': typeof TldrawIndexRoute
+  '/sync': typeof SyncIndexRoute
+  '/trace': typeof TraceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings': typeof OrganizationSettingsIndexRoute
-  '/tldraw': typeof TldrawIndexRoute
+  '/sync': typeof SyncIndexRoute
+  '/trace': typeof TraceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -63,7 +71,8 @@ export interface FileRoutesById {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
-  '/tldraw/': typeof TldrawIndexRoute
+  '/sync/': typeof SyncIndexRoute
+  '/trace/': typeof TraceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -72,22 +81,30 @@ export interface FileRouteTypes {
     | '/organization-settings'
     | '/organization-settings/team'
     | '/organization-settings/'
-    | '/tldraw'
+    | '/sync'
+    | '/trace'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/organization-settings/team' | '/organization-settings' | '/tldraw'
+  to:
+    | '/'
+    | '/organization-settings/team'
+    | '/organization-settings'
+    | '/sync'
+    | '/trace'
   id:
     | '__root__'
     | '/'
     | '/organization-settings'
     | '/organization-settings/team'
     | '/organization-settings/'
-    | '/tldraw/'
+    | '/sync/'
+    | '/trace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
-  TldrawIndexRoute: typeof TldrawIndexRoute
+  SyncIndexRoute: typeof SyncIndexRoute
+  TraceIndexRoute: typeof TraceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -106,11 +123,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tldraw/': {
-      id: '/tldraw/'
-      path: '/tldraw'
-      fullPath: '/tldraw'
-      preLoaderRoute: typeof TldrawIndexRouteImport
+    '/trace/': {
+      id: '/trace/'
+      path: '/trace'
+      fullPath: '/trace'
+      preLoaderRoute: typeof TraceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sync/': {
+      id: '/sync/'
+      path: '/sync'
+      fullPath: '/sync'
+      preLoaderRoute: typeof SyncIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organization-settings/': {
@@ -149,7 +173,8 @@ const OrganizationSettingsRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
-  TldrawIndexRoute: TldrawIndexRoute,
+  SyncIndexRoute: SyncIndexRoute,
+  TraceIndexRoute: TraceIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

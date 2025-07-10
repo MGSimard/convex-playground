@@ -7,9 +7,9 @@ export const env = createEnv({
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "PUBLIC_",
+  clientPrefix: "VITE_",
   client: {
-    PUBLIC_CONVEX_URL: z.url(),
+    VITE_CONVEX_URL: z.url(),
   },
 
   /**

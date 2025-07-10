@@ -19,6 +19,12 @@ function RouteComponent() {
     <div>
       <div>
         <h2>CURRENT USER</h2>
+        <ul>
+          <li>Name: {data?.name}</li>
+          <li>Email: {data?.email}</li>
+          <li>Image: {data?.image}</li>
+          <li>ID: {data?._id}</li>
+        </ul>
       </div>
       <div>
         <h2>AUTH ACTIONS</h2>

@@ -4,6 +4,12 @@ https://docs.convex.dev/home
 
 ## Convex Auth
 
+https://labs.convex.dev/auth
+
+## Convex + TanStack Query
+
+https://docs.convex.dev/client/tanstack-query
+
 ## UI Libraries
 
 shadcn/ui  

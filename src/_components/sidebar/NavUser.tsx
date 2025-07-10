@@ -18,14 +18,15 @@ import { Skeleton } from "@/_components/ui/skeleton";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { data: user, isPending, error } = useQuery(convexQuery(api.authActions.currentUser, {}));
+  const { data: user } = useQuery(convexQuery(api.authActions.currentUser, {}));
   const { signIn, signOut } = useAuthActions();
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        {isPending && "Pending"}
-        <AuthLoading></AuthLoading>
+        <AuthLoading>
+          <NavUserSkeleton />
+        </AuthLoading>
         <Unauthenticated>
           <SidebarMenuButton onClick={() => void signIn("github")}>
             <LogIn />
@@ -86,5 +87,20 @@ export function NavUser() {
         </Authenticated>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+}
+
+function NavUserSkeleton() {
+  return (
+    <SidebarMenuButton size="lg" disabled>
+      <Skeleton className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0">
+        . . .
+      </Skeleton>
+      <div className="grid flex-1 text-left text-sm leading-tight text-muted-foreground">
+        <Skeleton className="h-4 w-24 rounded-md" />
+        <Skeleton className="h-3 w-20 rounded-md" />
+      </div>
+      <Ellipsis className="ml-auto size-4 text-muted-foreground" />
+    </SidebarMenuButton>
   );
 }

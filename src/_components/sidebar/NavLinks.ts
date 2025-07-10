@@ -22,11 +22,6 @@ export const NAV_LINKS = {
       activeExact: true,
     },
     {
-      title: "Auth",
-      url: "/sign-in",
-      icon: Gauge,
-    },
-    {
       title: "Hive",
       url: "/hive",
       icon: MessageSquareText,

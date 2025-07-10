@@ -13,6 +13,11 @@ OTPs: https://labs.convex.dev/auth/config/otps
 
 https://docs.convex.dev/client/tanstack-query
 
+## Convex Components
+
+Built for scale
+https://www.convex.dev/components
+
 ## UI Libraries
 
 shadcn/ui  
@@ -24,3 +29,9 @@ https://reui.io/
 
 Base UI  
 https://base-ui.com/react/overview/quick-start
+
+## tldraw
+
+Sync: https://tldraw.dev/docs/collaboration#tldraw-sync
+Persistence: https://tldraw.dev/docs/persistence
+Backend Integration: https://tldraw.dev/docs/collaboration#Using-other-collaboration-backends

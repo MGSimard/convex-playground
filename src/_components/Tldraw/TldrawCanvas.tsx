@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Tldraw, Editor } from "tldraw";
 import "tldraw/tldraw.css";
-import { useTheme } from "../ThemeProvider";
+import { useTheme } from "@/_components/ThemeProvider";
 
 export function TldrawCanvas() {
   const { theme } = useTheme();

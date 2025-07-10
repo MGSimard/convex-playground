@@ -14,6 +14,7 @@ import { api } from "../../../convex/_generated/api";
 import { convexQuery } from "@convex-dev/react-query";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { Skeleton } from "@/_components/ui/skeleton";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -24,7 +25,7 @@ export function NavUser() {
     <SidebarMenu>
       <SidebarMenuItem>
         {isPending && "Pending"}
-        <AuthLoading>Auth is Loading...</AuthLoading>
+        <AuthLoading></AuthLoading>
         <Unauthenticated>
           <SidebarMenuButton onClick={() => void signIn("github")}>
             <LogIn />

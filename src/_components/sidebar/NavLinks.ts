@@ -37,8 +37,8 @@ export const NAV_LINKS = {
       icon: NotepadText,
     },
     {
-      title: "Excalidraw",
-      url: "/excalidraw",
+      title: "Tldraw",
+      url: "/tldraw",
       icon: PencilRuler,
     },
   ],

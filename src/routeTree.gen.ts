@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OrganizationSettingsRouteRouteImport } from './routes/organization-settings/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TldrawIndexRouteImport } from './routes/tldraw/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 
@@ -23,6 +24,11 @@ const OrganizationSettingsRouteRoute =
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TldrawIndexRoute = TldrawIndexRouteImport.update({
+  id: '/tldraw/',
+  path: '/tldraw/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizationSettingsIndexRoute =
@@ -43,11 +49,13 @@ export interface FileRoutesByFullPath {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
+  '/tldraw': typeof TldrawIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings': typeof OrganizationSettingsIndexRoute
+  '/tldraw': typeof TldrawIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -55,6 +63,7 @@ export interface FileRoutesById {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
+  '/tldraw/': typeof TldrawIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -63,19 +72,22 @@ export interface FileRouteTypes {
     | '/organization-settings'
     | '/organization-settings/team'
     | '/organization-settings/'
+    | '/tldraw'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/organization-settings/team' | '/organization-settings'
+  to: '/' | '/organization-settings/team' | '/organization-settings' | '/tldraw'
   id:
     | '__root__'
     | '/'
     | '/organization-settings'
     | '/organization-settings/team'
     | '/organization-settings/'
+    | '/tldraw/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
+  TldrawIndexRoute: typeof TldrawIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tldraw/': {
+      id: '/tldraw/'
+      path: '/tldraw'
+      fullPath: '/tldraw'
+      preLoaderRoute: typeof TldrawIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organization-settings/': {
@@ -130,6 +149,7 @@ const OrganizationSettingsRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
+  TldrawIndexRoute: TldrawIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

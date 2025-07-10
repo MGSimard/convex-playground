@@ -2,15 +2,7 @@
 
 https://docs.convex.dev/home
 
-## Frameworks
-
-Next.js:  
-https://nextjs.org/  
-https://docs.convex.dev/quickstart/nextjs
-
-TanStack Start:  
-https://tanstack.com/start/latest/docs/framework/react/overview  
-https://docs.convex.dev/quickstart/tanstack-start
+## Convex Auth
 
 ## UI Libraries
 

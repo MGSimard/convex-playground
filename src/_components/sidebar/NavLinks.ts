@@ -17,28 +17,33 @@ export const NAV_LINKS = {
   navMain: [
     {
       title: "Overview",
-      url: "/dashboard",
+      url: "/",
       icon: Gauge,
       activeExact: true,
     },
     {
+      title: "Auth",
+      url: "/sign-in",
+      icon: Gauge,
+    },
+    {
       title: "Hive",
-      url: "/dashboard/hive",
+      url: "/hive",
       icon: MessageSquareText,
     },
     {
       title: "Sync",
-      url: "/dashboard/sync",
+      url: "/sync",
       icon: Columns3,
     },
     {
       title: "Cortex",
-      url: "/dashboard/cortex",
+      url: "/cortex",
       icon: NotepadText,
     },
     {
       title: "Excalidraw",
-      url: "/dashboard/excalidraw",
+      url: "/excalidraw",
       icon: PencilRuler,
     },
   ],

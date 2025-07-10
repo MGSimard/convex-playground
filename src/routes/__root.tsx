@@ -28,7 +28,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           </SidebarProvider>
         </TooltipProvider>
       </ThemeProvider>
-      {/* <TanStackRouterDevtools position="bottom-left" /> */}
+      <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools buttonPosition="bottom-right" />
     </>
   ),

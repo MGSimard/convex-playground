@@ -8,6 +8,7 @@ import { SidebarProvider } from "@/_components/ui/sidebar";
 import { SidebarInset } from "@/_components/ui/sidebar";
 import { Breadcrumbs } from "@/_components/sidebar/Breadcrumbs";
 import { DashboardSidebar } from "@/_components/sidebar/DashboardSidebar";
+import { Toaster } from "@/_components/ui/sonner";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -24,6 +25,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             <SidebarInset>
               <Breadcrumbs />
               <Outlet />
+              <Toaster richColors />
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>

@@ -16,6 +16,7 @@ import { Route as TraceIndexRouteImport } from './routes/trace/index'
 import { Route as SyncIndexRouteImport } from './routes/sync/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
+import { Route as SyncBoardIdBoardNameRouteImport } from './routes/sync/$boardId.$boardName'
 
 const SyncRouteRoute = SyncRouteRouteImport.update({
   id: '/sync',
@@ -55,6 +56,11 @@ const OrganizationSettingsTeamRoute =
     path: '/team',
     getParentRoute: () => OrganizationSettingsRouteRoute,
   } as any)
+const SyncBoardIdBoardNameRoute = SyncBoardIdBoardNameRouteImport.update({
+  id: '/$boardId/$boardName',
+  path: '/$boardId/$boardName',
+  getParentRoute: () => SyncRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
   '/sync/': typeof SyncIndexRoute
   '/trace': typeof TraceIndexRoute
+  '/sync/$boardId/$boardName': typeof SyncBoardIdBoardNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/organization-settings': typeof OrganizationSettingsIndexRoute
   '/sync': typeof SyncIndexRoute
   '/trace': typeof TraceIndexRoute
+  '/sync/$boardId/$boardName': typeof SyncBoardIdBoardNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
   '/sync/': typeof SyncIndexRoute
   '/trace/': typeof TraceIndexRoute
+  '/sync/$boardId/$boardName': typeof SyncBoardIdBoardNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
     | '/organization-settings/'
     | '/sync/'
     | '/trace'
+    | '/sync/$boardId/$boardName'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/organization-settings'
     | '/sync'
     | '/trace'
+    | '/sync/$boardId/$boardName'
   id:
     | '__root__'
     | '/'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/organization-settings/'
     | '/sync/'
     | '/trace/'
+    | '/sync/$boardId/$boardName'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -168,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationSettingsTeamRouteImport
       parentRoute: typeof OrganizationSettingsRouteRoute
     }
+    '/sync/$boardId/$boardName': {
+      id: '/sync/$boardId/$boardName'
+      path: '/$boardId/$boardName'
+      fullPath: '/sync/$boardId/$boardName'
+      preLoaderRoute: typeof SyncBoardIdBoardNameRouteImport
+      parentRoute: typeof SyncRouteRoute
+    }
   }
 }
 
@@ -189,10 +208,12 @@ const OrganizationSettingsRouteRouteWithChildren =
 
 interface SyncRouteRouteChildren {
   SyncIndexRoute: typeof SyncIndexRoute
+  SyncBoardIdBoardNameRoute: typeof SyncBoardIdBoardNameRoute
 }
 
 const SyncRouteRouteChildren: SyncRouteRouteChildren = {
   SyncIndexRoute: SyncIndexRoute,
+  SyncBoardIdBoardNameRoute: SyncBoardIdBoardNameRoute,
 }
 
 const SyncRouteRouteWithChildren = SyncRouteRoute._addFileChildren(

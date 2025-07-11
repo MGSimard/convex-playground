@@ -35,3 +35,18 @@ https://base-ui.com/react/overview/quick-start
 Sync: https://tldraw.dev/docs/collaboration#tldraw-sync
 Persistence: https://tldraw.dev/docs/persistence
 Backend Integration: https://tldraw.dev/docs/collaboration#Using-other-collaboration-backends
+
+## Button Loader example
+
+```typescript
+import { Loader2Icon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+export function ButtonLoading() {
+  return (
+    <Button size="sm" disabled>
+      <Loader2Icon className="animate-spin" />
+      Please wait
+    </Button>
+  )
+}
+```

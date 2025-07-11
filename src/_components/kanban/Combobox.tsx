@@ -1,37 +1,34 @@
-"use client";
 import * as React from "react";
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/_components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/_components/ui/popover";
+import { api } from "../../../convex/_generated/api";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.jsNext.jsNext.jsNext.jsNext.jsNext.js Next.jsNext.js Next.jsNext.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+interface BoardComboboxProps {
+  currentBoardId?: string;
+}
 
-export function ExampleCombobox() {
+export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const navigate = useNavigate();
+
+  const { data: boards, isPending } = useQuery(convexQuery(api.boards.getBoards, {}));
+
+  const currentBoard = boards?.find((board) => board._id === currentBoardId);
+
+  const handleBoardSelect = (boardId: string) => {
+    const board = boards?.find((b) => b._id === boardId);
+    if (board) {
+      const boardName = board.name.toLowerCase().replace(/\s+/g, "-");
+      navigate({ to: `/sync/${boardId}/${boardName}` });
+    }
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -41,9 +38,7 @@ export function ExampleCombobox() {
           role="combobox"
           aria-expanded={open}
           className="w-[200px] justify-between overflow-hidden">
-          <span className="truncate">
-            {value ? frameworks.find((framework) => framework.value === value)?.label : "Select board..."}
-          </span>
+          <h1 className="truncate">{currentBoard ? currentBoard.name : "Select board..."}</h1>
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -51,22 +46,20 @@ export function ExampleCombobox() {
         <Command>
           <CommandInput placeholder="Search boards..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No board found.</CommandEmpty>
             <CommandGroup className="overflow-hidden">
-              {frameworks.map((framework) => (
-                <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}>
-                  <span className="truncate">{framework.label}</span>
-                  <CheckIcon
-                    className={cn("ml-auto h-4 w-4", value === framework.value ? "opacity-100" : "opacity-0")}
-                  />
-                </CommandItem>
-              ))}
+              {isPending ? (
+                <div className="p-2 text-sm text-muted-foreground">Loading boards...</div>
+              ) : (
+                boards?.map((board) => (
+                  <CommandItem key={board._id} value={board._id} onSelect={() => handleBoardSelect(board._id)}>
+                    <span className="truncate">{board.name}</span>
+                    <CheckIcon
+                      className={cn("ml-auto h-4 w-4", currentBoardId === board._id ? "opacity-100" : "opacity-0")}
+                    />
+                  </CommandItem>
+                ))
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

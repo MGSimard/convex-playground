@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BoardManager } from "@/_components/kanban/BoardManager";
 
 export const Route = createFileRoute("/sync/")({
   component: RouteComponent,
-  loader: () => ({ crumb: "Sync" }),
 });
 
 // SYNC PLAN (Kanban boards)
@@ -15,5 +15,9 @@ export const Route = createFileRoute("/sync/")({
 // Card attribution, labels, move, start date & due date, reminders
 
 function RouteComponent() {
-  return <h1>Hello "/sync/"!</h1>;
+  return (
+    <section>
+      <BoardManager />
+    </section>
+  );
 }

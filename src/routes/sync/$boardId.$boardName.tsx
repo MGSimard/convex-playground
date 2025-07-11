@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
+import { List } from "@/_components/kanban/List";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -25,8 +26,17 @@ function BoardComponent() {
   }
 
   return (
-    <section className="p-4 border border-muted-foreground border-dashed rounded-lg">
-      <p className="text-center text-muted-foreground">Kanban board for "{board.name}" will go here</p>
+    <section>
+      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-[calc(100dvh-var(--header-height)-var(--subHeader-height))]">
+        <List />
+        <List />
+        <List />
+        <List />
+        <List />
+        <List />
+        <List />
+        <List />
+      </ol>
     </section>
   );
 }

@@ -5,7 +5,8 @@
 
 :root {
   --radius: 0;
-  --header-height: 4.5rem;
+  --header-height: 4rem;
+  --subHeader-height: 4rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -175,6 +176,6 @@
     height: 0;
   }
 }
-/* * {
+* {
   outline: 1px solid red;
-} */
+}

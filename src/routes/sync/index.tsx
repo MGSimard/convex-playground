@@ -30,7 +30,7 @@ function RouteComponent() {
   // Favorite boards (fill + stroke icon foreground if favorited, border the card if favorited)
 
   return (
-    <section className="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-4">
+    <section className="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-4 p-6">
       {boards.map((board) => (
         <div key={board._id} className="p-4 flex flex-col gap-2 bg-card rounded-lg overflow-hidden">
           <div className="flex justify-between gap-2">

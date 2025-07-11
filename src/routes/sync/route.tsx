@@ -14,13 +14,12 @@ function RouteComponent() {
   const currentShortId = params.boardId as string | undefined;
 
   return (
-    <div className="flex-grow w-full h-full p-6">
-      <header className="flex items-center">
+    <>
+      <header className="flex items-center h-[var(--subHeader-height)] px-6 border-b">
         <BoardCombobox currentShortId={currentShortId} />
         <AddBoard />
       </header>
-      <Separator className="my-6" />
       <Outlet />
-    </div>
+    </>
   );
 }

@@ -27,7 +27,7 @@ function BoardComponent() {
 
   return (
     <section id="kanban-board" className="min-h-0 h-full">
-      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full">
+      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
         <List />
         <List />
         <List />

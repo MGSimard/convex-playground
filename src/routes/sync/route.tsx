@@ -15,7 +15,7 @@ function RouteComponent() {
 
   return (
     <>
-      <header className="flex items-center h-[var(--subHeader-height)] px-6 border-b">
+      <header className="shrink-0 flex items-center h-[var(--subHeader-height)] px-6 border-b">
         <BoardCombobox currentShortId={currentShortId} />
         <AddBoard />
       </header>

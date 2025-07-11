@@ -26,8 +26,8 @@ function BoardComponent() {
   }
 
   return (
-    <section>
-      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-[calc(100dvh-var(--header-height)-var(--subHeader-height))]">
+    <section id="kanban-board" className="min-h-0 h-full">
+      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full">
         <List />
         <List />
         <List />

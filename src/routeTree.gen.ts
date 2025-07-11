@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SyncRouteRouteImport } from './routes/sync/route'
 import { Route as OrganizationSettingsRouteRouteImport } from './routes/organization-settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TraceIndexRouteImport } from './routes/trace/index'
@@ -16,6 +17,11 @@ import { Route as SyncIndexRouteImport } from './routes/sync/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 
+const SyncRouteRoute = SyncRouteRouteImport.update({
+  id: '/sync',
+  path: '/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizationSettingsRouteRoute =
   OrganizationSettingsRouteRouteImport.update({
     id: '/organization-settings',
@@ -33,9 +39,9 @@ const TraceIndexRoute = TraceIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const SyncIndexRoute = SyncIndexRouteImport.update({
-  id: '/sync/',
-  path: '/sync/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => SyncRouteRoute,
 } as any)
 const OrganizationSettingsIndexRoute =
   OrganizationSettingsIndexRouteImport.update({
@@ -53,9 +59,10 @@ const OrganizationSettingsTeamRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/sync': typeof SyncRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
-  '/sync': typeof SyncIndexRoute
+  '/sync/': typeof SyncIndexRoute
   '/trace': typeof TraceIndexRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
+  '/sync': typeof SyncRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
   '/sync/': typeof SyncIndexRoute
@@ -79,9 +87,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/organization-settings'
+    | '/sync'
     | '/organization-settings/team'
     | '/organization-settings/'
-    | '/sync'
+    | '/sync/'
     | '/trace'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/organization-settings'
+    | '/sync'
     | '/organization-settings/team'
     | '/organization-settings/'
     | '/sync/'
@@ -103,12 +113,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
-  SyncIndexRoute: typeof SyncIndexRoute
+  SyncRouteRoute: typeof SyncRouteRouteWithChildren
   TraceIndexRoute: typeof TraceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sync': {
+      id: '/sync'
+      path: '/sync'
+      fullPath: '/sync'
+      preLoaderRoute: typeof SyncRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organization-settings': {
       id: '/organization-settings'
       path: '/organization-settings'
@@ -132,10 +149,10 @@ declare module '@tanstack/react-router' {
     }
     '/sync/': {
       id: '/sync/'
-      path: '/sync'
-      fullPath: '/sync'
+      path: '/'
+      fullPath: '/sync/'
       preLoaderRoute: typeof SyncIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof SyncRouteRoute
     }
     '/organization-settings/': {
       id: '/organization-settings/'
@@ -170,10 +187,22 @@ const OrganizationSettingsRouteRouteWithChildren =
     OrganizationSettingsRouteRouteChildren,
   )
 
+interface SyncRouteRouteChildren {
+  SyncIndexRoute: typeof SyncIndexRoute
+}
+
+const SyncRouteRouteChildren: SyncRouteRouteChildren = {
+  SyncIndexRoute: SyncIndexRoute,
+}
+
+const SyncRouteRouteWithChildren = SyncRouteRoute._addFileChildren(
+  SyncRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
-  SyncIndexRoute: SyncIndexRoute,
+  SyncRouteRoute: SyncRouteRouteWithChildren,
   TraceIndexRoute: TraceIndexRoute,
 }
 export const routeTree = rootRouteImport

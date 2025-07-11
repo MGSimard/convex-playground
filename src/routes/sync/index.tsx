@@ -15,5 +15,5 @@ export const Route = createFileRoute("/sync/")({
 // Card attribution, labels, move, start date & due date, reminders
 
 function RouteComponent() {
-  return <div className="flex-grow w-full h-full p-6">Hello "/sync/"!</div>;
+  return <h1>Hello "/sync/"!</h1>;
 }

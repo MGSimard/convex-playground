@@ -64,7 +64,6 @@ export const getBoards = query({
     })
   ),
   handler: async (ctx) => {
-    // Get all boards ordered by updatedTime (most recent first)
     const boards = await ctx.db.query("boards").withIndex("by_updated_time").order("desc").collect();
     return boards;
   },
@@ -111,7 +110,6 @@ export const getBoardByShortId = query({
     v.null()
   ),
   handler: async (ctx, args) => {
-    // Efficient O(1) lookup using index - follows Convex rules
     const board = await ctx.db
       .query("boards")
       .withIndex("by_short_id", (q) => q.eq("shortId", args.shortId))
@@ -174,7 +172,6 @@ export const migrateBoards = mutation({
 
     for (const board of boards) {
       if (board.updatedTime === undefined) {
-        // Use creationTime as fallback for updatedTime
         await ctx.db.patch(board._id, {
           updatedTime: board._creationTime,
         });

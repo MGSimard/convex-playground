@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TldrawCanvas } from "@/_components/Tldraw/TldrawCanvas";
+import { TldrawCanvas } from "@/_components/tldraw/TldrawCanvas";
 
 export const Route = createFileRoute("/trace/")({
   component: RouteComponent,

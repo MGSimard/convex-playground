@@ -35,11 +35,11 @@ export function AddBoard() {
       mutate(
         { name },
         {
-          onSuccess: (newBoardId, variables) => {
+          onSuccess: (result, variables) => {
             toast.success("Board created successfully!");
             setOpen(false);
             const formattedBoardName = variables.name.toLowerCase().replace(/\s+/g, "-");
-            navigate({ to: `/sync/${newBoardId}/${formattedBoardName}` });
+            navigate({ to: `/sync/${result.shortId}/${formattedBoardName}` });
           },
           onError: (error) => {
             toast.error(`Failed to create board: ${error.message}`);

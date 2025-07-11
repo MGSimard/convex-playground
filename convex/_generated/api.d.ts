@@ -19,7 +19,6 @@ import type * as boards from "../boards.js";
 import type * as cards from "../cards.js";
 import type * as http from "../http.js";
 import type * as lists from "../lists.js";
-import type * as tasks from "../tasks.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -36,7 +35,6 @@ declare const fullApi: ApiFromModules<{
   cards: typeof cards;
   http: typeof http;
   lists: typeof lists;
-  tasks: typeof tasks;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

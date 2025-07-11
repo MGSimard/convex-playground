@@ -11,12 +11,12 @@ export const Route = createFileRoute("/sync")({
 
 function RouteComponent() {
   const params = useParams({ strict: false });
-  const currentBoardId = params.boardId as Id<"boards"> | undefined;
+  const currentShortId = params.boardId as string | undefined;
 
   return (
     <div className="flex-grow w-full h-full p-6">
       <header className="flex items-center">
-        <BoardCombobox currentBoardId={currentBoardId} />
+        <BoardCombobox currentShortId={currentShortId} />
         <AddBoard />
       </header>
       <Separator className="my-6" />

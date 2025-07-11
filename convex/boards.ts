@@ -8,16 +8,26 @@ export const addBoard = mutation({
   args: {
     name: v.string(),
   },
-  returns: v.id("boards"),
+  returns: v.object({
+    id: v.id("boards"),
+    shortId: v.string(),
+  }),
   handler: async (ctx, args) => {
     const now = Date.now();
     if (!args.name.trim()) {
       throw new Error("Board name cannot be empty.");
     }
-    return await ctx.db.insert("boards", {
+
+    // Generate shortId (collision probability: ~1 in 2.8 trillion)
+    const shortId = Math.random().toString(36).substring(2, 10);
+
+    const id = await ctx.db.insert("boards", {
       name: args.name,
+      shortId: shortId!,
       updatedTime: now,
     });
+
+    return { id, shortId: shortId! };
   },
 });
 
@@ -49,6 +59,7 @@ export const getBoards = query({
       _id: v.id("boards"),
       _creationTime: v.number(),
       name: v.string(),
+      shortId: v.string(),
       updatedTime: v.number(),
     })
   ),
@@ -71,12 +82,40 @@ export const getBoard = query({
       _id: v.id("boards"),
       _creationTime: v.number(),
       name: v.string(),
+      shortId: v.string(),
       updatedTime: v.number(),
     }),
     v.null()
   ),
   handler: async (ctx, args) => {
     const board = await ctx.db.get(args.boardId);
+    return board || null;
+  },
+});
+
+/**
+ * Find a board by short ID using efficient indexed query.
+ */
+export const getBoardByShortId = query({
+  args: {
+    shortId: v.string(),
+  },
+  returns: v.union(
+    v.object({
+      _id: v.id("boards"),
+      _creationTime: v.number(),
+      name: v.string(),
+      shortId: v.string(),
+      updatedTime: v.number(),
+    }),
+    v.null()
+  ),
+  handler: async (ctx, args) => {
+    // Efficient O(1) lookup using index - follows Convex rules
+    const board = await ctx.db
+      .query("boards")
+      .withIndex("by_short_id", (q) => q.eq("shortId", args.shortId))
+      .first();
     return board || null;
   },
 });

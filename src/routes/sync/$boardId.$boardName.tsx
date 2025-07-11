@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
-import type { Id } from "../../../convex/_generated/dataModel";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -15,7 +14,7 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
 
 function BoardComponent() {
   const { boardId } = Route.useParams();
-  const { data: board, isPending } = useQuery(convexQuery(api.boards.getBoard, { boardId: boardId as Id<"boards"> }));
+  const { data: board, isPending } = useQuery(convexQuery(api.boards.getBoardByShortId, { shortId: boardId }));
 
   if (isPending) {
     return <div>Loading board...</div>;

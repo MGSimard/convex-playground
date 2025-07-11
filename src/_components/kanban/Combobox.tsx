@@ -10,10 +10,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/_components/ui/popove
 import { api } from "../../../convex/_generated/api";
 
 interface BoardComboboxProps {
-  currentBoardId?: string;
+  currentShortId?: string;
 }
 
-export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
+export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -22,13 +22,13 @@ export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
     initialData: [],
   });
 
-  const currentBoard = boards.find((board) => board._id === currentBoardId);
+  const currentBoard = boards.find((board) => board.shortId === currentShortId);
 
-  const handleBoardSelect = (boardId: string) => {
-    const board = boards.find((b) => b._id === boardId);
+  const handleBoardSelect = (shortId: string) => {
+    const board = boards.find((b) => b.shortId === shortId);
     if (board) {
       const boardName = board.name.toLowerCase().replace(/\s+/g, "-");
-      navigate({ to: `/sync/${boardId}/${boardName}` });
+      navigate({ to: `/sync/${shortId}/${boardName}` });
     }
     setOpen(false);
   };
@@ -58,10 +58,10 @@ export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
                   <CommandItem
                     key={board._id}
                     value={board.name.toLowerCase()}
-                    onSelect={() => handleBoardSelect(board._id)}>
+                    onSelect={() => handleBoardSelect(board.shortId)}>
                     <span className="truncate">{board.name}</span>
                     <CheckIcon
-                      className={cn("ml-auto h-4 w-4", currentBoardId === board._id ? "opacity-100" : "opacity-0")}
+                      className={cn("ml-auto h-4 w-4", currentShortId === board.shortId ? "opacity-100" : "opacity-0")}
                     />
                   </CommandItem>
                 ))

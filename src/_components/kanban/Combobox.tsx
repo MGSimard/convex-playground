@@ -55,7 +55,10 @@ export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
                 <div className="p-2 text-sm text-muted-foreground">Loading boards...</div>
               ) : (
                 boards.map((board) => (
-                  <CommandItem key={board._id} value={board._id} onSelect={() => handleBoardSelect(board._id)}>
+                  <CommandItem
+                    key={board._id}
+                    value={board.name.toLowerCase()}
+                    onSelect={() => handleBoardSelect(board._id)}>
                     <span className="truncate">{board.name}</span>
                     <CheckIcon
                       className={cn("ml-auto h-4 w-4", currentBoardId === board._id ? "opacity-100" : "opacity-0")}

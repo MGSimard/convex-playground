@@ -50,3 +50,13 @@ export function ButtonLoading() {
   )
 }
 ```
+
+## TASK LIST:
+
+- [ ] Finish auth system (need roles, authorization, perms)
+- [ ] Team Settings
+- [ ] General organization settings
+- [ ] Implement perms on boards (Join, delete, leave (owner can't leave))
+- [ ] Start chatting functionality
+- [ ] Notion functionality
+- [ ] Overview

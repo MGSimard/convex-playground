@@ -14,30 +14,41 @@ import { Label } from "@/_components/ui/label";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState } from "react";
 
 export function AddBoard() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
     mutationFn: useConvexMutation(api.boards.addBoard),
-    onSuccess: () => {
-      toast.success("Board created successfully!");
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(`Failed to create board: ${error.message}`);
-    },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name")?.toString().trim();
-    if (name) mutate({ name });
-    else toast.error("Board name cannot be empty.");
+    if (name) {
+      mutate(
+        { name },
+        {
+          onSuccess: (newBoardId, variables) => {
+            toast.success("Board created successfully!");
+            setOpen(false);
+            const formattedBoardName = variables.name.toLowerCase().replace(/\s+/g, "-");
+            navigate({ to: `/sync/${newBoardId}/${formattedBoardName}` });
+          },
+          onError: (error) => {
+            toast.error(`Failed to create board: ${error.message}`);
+          },
+        }
+      );
+    } else {
+      toast.error("Board name cannot be empty.");
+    }
   };
 
   return (

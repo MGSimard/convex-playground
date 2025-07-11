@@ -17,12 +17,15 @@ export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const { data: boards, isPending } = useQuery(convexQuery(api.boards.getBoards, {}));
+  const { data: boards, isPending } = useQuery({
+    ...convexQuery(api.boards.getBoards, {}),
+    initialData: [],
+  });
 
-  const currentBoard = boards?.find((board) => board._id === currentBoardId);
+  const currentBoard = boards.find((board) => board._id === currentBoardId);
 
   const handleBoardSelect = (boardId: string) => {
-    const board = boards?.find((b) => b._id === boardId);
+    const board = boards.find((b) => b._id === boardId);
     if (board) {
       const boardName = board.name.toLowerCase().replace(/\s+/g, "-");
       navigate({ to: `/sync/${boardId}/${boardName}` });
@@ -51,7 +54,7 @@ export function BoardCombobox({ currentBoardId }: BoardComboboxProps) {
               {isPending ? (
                 <div className="p-2 text-sm text-muted-foreground">Loading boards...</div>
               ) : (
-                boards?.map((board) => (
+                boards.map((board) => (
                   <CommandItem key={board._id} value={board._id} onSelect={() => handleBoardSelect(board._id)}>
                     <span className="truncate">{board.name}</span>
                     <CheckIcon

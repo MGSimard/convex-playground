@@ -53,6 +53,9 @@ export function ButtonLoading() {
 
 ## TASK LIST:
 
+- [ ] Edit card (Makes it a textarea? Or use contenteditable)
+- [ ] Direct click on card (role?) opens dialog with options
+- [ ] Text at top of card max lines with scrollable, show list, desc?
 - [ ] Error & NotFound routes
 - [ ] Finish auth system (need roles, authorization, perms)
 - [ ] Team Settings

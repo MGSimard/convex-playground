@@ -18,7 +18,7 @@ interface ListProps {
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
 export function List({ list, cards }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
-  const formRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLLIElement>(null);
 
   const handleStartCreatingAtTop = () => {
     setIsCreating("top");
@@ -56,12 +56,12 @@ export function List({ list, cards }: ListProps) {
         <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
       </div>
 
-      <ul className="flex flex-col px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+      <ul className="flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
-          <div ref={formRef}>
+          <li ref={formRef}>
             <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
-          </div>
+          </li>
         )}
         {cards.length === 0 ? (
           <li className="text-sm font-medium border text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
@@ -72,9 +72,9 @@ export function List({ list, cards }: ListProps) {
         )}
         {/* Show card creation form at bottom if triggered from bottom button */}
         {isCreating === "bottom" && (
-          <div ref={formRef}>
+          <li ref={formRef}>
             <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
-          </div>
+          </li>
         )}
       </ul>
 
@@ -110,7 +110,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
     if (inputRef.current) {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 50);
+      }, 150);
     }
   }, []);
 
@@ -163,6 +163,8 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
     <li className="bg-muted rounded-md p-2">
       <form onSubmit={handleSave} className="space-y-2">
         <Input
+          id="card-create-input"
+          name="card-create-input"
           ref={inputRef}
           value={cardContent}
           onChange={(e) => setCardContent(e.target.value)}
@@ -173,13 +175,12 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
           autoFocus
         />
         <div className="flex gap-2">
-          <Button type="submit" size="sm" disabled={addingCard} className="grid place-items-center">
+          <Button type="submit" disabled={addingCard} className="grid place-items-center">
             <Loader2Icon className={`col-start-1 row-start-1 animate-spin${addingCard ? " visible" : " invisible"}`} />
             <span className={`col-start-1 row-start-1${addingCard ? " invisible" : " visible"}`}>Save</span>
           </Button>
-          <Button type="button" variant="outline" size="sm" onClick={handleCancel} disabled={addingCard}>
-            <X className="h-4 w-4" />
-            Cancel
+          <Button type="button" variant="outline" size="icon" onClick={handleCancel} disabled={addingCard}>
+            <X />
           </Button>
         </div>
       </form>

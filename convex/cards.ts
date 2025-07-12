@@ -1,7 +1,6 @@
-import { mutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-import { Doc } from "./_generated/dataModel";
 
 /**
  * Add a new card to a list.
@@ -195,110 +194,5 @@ export const reorderCards = mutation({
     });
 
     return null;
-  },
-});
-
-/**
- * Get all cards for a list, ordered by position.
- */
-export const getCards = query({
-  args: {
-    listId: v.id("lists"),
-  },
-  returns: v.array(
-    v.object({
-      _id: v.id("cards"),
-      _creationTime: v.number(),
-      listId: v.id("lists"),
-      content: v.string(),
-      position: v.number(),
-    })
-  ),
-  handler: async (ctx, args) => {
-    const cards = await ctx.db
-      .query("cards")
-      .withIndex("by_list", (q) => q.eq("listId", args.listId))
-      .collect();
-
-    // Sort by position (client-side since we can't index on position directly)
-    return cards.sort((a, b) => a.position - b.position);
-  },
-});
-
-/**
- * Get a specific card by ID.
- */
-export const getCard = query({
-  args: {
-    cardId: v.id("cards"),
-  },
-  returns: v.union(
-    v.object({
-      _id: v.id("cards"),
-      _creationTime: v.number(),
-      listId: v.id("lists"),
-      content: v.string(),
-      position: v.number(),
-    }),
-    v.null()
-  ),
-  handler: async (ctx, args) => {
-    const card = await ctx.db.get(args.cardId);
-    return card;
-  },
-});
-
-/**
- * Get cards for multiple lists (useful for board views).
- */
-export const getCardsForLists = query({
-  args: {
-    listIds: v.array(v.id("lists")),
-  },
-  returns: v.array(
-    v.object({
-      _id: v.id("cards"),
-      _creationTime: v.number(),
-      listId: v.id("lists"),
-      content: v.string(),
-      position: v.number(),
-    })
-  ),
-  handler: async (ctx, args) => {
-    const cards: Doc<"cards">[] = [];
-
-    for (const listId of args.listIds) {
-      const listCards = await ctx.db
-        .query("cards")
-        .withIndex("by_list", (q) => q.eq("listId", listId))
-        .collect();
-      cards.push(...listCards);
-    }
-
-    // Sort by position within each list
-    return cards.sort((a, b) => {
-      if (a.listId !== b.listId) {
-        return a.listId.localeCompare(b.listId);
-      }
-      return a.position - b.position;
-    });
-  },
-});
-
-/**
- * Get the number of cards in a list.
- */
-export const getCardCount = query({
-  args: {
-    listId: v.id("lists"),
-  },
-  returns: v.number(),
-  handler: async (ctx, args) => {
-    const cards = await ctx.db
-      .query("cards")
-      .withIndex("by_list", (q) => q.eq("listId", args.listId))
-      .collect();
-
-    return cards.length;
   },
 });

@@ -6,16 +6,10 @@ import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState } from "react";
-import type { Id } from "../../../convex/_generated/dataModel";
+import type { Doc } from "../../../convex/_generated/dataModel";
 
 interface ListCreateProps {
-  board: {
-    _id: Id<"boards">;
-    _creationTime: number;
-    name: string;
-    shortId: string;
-    updatedTime: number;
-  };
+  board: Doc<"boards">;
 }
 
 export function ListCreate({ board }: ListCreateProps) {

@@ -14,39 +14,30 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
   }),
 });
 
-// Need to consolidate board query to get:
-// - Board data
-// - Lists data (From Board)
-// - Cards data (From Lists)
-
 function BoardComponent() {
   const { boardId } = Route.useParams();
-  const { data: board, isPending: boardPending } = useQuery(
-    convexQuery(api.boards.getBoardByShortId, { shortId: boardId })
-  );
 
-  const { data: lists = [], isPending: listsPending } = useQuery({
-    ...convexQuery(api.lists.getLists, { boardId: board?._id! }),
-    enabled: !!board?._id,
-    initialData: [],
-  });
+  // Consolidated query - eliminates request waterfall
+  const { data, isPending } = useQuery(convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }));
 
-  if (boardPending) {
+  if (isPending) {
     return <div className="p-6">Loading board...</div>;
   }
 
-  if (!board) {
+  if (!data) {
     return <div className="p-6">Board not found</div>;
   }
+
+  const { board, lists, cards } = data;
 
   return (
     <section id="kanban-board" className="min-h-0 h-full">
       <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
-        {listsPending ? (
-          <li>Loading lists...</li>
-        ) : (
-          lists.map((list) => <List key={list._id} listId={list._id} listName={list.name} />)
-        )}
+        {lists.map((list) => {
+          // Filter cards for this specific list
+          const listCards = cards.filter((card) => card.listId === list._id);
+          return <List key={list._id} list={list} cards={listCards} />;
+        })}
         <ListCreate board={board} />
       </ol>
     </section>

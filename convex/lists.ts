@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
@@ -183,55 +183,5 @@ export const reorderLists = mutation({
     });
 
     return null;
-  },
-});
-
-/**
- * Get all lists for a board, ordered by position.
- */
-export const getLists = query({
-  args: {
-    boardId: v.id("boards"),
-  },
-  returns: v.array(
-    v.object({
-      _id: v.id("lists"),
-      _creationTime: v.number(),
-      boardId: v.id("boards"),
-      name: v.string(),
-      position: v.number(),
-    })
-  ),
-  handler: async (ctx, args) => {
-    const lists = await ctx.db
-      .query("lists")
-      .withIndex("by_board", (q) => q.eq("boardId", args.boardId))
-      .collect();
-
-    // Sort by position (client-side since we can't index on position directly)
-    return lists.sort((a, b) => a.position - b.position);
-  },
-});
-
-/**
- * Get a specific list by ID.
- */
-export const getList = query({
-  args: {
-    listId: v.id("lists"),
-  },
-  returns: v.union(
-    v.object({
-      _id: v.id("lists"),
-      _creationTime: v.number(),
-      boardId: v.id("boards"),
-      name: v.string(),
-      position: v.number(),
-    }),
-    v.null()
-  ),
-  handler: async (ctx, args) => {
-    const list = await ctx.db.get(args.listId);
-    return list || null;
   },
 });

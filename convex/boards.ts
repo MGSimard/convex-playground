@@ -70,55 +70,6 @@ export const getBoards = query({
 });
 
 /**
- * Get a specific board by its ID.
- */
-export const getBoard = query({
-  args: {
-    boardId: v.id("boards"),
-  },
-  returns: v.union(
-    v.object({
-      _id: v.id("boards"),
-      _creationTime: v.number(),
-      name: v.string(),
-      shortId: v.string(),
-      updatedTime: v.number(),
-    }),
-    v.null()
-  ),
-  handler: async (ctx, args) => {
-    const board = await ctx.db.get(args.boardId);
-    return board || null;
-  },
-});
-
-/**
- * Find a board by short ID using efficient indexed query.
- */
-export const getBoardByShortId = query({
-  args: {
-    shortId: v.string(),
-  },
-  returns: v.union(
-    v.object({
-      _id: v.id("boards"),
-      _creationTime: v.number(),
-      name: v.string(),
-      shortId: v.string(),
-      updatedTime: v.number(),
-    }),
-    v.null()
-  ),
-  handler: async (ctx, args) => {
-    const board = await ctx.db
-      .query("boards")
-      .withIndex("by_short_id", (q) => q.eq("shortId", args.shortId))
-      .first();
-    return board || null;
-  },
-});
-
-/**
  * Update the board's activity time (call this whenever there's activity on the board).
  */
 export const updateBoardActivity = mutation({
@@ -179,5 +130,81 @@ export const migrateBoards = mutation({
     }
 
     return null;
+  },
+});
+
+/**
+ * Get board with all its lists and cards in a single query to eliminate request waterfall.
+ * This consolidates what used to be separate queries for board, lists, and cards.
+ */
+export const getBoardWithListsAndCards = query({
+  args: {
+    shortId: v.string(),
+  },
+  returns: v.object({
+    board: v.object({
+      _id: v.id("boards"),
+      _creationTime: v.number(),
+      name: v.string(),
+      shortId: v.string(),
+      updatedTime: v.number(),
+    }),
+    lists: v.array(
+      v.object({
+        _id: v.id("lists"),
+        _creationTime: v.number(),
+        boardId: v.id("boards"),
+        name: v.string(),
+        position: v.number(),
+      })
+    ),
+    cards: v.array(
+      v.object({
+        _id: v.id("cards"),
+        _creationTime: v.number(),
+        listId: v.id("lists"),
+        content: v.string(),
+        position: v.number(),
+      })
+    ),
+  }),
+  handler: async (ctx, args) => {
+    // Get the board first
+    const board = await ctx.db
+      .query("boards")
+      .withIndex("by_short_id", (q) => q.eq("shortId", args.shortId))
+      .first();
+
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
+    // Get all lists for this board
+    const lists = await ctx.db
+      .query("lists")
+      .withIndex("by_board", (q) => q.eq("boardId", board._id))
+      .collect();
+
+    // Sort lists by position
+    const sortedLists = lists.sort((a, b) => a.position - b.position);
+
+    // Get all cards for all lists in this board
+    const allCards = [];
+    for (const list of sortedLists) {
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_list", (q) => q.eq("listId", list._id))
+        .collect();
+      allCards.push(...cards);
+    }
+
+    // Sort cards by position within each list
+    const sortedCards = allCards.sort((a, b) => a.position - b.position);
+
+    return {
+      board,
+      lists: sortedLists,
+      cards: sortedCards,
+    };
   },
 });

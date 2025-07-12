@@ -3,42 +3,83 @@ import { Input } from "@/_components/ui/input";
 import { Plus, X, Loader2Icon } from "lucide-react";
 import { ListActions } from "@/_components/kanban/ListActions";
 import { Card } from "@/_components/kanban/Card";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState } from "react";
-import type { Id } from "../../../convex/_generated/dataModel";
+import type { Doc, Id } from "../../../convex/_generated/dataModel";
+
+interface ListProps {
+  list: Doc<"lists">;
+  cards: Doc<"cards">[];
+}
 
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
-export function List({ listId, listName }: { listId: Id<"lists">; listName: string }) {
+export function List({ list, cards }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
-  const [cardContent, setCardContent] = useState("");
-
-  const { data: cards = [], isPending: cardsLoading } = useQuery({
-    ...convexQuery(api.cards.getCards, { listId }),
-    initialData: [],
-  });
-
-  const { mutate: addCard, isPending: addingCard } = useMutation({
-    mutationFn: useConvexMutation(api.cards.addCard),
-  });
 
   const handleStartCreatingAtTop = () => {
     setIsCreating("top");
-    setCardContent("");
   };
 
   const handleStartCreatingAtBottom = () => {
     setIsCreating("bottom");
-    setCardContent("");
   };
 
-  const handleCancel = () => {
+  const handleCreationComplete = () => {
     setIsCreating(false);
-    setCardContent("");
   };
+
+  return (
+    <li className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
+      <div className="flex justify-between items-center gap-2 px-2">
+        <h2 className="truncate font-medium text-muted-foreground">{list.name}</h2>
+        <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
+      </div>
+
+      <ul className="flex flex-col px-1 mx-1 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+        {/* Show card creation form at top if triggered from dropdown */}
+        {isCreating === "top" && (
+          <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
+        )}
+        {cards.length === 0 ? (
+          <li className="text-center py-4 text-sm text-muted-foreground">No cards yet</li>
+        ) : (
+          cards.map((card) => <Card key={card._id} card={card} />)
+        )}
+        {/* Show card creation form at bottom if triggered from bottom button */}
+        {isCreating === "bottom" && (
+          <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
+        )}
+      </ul>
+
+      <div className="px-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground w-full justify-start"
+          onClick={handleStartCreatingAtBottom}>
+          <Plus /> Add card
+        </Button>
+      </div>
+    </li>
+  );
+}
+
+interface CardCreateFormProps {
+  listId: Id<"lists">;
+  cards: Doc<"cards">[];
+  placement: "top" | "bottom";
+  onComplete: () => void;
+}
+
+function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateFormProps) {
+  const [cardContent, setCardContent] = useState("");
+
+  const { mutate: addCard, isPending: addingCard } = useMutation({
+    mutationFn: useConvexMutation(api.cards.addCard),
+  });
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +87,7 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
     if (trimmedContent) {
       // Calculate position based on placement preference
       let position: number;
-      if (isCreating === "top") {
+      if (placement === "top") {
         // Add to top: use smaller position than the smallest existing card
         position = cards.length > 0 ? Math.min(...cards.map((card) => card.position)) - 1 : 0;
       } else {
@@ -55,16 +96,12 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
       }
 
       addCard(
-        {
-          listId,
-          content: trimmedContent,
-          position,
-        },
+        { listId, content: trimmedContent, position },
         {
           onSuccess: () => {
             toast.success("Card created successfully!");
-            setIsCreating(false);
             setCardContent("");
+            onComplete();
           },
           onError: (error) => {
             toast.error(`Failed to create card: ${error.message}`);
@@ -76,6 +113,11 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
     }
   };
 
+  const handleCancel = () => {
+    setCardContent("");
+    onComplete();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSave(e);
@@ -84,7 +126,7 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
     }
   };
 
-  const CardCreateForm = () => (
+  return (
     <li className="bg-muted rounded-md p-2">
       <form onSubmit={handleSave} className="space-y-2">
         <Input
@@ -107,39 +149,6 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
           </Button>
         </div>
       </form>
-    </li>
-  );
-
-  return (
-    <li className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
-      <div className="flex justify-between items-center gap-2 px-2">
-        <h2 className="truncate font-medium text-muted-foreground">{listName}</h2>
-        <ListActions listId={listId} onAddCard={() => handleStartCreatingAtTop()} />
-      </div>
-
-      <ul className="flex flex-col px-1 mx-1 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
-        {/* Show card creation form at top if triggered from dropdown */}
-        {isCreating === "top" && <CardCreateForm />}
-
-        {cardsLoading ? (
-          <li className="text-center py-4 text-sm text-muted-foreground">Loading cards...</li>
-        ) : (
-          cards.map((card) => <Card key={card._id} card={card} />)
-        )}
-
-        {/* Show card creation form at bottom if triggered from bottom button */}
-        {isCreating === "bottom" && <CardCreateForm />}
-      </ul>
-
-      <div className="px-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground w-full justify-start"
-          onClick={handleStartCreatingAtBottom}>
-          <Plus /> Add card
-        </Button>
-      </div>
     </li>
   );
 }

@@ -37,7 +37,11 @@ function BoardComponent() {
   return (
     <section id="kanban-board" className="min-h-0 h-full">
       <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
-        {listsPending ? <li>Loading lists...</li> : lists.map((list) => <List key={list._id} listId={list._id} />)}
+        {listsPending ? (
+          <li>Loading lists...</li>
+        ) : (
+          lists.map((list) => <List key={list._id} listId={list._id} listName={list.name} />)
+        )}
         <ListCreate board={board} />
       </ol>
     </section>

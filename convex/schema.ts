@@ -20,8 +20,7 @@ export default defineSchema({
   }).index("by_board", ["boardId"]),
   cards: defineTable({
     listId: v.id("lists"),
-    title: v.string(),
-    description: v.optional(v.string()),
+    content: v.string(),
     position: v.number(),
   }).index("by_list", ["listId"]),
 });

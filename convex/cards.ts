@@ -9,8 +9,7 @@ import { Doc } from "./_generated/dataModel";
 export const addCard = mutation({
   args: {
     listId: v.id("lists"),
-    title: v.string(),
-    description: v.optional(v.string()),
+    content: v.string(),
     position: v.number(),
   },
   returns: v.id("cards"),
@@ -24,8 +23,7 @@ export const addCard = mutation({
     // Create the card
     const cardId = await ctx.db.insert("cards", {
       listId: args.listId,
-      title: args.title,
-      description: args.description,
+      content: args.content,
       position: args.position,
     });
 
@@ -71,13 +69,12 @@ export const removeCard = mutation({
 });
 
 /**
- * Update a card's title and/or description.
+ * Update a card's content.
  */
 export const updateCard = mutation({
   args: {
     cardId: v.id("cards"),
-    title: v.optional(v.string()),
-    description: v.optional(v.string()),
+    content: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -86,30 +83,21 @@ export const updateCard = mutation({
       throw new Error("Card not found");
     }
 
-    // Build update object
-    const update: Record<string, any> = {};
-    if (args.title !== undefined) {
-      update.title = args.title;
-    }
-    if (args.description !== undefined) {
-      update.description = args.description;
+    // Update the card content
+    await ctx.db.patch(args.cardId, {
+      content: args.content,
+    });
+
+    // Get the list to access board ID
+    const list = await ctx.db.get(card.listId);
+    if (!list) {
+      throw new Error("List not found");
     }
 
-    // Only update if there are changes
-    if (Object.keys(update).length > 0) {
-      await ctx.db.patch(args.cardId, update);
-
-      // Get the list to access board ID
-      const list = await ctx.db.get(card.listId);
-      if (!list) {
-        throw new Error("List not found");
-      }
-
-      // Update board activity
-      await ctx.runMutation(api.boards.updateBoardActivity, {
-        boardId: list.boardId,
-      });
-    }
+    // Update board activity
+    await ctx.runMutation(api.boards.updateBoardActivity, {
+      boardId: list.boardId,
+    });
 
     return null;
   },
@@ -222,8 +210,7 @@ export const getCards = query({
       _id: v.id("cards"),
       _creationTime: v.number(),
       listId: v.id("lists"),
-      title: v.string(),
-      description: v.optional(v.string()),
+      content: v.string(),
       position: v.number(),
     })
   ),
@@ -250,53 +237,68 @@ export const getCard = query({
       _id: v.id("cards"),
       _creationTime: v.number(),
       listId: v.id("lists"),
-      title: v.string(),
-      description: v.optional(v.string()),
+      content: v.string(),
       position: v.number(),
     }),
     v.null()
   ),
   handler: async (ctx, args) => {
     const card = await ctx.db.get(args.cardId);
-    return card || null;
+    return card;
   },
 });
 
 /**
- * Get all cards for a board (across all lists).
+ * Get cards for multiple lists (useful for board views).
  */
-export const getCardsByBoard = query({
+export const getCardsForLists = query({
   args: {
-    boardId: v.id("boards"),
+    listIds: v.array(v.id("lists")),
   },
   returns: v.array(
     v.object({
       _id: v.id("cards"),
       _creationTime: v.number(),
       listId: v.id("lists"),
-      title: v.string(),
-      description: v.optional(v.string()),
+      content: v.string(),
       position: v.number(),
     })
   ),
   handler: async (ctx, args) => {
-    // First get all lists for the board
-    const lists = await ctx.db
-      .query("lists")
-      .withIndex("by_board", (q) => q.eq("boardId", args.boardId))
-      .collect();
+    const cards: Doc<"cards">[] = [];
 
-    // Then get all cards for those lists
-    const allCards: Array<Doc<"cards">> = [];
-
-    for (const list of lists) {
-      const cards = await ctx.db
+    for (const listId of args.listIds) {
+      const listCards = await ctx.db
         .query("cards")
-        .withIndex("by_list", (q) => q.eq("listId", list._id))
+        .withIndex("by_list", (q) => q.eq("listId", listId))
         .collect();
-      allCards.push(...cards);
+      cards.push(...listCards);
     }
 
-    return allCards;
+    // Sort by position within each list
+    return cards.sort((a, b) => {
+      if (a.listId !== b.listId) {
+        return a.listId.localeCompare(b.listId);
+      }
+      return a.position - b.position;
+    });
+  },
+});
+
+/**
+ * Get the number of cards in a list.
+ */
+export const getCardCount = query({
+  args: {
+    listId: v.id("lists"),
+  },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    const cards = await ctx.db
+      .query("cards")
+      .withIndex("by_list", (q) => q.eq("listId", args.listId))
+      .collect();
+
+    return cards.length;
   },
 });

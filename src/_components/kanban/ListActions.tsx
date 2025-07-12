@@ -26,7 +26,7 @@ import {
 import { EllipsisIcon, Loader2Icon, PlusIcon, MoveIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-export function ListActions({ listId }: { listId: Id<"lists"> }) {
+export function ListActions({ listId, onAddCard }: { listId: Id<"lists">; onAddCard: () => void }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { mutate: removeList, isPending } = useMutation({
@@ -63,7 +63,7 @@ export function ListActions({ listId }: { listId: Id<"lists"> }) {
         <DropdownMenuContent className="w-56" align="start">
           <DropdownMenuLabel className="text-sm text-muted-foreground">List Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={onAddCard}>
             <PlusIcon className="h-4 w-4" />
             Add Card
           </DropdownMenuItem>

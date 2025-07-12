@@ -6,6 +6,8 @@ interface CardProps {
   card: Doc<"cards">;
 }
 
+// Handle accessible interactivity once we implement dndkit+
+
 export function Card({ card }: CardProps) {
   return (
     <li className="relative text-sm text-muted-foreground bg-muted rounded-md px-3 py-1.5 overflow-hidden break-all group hover:outline-1 hover:outline-primary">

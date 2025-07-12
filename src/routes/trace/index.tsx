@@ -8,7 +8,7 @@ export const Route = createFileRoute("/trace/")({
 
 function RouteComponent() {
   return (
-    <div className="flex-grow w-full h-full isolate">
+    <div className="flex-grow w-full isolate">
       <TldrawCanvas />
     </div>
   );

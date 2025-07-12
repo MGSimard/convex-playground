@@ -56,7 +56,7 @@ export function List({ list, cards }: ListProps) {
         <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
       </div>
 
-      <ul className="flex flex-col px-1 mx-1 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+      <ul className="flex flex-col px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
           <div ref={formRef}>

@@ -18,7 +18,7 @@ import { Skeleton } from "@/_components/ui/skeleton";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { data: user } = useQuery(convexQuery(api.authActions.currentUser, {}));
+  const { data: user } = useQuery(convexQuery(api.auth.currentUserData, {}));
   const { signIn, signOut } = useAuthActions();
 
   return (

@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAuth } from "./authActions";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission } from "./lib/permissions";
 
 /**
  * Add a new board with the given name.
@@ -14,7 +15,13 @@ export const addBoard = mutation({
     shortId: v.string(),
   }),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
+
+    // EXAMPLE PERMISSION CHECK
+    // Limit board creation to admins
+    const isAdmin = await checkPermission(ctx, userId, "admin");
+    if (!isAdmin) throw new Error("ERROR: Unauthorized.");
 
     const trimmedName = args.name.trim();
     if (!trimmedName) {
@@ -43,7 +50,8 @@ export const removeBoard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const board = await ctx.db.get(args.boardId);
     if (!board) {
@@ -69,8 +77,8 @@ export const getBoards = query({
     })
   ),
   handler: async (ctx) => {
-    // Require authentication
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const boards = await ctx.db.query("boards").withIndex("by_updated_time").order("desc").collect();
     return boards;
@@ -86,8 +94,8 @@ export const updateBoardActivity = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Require authentication
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const now = Date.now();
     await ctx.db.patch(args.boardId, {
@@ -107,7 +115,8 @@ export const renameBoard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const board = await ctx.db.get(args.boardId);
     if (!board) {
@@ -163,7 +172,8 @@ export const getBoardWithListsAndCards = query({
     v.null()
   ),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const board = await ctx.db
       .query("boards")

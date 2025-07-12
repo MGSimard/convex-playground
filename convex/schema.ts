@@ -5,6 +5,18 @@ import { v } from "convex/values";
 export default defineSchema({
   ...authTables,
 
+  // Replace default users table to add roles, must be optional because OAuth providers don't return a role
+  users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.float64()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.float64()),
+    isAnonymous: v.optional(v.boolean()),
+    role: v.optional(v.union(v.literal("banned"), v.literal("applicant"), v.literal("member"), v.literal("admin"))), // Optional because OAuth providers don't return a role
+  }),
+
   // Board management schema
   boards: defineTable({
     name: v.string(),

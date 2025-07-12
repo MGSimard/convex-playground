@@ -1,11 +1,9 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-import { requireAuth } from "./authActions";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-/**
- * Add a new list to a board.
- */
+// ADD LIST TO BOARD
 export const addList = mutation({
   args: {
     boardId: v.id("boards"),
@@ -14,7 +12,8 @@ export const addList = mutation({
   },
   returns: v.id("lists"),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const board = await ctx.db.get(args.boardId);
     if (!board) {
@@ -35,16 +34,15 @@ export const addList = mutation({
   },
 });
 
-/**
- * Remove a list and all its cards.
- */
+// REMOVE LIST AND ALL CARDS
 export const removeList = mutation({
   args: {
     listId: v.id("lists"),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const list = await ctx.db.get(args.listId);
     if (!list) {
@@ -69,9 +67,7 @@ export const removeList = mutation({
   },
 });
 
-/**
- * Rename a list.
- */
+// RENAME LIST
 export const renameList = mutation({
   args: {
     listId: v.id("lists"),
@@ -79,7 +75,8 @@ export const renameList = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const list = await ctx.db.get(args.listId);
     if (!list) {
@@ -98,9 +95,7 @@ export const renameList = mutation({
   },
 });
 
-/**
- * Reorder lists within a board.
- */
+// REORDER LISTS WITHIN BOARD
 export const reorderLists = mutation({
   args: {
     boardId: v.id("boards"),
@@ -113,14 +108,14 @@ export const reorderLists = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const board = await ctx.db.get(args.boardId);
     if (!board) {
       throw new Error(`ERROR: Board ${args.boardId} not found.`);
     }
 
-    // Update positions for all lists
     for (const update of args.listUpdates) {
       const list = await ctx.db.get(update.listId);
       if (!list) {
@@ -135,7 +130,6 @@ export const reorderLists = mutation({
       });
     }
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: args.boardId,
     });

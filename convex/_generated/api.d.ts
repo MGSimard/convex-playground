@@ -14,10 +14,10 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
-import type * as authActions from "../authActions.js";
 import type * as boards from "../boards.js";
 import type * as cards from "../cards.js";
 import type * as http from "../http.js";
+import type * as lib_permissions from "../lib/permissions.js";
 import type * as lists from "../lists.js";
 
 /**
@@ -30,10 +30,10 @@ import type * as lists from "../lists.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
-  authActions: typeof authActions;
   boards: typeof boards;
   cards: typeof cards;
   http: typeof http;
+  "lib/permissions": typeof lib_permissions;
   lists: typeof lists;
 }>;
 export declare const api: FilterApi<

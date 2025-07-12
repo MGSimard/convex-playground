@@ -1,11 +1,9 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-import { requireAuth } from "./authActions";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-/**
- * Add a new card to a list.
- */
+// ADD CARD TO LIST
 export const addCard = mutation({
   args: {
     listId: v.id("lists"),
@@ -14,7 +12,8 @@ export const addCard = mutation({
   },
   returns: v.id("cards"),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const list = await ctx.db.get(args.listId);
     if (!list) {
@@ -35,16 +34,15 @@ export const addCard = mutation({
   },
 });
 
-/**
- * Remove a card.
- */
+// REMOVE CARD
 export const removeCard = mutation({
   args: {
     cardId: v.id("cards"),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const card = await ctx.db.get(args.cardId);
     if (!card) {
@@ -56,10 +54,8 @@ export const removeCard = mutation({
       throw new Error(`ERROR: List ${card.listId} not found.`);
     }
 
-    // Delete the card
     await ctx.db.delete(args.cardId);
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
@@ -68,9 +64,7 @@ export const removeCard = mutation({
   },
 });
 
-/**
- * Update a card's content.
- */
+// UPDATE CARD CONTENT
 export const updateCard = mutation({
   args: {
     cardId: v.id("cards"),
@@ -78,7 +72,8 @@ export const updateCard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const card = await ctx.db.get(args.cardId);
     if (!card) {
@@ -101,9 +96,7 @@ export const updateCard = mutation({
   },
 });
 
-/**
- * Move a card to another list within the same board.
- */
+// MOVE CARD TO ANOTHER LIST WITHIN SAME BOARD
 export const moveCard = mutation({
   args: {
     cardId: v.id("cards"),
@@ -112,7 +105,8 @@ export const moveCard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const card = await ctx.db.get(args.cardId);
     if (!card) {
@@ -146,9 +140,7 @@ export const moveCard = mutation({
   },
 });
 
-/**
- * Reorder cards within a list.
- */
+// REORDER CARDS WITHIN LIST
 export const reorderCards = mutation({
   args: {
     listId: v.id("lists"),
@@ -161,7 +153,8 @@ export const reorderCards = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await requireAuth(ctx);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
 
     const list = await ctx.db.get(args.listId);
     if (!list) {
@@ -183,7 +176,6 @@ export const reorderCards = mutation({
       });
     }
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: list.boardId,
     });

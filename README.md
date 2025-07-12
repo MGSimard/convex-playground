@@ -8,6 +8,11 @@ Auth: https://labs.convex.dev/auth
 OAuth: https://labs.convex.dev/auth/config/oauth
 Magic Links: https://labs.convex.dev/auth/config/email
 OTPs: https://labs.convex.dev/auth/config/otps
+APIs: https://labs.convex.dev/auth/api_reference/react
+RLS: https://stack.convex.dev/row-level-security
+Auth callbacks: https://labs.convex.dev/auth/advanced#writing-additional-data-during-authentication
+
+Production: https://labs.convex.dev/auth/production
 
 ## Convex + TanStack Query
 
@@ -53,6 +58,7 @@ export function ButtonLoading() {
 
 ## TASK LIST:
 
+- [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
 - [ ] Move board search results to context, consume in combobox AND sync index
 - [ ] Show favorited boards on top
 - [ ] Edit card (Makes it a textarea? Or use contenteditable)

@@ -1,7 +1,5 @@
 import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import { BoardCombobox } from "@/_components/kanban/Combobox";
-import { Separator } from "@/_components/ui/separator";
-import type { Id } from "../../../convex/_generated/dataModel";
 import { AddBoard } from "@/_components/kanban/AddBoard";
 
 export const Route = createFileRoute("/sync")({

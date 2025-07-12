@@ -9,7 +9,10 @@ export const addBoard = mutation({
   args: {
     name: v.string(),
   },
-  returns: v.id("boards"),
+  returns: v.object({
+    id: v.id("boards"),
+    shortId: v.string(),
+  }),
   handler: async (ctx, args) => {
     await requireAuth(ctx);
 
@@ -23,11 +26,11 @@ export const addBoard = mutation({
 
     const id = await ctx.db.insert("boards", {
       name: trimmedName,
-      shortId: shortId!,
+      shortId: shortId,
       updatedTime: Date.now(),
     });
 
-    return id;
+    return { id, shortId };
   },
 });
 
@@ -122,31 +125,6 @@ export const renameBoard = mutation({
 });
 
 /**
- * Migration function to backfill updatedTime for existing boards.
- * This should be run once to populate the updatedTime field for boards that don't have it.
- */
-export const migrateBoards = mutation({
-  args: {},
-  returns: v.null(),
-  handler: async (ctx) => {
-    // Require authentication
-    await requireAuth(ctx);
-
-    const boards = await ctx.db.query("boards").collect();
-
-    for (const board of boards) {
-      if (board.updatedTime === undefined) {
-        await ctx.db.patch(board._id, {
-          updatedTime: board._creationTime,
-        });
-      }
-    }
-
-    return null;
-  },
-});
-
-/**
  * Get board with all its lists and cards in a single query to eliminate request waterfall.
  * This consolidates what used to be separate queries for board, lists, and cards.
  */
@@ -193,7 +171,7 @@ export const getBoardWithListsAndCards = query({
       .unique();
 
     if (!board) {
-      throw new Error(`ERROR: Board with shortId ${args.shortId} not found.`);
+      return null;
     }
 
     // Get all lists for this board

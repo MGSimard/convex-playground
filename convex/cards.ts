@@ -1,6 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
+import { requireAuth } from "./authActions";
 
 /**
  * Add a new card to a list.
@@ -13,20 +14,19 @@ export const addCard = mutation({
   },
   returns: v.id("cards"),
   handler: async (ctx, args) => {
-    // Verify list exists
+    await requireAuth(ctx);
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
-      throw new Error("List not found");
+      throw new Error(`ERROR: List ${args.listId} not found.`);
     }
 
-    // Create the card
     const cardId = await ctx.db.insert("cards", {
       listId: args.listId,
       content: args.content,
       position: args.position,
     });
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
@@ -44,15 +44,16 @@ export const removeCard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
+
     const card = await ctx.db.get(args.cardId);
     if (!card) {
-      throw new Error("Card not found");
+      throw new Error(`ERROR: Card ${args.cardId} not found.`);
     }
 
-    // Get the list to access board ID
     const list = await ctx.db.get(card.listId);
     if (!list) {
-      throw new Error("List not found");
+      throw new Error(`ERROR: List ${card.listId} not found.`);
     }
 
     // Delete the card
@@ -77,23 +78,21 @@ export const updateCard = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
+
     const card = await ctx.db.get(args.cardId);
     if (!card) {
-      throw new Error("Card not found");
+      throw new Error(`ERROR: Card ${args.cardId} not found.`);
     }
-
-    // Update the card content
     await ctx.db.patch(args.cardId, {
       content: args.content,
     });
 
-    // Get the list to access board ID
     const list = await ctx.db.get(card.listId);
     if (!list) {
-      throw new Error("List not found");
+      throw new Error(`ERROR: List ${card.listId} not found.`);
     }
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
@@ -103,50 +102,45 @@ export const updateCard = mutation({
 });
 
 /**
- * Move a card to another list (potentially different board).
+ * Move a card to another list within the same board.
  */
 export const moveCard = mutation({
   args: {
     cardId: v.id("cards"),
     newListId: v.id("lists"),
-    position: v.number(),
+    newPosition: v.number(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAuth(ctx);
+
     const card = await ctx.db.get(args.cardId);
     if (!card) {
-      throw new Error("Card not found");
+      throw new Error(`ERROR: Card ${args.cardId} not found.`);
     }
 
-    // Get current list
     const currentList = await ctx.db.get(card.listId);
     if (!currentList) {
-      throw new Error("Current list not found");
+      throw new Error(`ERROR: Current list ${card.listId} not found.`);
     }
 
-    // Get destination list
     const newList = await ctx.db.get(args.newListId);
     if (!newList) {
-      throw new Error("Destination list not found");
+      throw new Error(`ERROR: Destination list ${args.newListId} not found.`);
     }
 
-    // Update the card's list and position
+    if (currentList.boardId !== newList.boardId) {
+      throw new Error("ERROR: Cannot move card between different boards.");
+    }
+
     await ctx.db.patch(args.cardId, {
       listId: args.newListId,
-      position: args.position,
+      position: args.newPosition,
     });
 
-    // Update board activity
     await ctx.runMutation(api.boards.updateBoardActivity, {
       boardId: currentList.boardId,
     });
-
-    // If moving to different board, update that board's activity too
-    if (currentList.boardId !== newList.boardId) {
-      await ctx.runMutation(api.boards.updateBoardActivity, {
-        boardId: newList.boardId,
-      });
-    }
 
     return null;
   },
@@ -167,20 +161,21 @@ export const reorderCards = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Verify list exists
+    await requireAuth(ctx);
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
-      throw new Error("List not found");
+      throw new Error(`ERROR: List ${args.listId} not found.`);
     }
 
-    // Update positions for all cards
     for (const update of args.cardUpdates) {
       const card = await ctx.db.get(update.cardId);
       if (!card) {
-        throw new Error(`Card ${update.cardId} not found`);
+        throw new Error(`ERROR: Card ${update.cardId} not found.`);
       }
+
       if (card.listId !== args.listId) {
-        throw new Error(`Card ${update.cardId} does not belong to list ${args.listId}`);
+        throw new Error(`ERROR: Card ${update.cardId} does not belong to list ${args.listId}.`);
       }
 
       await ctx.db.patch(update.cardId, {

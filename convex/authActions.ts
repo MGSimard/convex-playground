@@ -22,3 +22,15 @@ export const currentSession = query({
     return await ctx.db.get(sessionId);
   },
 });
+
+/**
+ * Helper function to get the authenticated user ID.
+ * Throws an error if the user is not authenticated.
+ */
+export async function requireAuth(ctx: any) {
+  const userId = await getAuthUserId(ctx);
+  if (userId === null) {
+    throw new Error("ERROR: UNAUTHORIZED.");
+  }
+  return userId;
+}

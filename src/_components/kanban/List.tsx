@@ -177,7 +177,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
         <div className="flex gap-2">
           <Button type="submit" disabled={addingCard} className="grid place-items-center">
             <Loader2Icon className={`col-start-1 row-start-1 animate-spin${addingCard ? " visible" : " invisible"}`} />
-            <span className={`col-start-1 row-start-1${addingCard ? " invisible" : " visible"}`}>Save</span>
+            <span className={`col-start-1 row-start-1${addingCard ? " invisible" : " visible"}`}>Add</span>
           </Button>
           <Button type="button" variant="outline" size="icon" onClick={handleCancel} disabled={addingCard}>
             <X />

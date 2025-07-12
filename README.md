@@ -53,6 +53,7 @@ export function ButtonLoading() {
 
 ## TASK LIST:
 
+- [ ] Error & NotFound routes
 - [ ] Finish auth system (need roles, authorization, perms)
 - [ ] Team Settings
 - [ ] General organization settings

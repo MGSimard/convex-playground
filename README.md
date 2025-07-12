@@ -14,6 +14,8 @@ Auth callbacks: https://labs.convex.dev/auth/advanced#writing-additional-data-du
 
 Production: https://labs.convex.dev/auth/production
 
+TanStack Router Route Auth: https://tanstack.com/router/v1/docs/framework/react/guide/authenticated-routes
+
 ## Convex + TanStack Query
 
 https://docs.convex.dev/client/tanstack-query

@@ -110,7 +110,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
     if (inputRef.current) {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 10);
+      }, 50);
     }
   }, []);
 

@@ -43,10 +43,10 @@ import { Loader2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 export function ButtonLoading() {
   return (
-    <Button size="sm" disabled>
-      <Loader2Icon className="animate-spin" />
-      Please wait
-    </Button>
+  <Button type="submit" className="grid place-items-center" disabled={isPending}>
+    <Loader2Icon className={`col-start-1 row-start-1 animate-spin${isPending ? " visible" : " invisible"}`} />
+    <span className={`col-start-1 row-start-1${isPending ? " invisible" : " visible"}`}>Create board</span>
+  </Button>
   )
 }
 ```

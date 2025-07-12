@@ -34,7 +34,6 @@ function BoardComponent() {
     <section id="kanban-board" className="min-h-0 h-full">
       <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
         {lists.map((list) => {
-          // Filter cards for this specific list
           const listCards = cards.filter((card) => card.listId === list._id);
           return <List key={list._id} list={list} cards={listCards} />;
         })}

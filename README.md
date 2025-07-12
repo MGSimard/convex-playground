@@ -16,6 +16,8 @@ Production: https://labs.convex.dev/auth/production
 
 TanStack Router Route Auth: https://tanstack.com/router/v1/docs/framework/react/guide/authenticated-routes
 
+For good measure invalidate query client cache on logout
+
 ## Convex + TanStack Query
 
 https://docs.convex.dev/client/tanstack-query
@@ -60,6 +62,8 @@ export function ButtonLoading() {
 
 ## TASK LIST:
 
+- [ ] Assign cards to users
+- [ ] Rip out radix for the card creation dropdown menu it's dogshit and creates issues with focusing the input
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
 - [ ] Move board search results to context, consume in combobox AND sync index
 - [ ] Show favorited boards on top

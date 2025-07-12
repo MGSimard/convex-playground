@@ -25,9 +25,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             <SidebarInset>
               <Breadcrumbs />
               <Outlet />
-              <Toaster richColors />
             </SidebarInset>
           </SidebarProvider>
+          <Toaster richColors toastOptions={{ style: { borderRadius: "0" } }} />
         </TooltipProvider>
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />

@@ -23,8 +23,11 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 });
 
 // CLIENT-SIDE AUTHENTICATION CHECK
-// const currentUserData = useQuery(api.auth.getCurrentUserData);
+// const currentUserData = useQuery(api.auth.currentUserData);
 // if (!currentUserData) return <SignInButton />;
+// FOR US:
+// const { data: user } = useQuery(convexQuery(api.auth.currentUserData, {})); <- We do this since we have TanStack Router
+// if (!currentUserData) go away;
 export const currentUserData = query({
   args: {},
   returns: v.union(

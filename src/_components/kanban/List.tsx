@@ -100,10 +100,19 @@ interface CardCreateFormProps {
 
 function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateFormProps) {
   const [cardContent, setCardContent] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { mutate: addCard, isPending: addingCard } = useMutation({
     mutationFn: useConvexMutation(api.cards.addCard),
   });
+
+  useEffect(() => {
+    if (inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+    }
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,6 +163,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
     <li className="bg-muted rounded-md p-2">
       <form onSubmit={handleSave} className="space-y-2">
         <Input
+          ref={inputRef}
           value={cardContent}
           onChange={(e) => setCardContent(e.target.value)}
           onKeyDown={handleKeyDown}

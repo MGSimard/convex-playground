@@ -60,7 +60,12 @@ export function ListActions({ listId, onAddCard }: { listId: Id<"lists">; onAddC
             <EllipsisIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start">
+        <DropdownMenuContent
+          className="w-56"
+          align="start"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+          }}>
           <DropdownMenuLabel className="text-sm text-muted-foreground">List Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onAddCard}>

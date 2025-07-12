@@ -1,6 +1,5 @@
 import { Button } from "@/_components/ui/button";
 import { Ellipsis, Plus } from "lucide-react";
-import { ScrollArea } from "@/_components/ui/scroll-area";
 
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
 export function List() {
@@ -54,7 +53,7 @@ export function List() {
         <li>Card 3</li>
       </ul>
       <div className="px-2">
-        <Button variant="ghost" size="sm" className="text-muted-foreground w-full align-center justify-start">
+        <Button variant="ghost" size="sm" className="text-muted-foreground w-full justify-start">
           <Plus /> Add card
         </Button>
       </div>

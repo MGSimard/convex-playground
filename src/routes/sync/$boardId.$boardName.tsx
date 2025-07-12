@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { List } from "@/_components/kanban/List";
+import { ListCreate } from "@/_components/kanban/ListCreate";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -31,11 +32,7 @@ function BoardComponent() {
         <List />
         <List />
         <List />
-        <List />
-        <List />
-        <List />
-        <List />
-        <List />
+        <ListCreate />
       </ol>
     </section>
   );

@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
 
 interface ListProps {
@@ -18,6 +18,7 @@ interface ListProps {
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
 export function List({ list, cards }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const handleStartCreatingAtTop = () => {
     setIsCreating("top");
@@ -31,6 +32,23 @@ export function List({ list, cards }: ListProps) {
     setIsCreating(false);
   };
 
+  // Handle click outside to cancel form
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isCreating && formRef.current && !formRef.current.contains(event.target as Node)) {
+        setIsCreating(false);
+      }
+    };
+
+    if (isCreating) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCreating]);
+
   return (
     <li className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
       <div className="flex justify-between items-center gap-2 px-2">
@@ -41,7 +59,9 @@ export function List({ list, cards }: ListProps) {
       <ul className="flex flex-col px-1 mx-1 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
-          <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
+          <div ref={formRef}>
+            <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
+          </div>
         )}
         {cards.length === 0 ? (
           <li className="text-sm font-medium border text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
@@ -52,7 +72,9 @@ export function List({ list, cards }: ListProps) {
         )}
         {/* Show card creation form at bottom if triggered from bottom button */}
         {isCreating === "bottom" && (
-          <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
+          <div ref={formRef}>
+            <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
+          </div>
         )}
       </ul>
 

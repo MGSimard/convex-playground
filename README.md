@@ -53,6 +53,8 @@ export function ButtonLoading() {
 
 ## TASK LIST:
 
+- [ ] Move board search results to context, consume in combobox AND sync index
+- [ ] Show favorited boards on top
 - [ ] Edit card (Makes it a textarea? Or use contenteditable)
 - [ ] Direct click on card (role?) opens dialog with options
 - [ ] Text at top of card max lines with scrollable, show list, desc?

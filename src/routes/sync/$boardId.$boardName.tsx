@@ -14,6 +14,11 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
   }),
 });
 
+// Need to consolidate board query to get:
+// - Board data
+// - Lists data (From Board)
+// - Cards data (From Lists)
+
 function BoardComponent() {
   const { boardId } = Route.useParams();
   const { data: board, isPending: boardPending } = useQuery(

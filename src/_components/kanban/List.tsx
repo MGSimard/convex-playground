@@ -16,13 +16,11 @@ export function List({ listId, listName }: { listId: Id<"lists">; listName: stri
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
   const [cardContent, setCardContent] = useState("");
 
-  // Fetch cards for this list using convex_tsquery_rules
   const { data: cards = [], isPending: cardsLoading } = useQuery({
     ...convexQuery(api.cards.getCards, { listId }),
     initialData: [],
   });
 
-  // Card creation mutation following convex_tsquery_rules
   const { mutate: addCard, isPending: addingCard } = useMutation({
     mutationFn: useConvexMutation(api.cards.addCard),
   });

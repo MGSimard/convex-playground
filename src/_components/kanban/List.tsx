@@ -44,7 +44,9 @@ export function List({ list, cards }: ListProps) {
           <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
         )}
         {cards.length === 0 ? (
-          <li className="text-center py-4 text-sm text-muted-foreground">No cards yet</li>
+          <li className="text-sm font-medium border text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
+            Empty
+          </li>
         ) : (
           cards.map((card) => <Card key={card._id} card={card} />)
         )}

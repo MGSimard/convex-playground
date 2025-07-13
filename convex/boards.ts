@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { checkPermission } from "./lib/permissions";
@@ -51,6 +51,10 @@ export const removeBoard = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    // TODO: Allow board owner to remove?
+    const isAdminPlus = await checkPermission(ctx, userId, "admin");
+    if (!isAdminPlus) throw new Error("ERROR: Unauthorized.");
+
     const board = await ctx.db.get(args.boardId);
     if (!board) {
       throw new Error(`ERROR: Board ${args.boardId} not found.`);
@@ -78,6 +82,9 @@ export const getBoards = query({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const boards = await ctx.db.query("boards").withIndex("by_updated_time").order("desc").collect();
     return boards;
   },
@@ -85,16 +92,14 @@ export const getBoards = query({
 
 /**
  * Update the board's activity time (call this whenever there's activity on the board).
+ * Internal mutation - only called from other server functions.
  */
-export const updateBoardActivity = mutation({
+export const updateBoardActivity = internalMutation({
   args: {
     boardId: v.id("boards"),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("ERROR: Unauthenticated.");
-
     const now = Date.now();
     await ctx.db.patch(args.boardId, {
       updatedTime: now,
@@ -115,6 +120,9 @@ export const renameBoard = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
+
+    const isAdminPlus = await checkPermission(ctx, userId, "admin");
+    if (!isAdminPlus) throw new Error("ERROR: Unauthorized.");
 
     const board = await ctx.db.get(args.boardId);
     if (!board) {
@@ -173,6 +181,9 @@ export const getBoardWithListsAndCards = query({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const board = await ctx.db
       .query("boards")
       .withIndex("by_short_id", (q) => q.eq("shortId", args.shortId))
@@ -182,16 +193,13 @@ export const getBoardWithListsAndCards = query({
       return null;
     }
 
-    // Get all lists for this board
     const lists = await ctx.db
       .query("lists")
       .withIndex("by_board", (q) => q.eq("boardId", board._id))
       .collect();
 
-    // Sort lists by position
     const sortedLists = lists.sort((a, b) => a.position - b.position);
 
-    // Get all cards for all lists in this board
     const allCards = [];
     for (const list of sortedLists) {
       const cards = await ctx.db
@@ -201,7 +209,6 @@ export const getBoardWithListsAndCards = query({
       allCards.push(...cards);
     }
 
-    // Sort cards by position within each list
     const sortedCards = allCards.sort((a, b) => a.position - b.position);
 
     return {

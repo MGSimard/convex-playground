@@ -1,7 +1,8 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission } from "./lib/permissions";
 
 // ADD LIST TO BOARD
 export const addList = mutation({
@@ -15,6 +16,9 @@ export const addList = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const board = await ctx.db.get(args.boardId);
     if (!board) {
       throw new Error(`ERROR: Board ${args.boardId} not found.`);
@@ -26,7 +30,7 @@ export const addList = mutation({
       position: args.position,
     });
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: args.boardId,
     });
 
@@ -44,6 +48,9 @@ export const removeList = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isAdminPlus = await checkPermission(ctx, userId, "admin");
+    if (!isAdminPlus) throw new Error("ERROR: Unauthorized.");
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
       throw new Error(`ERROR: List ${args.listId} not found.`);
@@ -59,7 +66,7 @@ export const removeList = mutation({
 
     await ctx.db.delete(args.listId);
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 
@@ -78,6 +85,9 @@ export const renameList = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
       throw new Error(`ERROR: List ${args.listId} not found.`);
@@ -87,7 +97,7 @@ export const renameList = mutation({
       name: args.newName,
     });
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 
@@ -111,6 +121,9 @@ export const reorderLists = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const board = await ctx.db.get(args.boardId);
     if (!board) {
       throw new Error(`ERROR: Board ${args.boardId} not found.`);
@@ -130,7 +143,7 @@ export const reorderLists = mutation({
       });
     }
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: args.boardId,
     });
 

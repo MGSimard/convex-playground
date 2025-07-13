@@ -88,6 +88,7 @@ export const Route = createFileRoute('/posts')({
 
 ## TASK LIST:
 
+- [ ] Consider read/write perms instead of member/admin
 - [ ] Check out ensureQueryData in loader to prefetch convex on intent
 - [ ] Assign cards to users
 - [ ] Rip out radix for the card creation dropdown menu it's dogshit and creates issues with focusing the input

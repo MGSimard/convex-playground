@@ -1,7 +1,8 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { checkPermission } from "./lib/permissions";
 
 // ADD CARD TO LIST
 export const addCard = mutation({
@@ -15,6 +16,9 @@ export const addCard = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
       throw new Error(`ERROR: List ${args.listId} not found.`);
@@ -26,7 +30,7 @@ export const addCard = mutation({
       position: args.position,
     });
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 
@@ -44,6 +48,9 @@ export const removeCard = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isAdminPlus = await checkPermission(ctx, userId, "admin");
+    if (!isAdminPlus) throw new Error("ERROR: Unauthorized.");
+
     const card = await ctx.db.get(args.cardId);
     if (!card) {
       throw new Error(`ERROR: Card ${args.cardId} not found.`);
@@ -56,7 +63,7 @@ export const removeCard = mutation({
 
     await ctx.db.delete(args.cardId);
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 
@@ -75,20 +82,21 @@ export const updateCard = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const card = await ctx.db.get(args.cardId);
     if (!card) {
       throw new Error(`ERROR: Card ${args.cardId} not found.`);
     }
-    await ctx.db.patch(args.cardId, {
-      content: args.content,
-    });
+    await ctx.db.patch(args.cardId, { content: args.content });
 
     const list = await ctx.db.get(card.listId);
     if (!list) {
       throw new Error(`ERROR: List ${card.listId} not found.`);
     }
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 
@@ -107,6 +115,9 @@ export const moveCard = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
+
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
 
     const card = await ctx.db.get(args.cardId);
     if (!card) {
@@ -132,7 +143,7 @@ export const moveCard = mutation({
       position: args.newPosition,
     });
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: currentList.boardId,
     });
 
@@ -156,6 +167,9 @@ export const reorderCards = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
     const list = await ctx.db.get(args.listId);
     if (!list) {
       throw new Error(`ERROR: List ${args.listId} not found.`);
@@ -176,7 +190,7 @@ export const reorderCards = mutation({
       });
     }
 
-    await ctx.runMutation(api.boards.updateBoardActivity, {
+    await ctx.runMutation(internal.boards.updateBoardActivity, {
       boardId: list.boardId,
     });
 

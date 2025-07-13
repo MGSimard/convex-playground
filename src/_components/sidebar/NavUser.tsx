@@ -15,11 +15,13 @@ import { convexQuery } from "@convex-dev/react-query";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { Skeleton } from "@/_components/ui/skeleton";
+import { useSignOut } from "@/_hooks/useSignOut";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { data: user } = useQuery(convexQuery(api.auth.currentUserData, {}));
-  const { signIn, signOut } = useAuthActions();
+  const { signIn } = useAuthActions();
+  const handleSignOut = useSignOut();
 
   return (
     <SidebarMenu>
@@ -78,7 +80,7 @@ export function NavUser() {
                 Help Center
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => void signOut()}>
+              <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut />
                 Log out
               </DropdownMenuItem>

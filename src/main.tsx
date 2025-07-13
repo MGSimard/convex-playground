@@ -1,11 +1,12 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import { routeTree } from "./routeTree.gen";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { routeTree } from "./routeTree.gen";
+import { DefaultNotFound } from "@/_components/DefaultNotFound";
 import "@/_styles/global.css";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -27,6 +28,7 @@ const router = createRouter({
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
+  defaultNotFoundComponent: DefaultNotFound,
 });
 
 declare module "@tanstack/react-router" {

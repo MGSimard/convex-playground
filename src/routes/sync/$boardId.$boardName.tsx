@@ -16,8 +16,6 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
 
 function BoardComponent() {
   const { boardId } = Route.useParams();
-
-  // Consolidated query - eliminates request waterfall
   const { data, isPending } = useQuery(convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }));
 
   if (isPending) {
@@ -25,7 +23,7 @@ function BoardComponent() {
   }
 
   if (!data) {
-    return <div className="p-6">Board not found</div>;
+    return <div className="p-6">Board not found.</div>;
   }
 
   const { board, lists, cards } = data;

@@ -60,6 +60,10 @@ export function ButtonLoading() {
 }
 ```
 
+## If I need to migrate to TSStart
+
+https://docs.convex.dev/client/react/tanstack-start/
+
 ## Loader prefetch TSStart example
 
 ```typescript

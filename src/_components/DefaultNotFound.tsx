@@ -1,3 +1,5 @@
+// TODO LINK TO "/"
+
 export function DefaultNotFound() {
   return (
     <div className="flex flex-col flex-1 gap-4 items-center justify-center max-w-8xl w-full mx-auto p-6 text-center">

@@ -43,21 +43,21 @@ function BoardComponent() {
 
 function BoardNotFound({ boardId }: { boardId: string }) {
   return (
-    <div className="p-6 grow flex text-center">
+    <section className="p-6 grow flex text-center">
       <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center">
         <h2 className="text-balance">The requested board ID "{boardId}" does not exist.</h2>
       </div>
-    </div>
+    </section>
   );
 }
 
 function BoardLoading() {
   return (
-    <div className="p-6 grow flex text-center">
+    <section className="p-6 grow flex text-center">
       <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center gap-6">
         <LoaderBlocks />
         <h2 className="text-balance text-muted">Loading board...</h2>
       </div>
-    </div>
+    </section>
   );
 }

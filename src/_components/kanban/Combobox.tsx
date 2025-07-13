@@ -22,10 +22,11 @@ export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
     initialData: [],
   });
 
-  const currentBoard = boards.find((board) => board.shortId === currentShortId);
+  const boardsMap = new Map(boards.map((board) => [board.shortId, board]));
+  const currentBoard = currentShortId ? boardsMap.get(currentShortId) : undefined;
 
   const handleBoardSelect = (shortId: string) => {
-    const board = boards.find((b) => b.shortId === shortId);
+    const board = boardsMap.get(shortId);
     if (board) {
       const boardName = board.name.toLowerCase().replace(/\s+/g, "-");
       navigate({ to: `/sync/${shortId}/${boardName}` });
@@ -41,7 +42,7 @@ export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
           role="combobox"
           aria-expanded={open}
           className="w-[200px] justify-between overflow-hidden">
-          <h1 className={`truncate${currentBoard ? "" : " text-muted-foreground"}`}>
+          <h1 className={cn("truncate", !currentBoard && "text-muted-foreground")}>
             {currentBoard ? currentBoard.name : "Select board..."}
           </h1>
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -51,24 +52,26 @@ export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
         <Command>
           <CommandInput placeholder="Search boards..." />
           <CommandList>
-            <CommandEmpty>No board found.</CommandEmpty>
-            <CommandGroup className="overflow-hidden">
-              {isPending ? (
-                <div className="p-2 text-sm text-muted-foreground">Loading boards...</div>
-              ) : (
-                boards.map((board) => (
+            <CommandEmpty>
+              <span className="text-sm text-muted-foreground">
+                {isPending ? "Fetching boards..." : "No boards found."}
+              </span>
+            </CommandEmpty>
+            {boards.length > 0 && (
+              <CommandGroup className="overflow-hidden">
+                {boards.map((board) => (
                   <CommandItem
                     key={board._id}
                     value={board.name.toLowerCase()}
                     onSelect={() => handleBoardSelect(board.shortId)}>
                     <span className="truncate">{board.name}</span>
                     <CheckIcon
-                      className={cn("ml-auto h-4 w-4", currentShortId === board.shortId ? "opacity-100" : "opacity-0")}
+                      className={cn("ml-auto h-4 w-4 opacity-0", currentShortId === board.shortId && "opacity-100")}
                     />
                   </CommandItem>
-                ))
-              )}
-            </CommandGroup>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

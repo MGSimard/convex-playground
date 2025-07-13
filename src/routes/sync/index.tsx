@@ -92,7 +92,7 @@ function EmptyBoardList() {
   return (
     <div className="p-6 grow flex text-center">
       <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center">
-        <h2 className="text-balance">No active boards found.</h2>
+        <h2 className="text-balance">No active boards. Create one to get started.</h2>
       </div>
     </div>
   );

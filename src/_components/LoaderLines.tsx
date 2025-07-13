@@ -1,6 +1,6 @@
 import { cn } from "@/_lib/utils";
 
-export function LoaderBlocks({ className, ...props }: React.ComponentProps<"div">) {
+export function LoaderLines({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="loader-blocks"

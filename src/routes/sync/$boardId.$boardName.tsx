@@ -4,7 +4,8 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { List } from "@/_components/kanban/List";
 import { ListCreate } from "@/_components/kanban/ListCreate";
-import { LoaderBlocks } from "@/_components/LoaderBlocks";
+import { LoaderLines } from "@/_components/LoaderLines";
+import { FileWarning, SquareDashed } from "lucide-react";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -44,8 +45,9 @@ function BoardComponent() {
 function BoardNotFound({ boardId }: { boardId: string }) {
   return (
     <section className="p-6 grow flex text-center">
-      <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center">
-        <h2 className="text-balance">The requested board ID "{boardId}" does not exist.</h2>
+      <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col gap-6 items-center justify-center">
+        <SquareDashed className="size-24 text-muted" />
+        <h2 className="text-balance text-muted-foreground">The requested board ID "{boardId}" does not exist.</h2>
       </div>
     </section>
   );
@@ -55,8 +57,8 @@ function BoardLoading() {
   return (
     <section className="p-6 grow flex text-center">
       <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center gap-6">
-        <LoaderBlocks />
-        <h2 className="text-balance text-muted">Loading board...</h2>
+        <LoaderLines />
+        <h2 className="text-balance text-muted">Loading lists...</h2>
       </div>
     </section>
   );

@@ -24,7 +24,10 @@ export const Route = createFileRoute("/sync/")({
 // Card attribution, labels, move, start date & due date, reminders
 
 function RouteComponent() {
-  const { data: boards } = useSuspenseQuery(convexQuery(api.boards.getBoards, {}));
+  const { data: boards } = useSuspenseQuery({
+    ...convexQuery(api.boards.getBoards, {}),
+    initialData: [],
+  });
 
   // Later with perms
   // Alert confirm (shadcn) on delete attempt (owner & admin only)

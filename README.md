@@ -60,8 +60,31 @@ export function ButtonLoading() {
 }
 ```
 
+## Loader prefetch TSStart example
+
+```typescript
+export const Route = createFileRoute('/posts')({
+  loader: async (opts) => {
+    await opts.context.queryClient.ensureQueryData(
+      convexQuery(api.messages.list, {}),
+    );
+  };
+  component: () => {
+    const { data } = useSuspenseQuery(convexQuery(api.messages.list, {}));
+    return (
+      <div>
+	      {data.map((message) => (
+	        <Message key={message.id} post={message} />
+	      ))}
+      </div>
+    );
+  },
+})
+```
+
 ## TASK LIST:
 
+- [ ] Check out ensureQueryData in loader to prefetch convex on intent
 - [ ] Assign cards to users
 - [ ] Rip out radix for the card creation dropdown menu it's dogshit and creates issues with focusing the input
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)

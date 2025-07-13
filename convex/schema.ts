@@ -23,9 +23,10 @@ export default defineSchema({
   boards: defineTable({
     name: v.string(),
     shortId: v.string(),
-    updatedTime: v.number(),
+    lastModifiedTime: v.number(),
+    lastModifiedBy: v.id("users"),
   })
-    .index("by_updated_time", ["updatedTime"])
+    .index("by_last_modified", ["lastModifiedTime"])
     .index("by_short_id", ["shortId"]),
 
   lists: defineTable({

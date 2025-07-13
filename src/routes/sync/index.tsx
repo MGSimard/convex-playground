@@ -79,13 +79,13 @@ function RouteComponent() {
             <div className="mt-auto grid">
               <span className="text-xs text-muted-foreground truncate">Last modified by TODO</span>
               <span className="text-xs text-muted-foreground truncate">
-                {new Date(board.updatedTime).toLocaleDateString("en-US", {
+                {new Date(board.lastModifiedTime).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}{" "}
                 at{" "}
-                {new Date(board.updatedTime).toLocaleTimeString("en-US", {
+                {new Date(board.lastModifiedTime).toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
                   hour12: true,

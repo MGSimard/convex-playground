@@ -32,7 +32,8 @@ export const addBoard = mutation({
     const id = await ctx.db.insert("boards", {
       name: trimmedName,
       shortId: shortId,
-      updatedTime: Date.now(),
+      lastModifiedTime: Date.now(),
+      lastModifiedBy: userId,
     });
 
     return { id, shortId };
@@ -75,7 +76,8 @@ export const getBoards = query({
       _creationTime: v.number(),
       name: v.string(),
       shortId: v.string(),
-      updatedTime: v.number(),
+      lastModifiedTime: v.number(),
+      lastModifiedBy: v.id("users"),
     })
   ),
   handler: async (ctx) => {
@@ -85,7 +87,7 @@ export const getBoards = query({
     const isMemberPlus = await checkPermission(ctx, userId, "member");
     if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
 
-    const boards = await ctx.db.query("boards").withIndex("by_updated_time").order("desc").collect();
+    const boards = await ctx.db.query("boards").withIndex("by_last_modified").order("desc").collect();
     return boards;
   },
 });
@@ -102,7 +104,7 @@ export const updateBoardActivity = internalMutation({
   handler: async (ctx, args) => {
     const now = Date.now();
     await ctx.db.patch(args.boardId, {
-      updatedTime: now,
+      lastModifiedTime: now,
     });
     return null;
   },
@@ -132,7 +134,7 @@ export const renameBoard = mutation({
     const now = Date.now();
     await ctx.db.patch(args.boardId, {
       name: args.newName,
-      updatedTime: now,
+      lastModifiedTime: now,
     });
 
     return null;
@@ -154,7 +156,8 @@ export const getBoardWithListsAndCards = query({
         _creationTime: v.number(),
         name: v.string(),
         shortId: v.string(),
-        updatedTime: v.number(),
+        lastModifiedTime: v.number(),
+        lastModifiedBy: v.id("users"),
       }),
       lists: v.array(
         v.object({

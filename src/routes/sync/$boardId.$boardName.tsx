@@ -5,7 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { List } from "@/_components/kanban/List";
 import { ListCreate } from "@/_components/kanban/ListCreate";
 import { LoaderLines } from "@/_components/LoaderLines";
-import { FileWarning, SquareDashed } from "lucide-react";
+import { SquareDashed } from "lucide-react";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,

@@ -54,7 +54,7 @@ function RouteComponent() {
               <div className="grid">
                 <h2 className="truncate">{board.name}</h2>
                 <span className="text-xs text-muted-foreground truncate">
-                  Creator: {board.createdByName ?? board.createdBy}
+                  Created by {board.createdByName ?? board.createdBy}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
                   {new Date(board._creationTime).toLocaleDateString("en-US", {

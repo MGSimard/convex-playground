@@ -53,7 +53,9 @@ function RouteComponent() {
             <div className="flex justify-between gap-2">
               <div className="grid">
                 <h2 className="truncate">{board.name}</h2>
-                <span className="text-xs text-muted-foreground truncate">Creator: TODO</span>
+                <span className="text-xs text-muted-foreground truncate">
+                  Creator: {board.createdByName ?? board.createdBy}
+                </span>
                 <span className="text-xs text-muted-foreground truncate">
                   {new Date(board._creationTime).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -77,7 +79,9 @@ function RouteComponent() {
               </ul>
             </div>
             <div className="mt-auto grid">
-              <span className="text-xs text-muted-foreground truncate">Last modified by TODO</span>
+              <span className="text-xs text-muted-foreground truncate">
+                Last modified by {board.lastModifiedByName ?? board.lastModifiedBy}
+              </span>
               <span className="text-xs text-muted-foreground truncate">
                 {new Date(board.lastModifiedTime).toLocaleDateString("en-US", {
                   year: "numeric",

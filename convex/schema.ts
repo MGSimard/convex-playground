@@ -21,8 +21,9 @@ export default defineSchema({
 
   /* BOARD MANAGEMENT SCHEMAS */
   boards: defineTable({
-    name: v.string(),
     shortId: v.string(),
+    name: v.string(),
+    createdBy: v.id("users"),
     lastModifiedTime: v.number(),
     lastModifiedBy: v.id("users"),
   })

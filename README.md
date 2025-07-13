@@ -86,6 +86,12 @@ export const Route = createFileRoute('/posts')({
 })
 ```
 
+## Convex Conventions
+
+https://docs.convex.dev/functions/internal-functions
+https://docs.convex.dev/understanding/best-practices/
+https://docs.convex.dev/understanding/best-practices/typescript
+
 ## TASK LIST:
 
 - [ ] Consider read/write perms instead of member/admin

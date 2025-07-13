@@ -30,8 +30,9 @@ export const addBoard = mutation({
     const shortId = Math.random().toString(36).substring(2, 10);
 
     const id = await ctx.db.insert("boards", {
-      name: trimmedName,
       shortId: shortId,
+      name: trimmedName,
+      createdBy: userId,
       lastModifiedTime: Date.now(),
       lastModifiedBy: userId,
     });
@@ -74,10 +75,13 @@ export const getBoards = query({
     v.object({
       _id: v.id("boards"),
       _creationTime: v.number(),
-      name: v.string(),
       shortId: v.string(),
+      name: v.string(),
+      createdBy: v.id("users"),
+      createdByName: v.optional(v.string()),
       lastModifiedTime: v.number(),
       lastModifiedBy: v.id("users"),
+      lastModifiedByName: v.optional(v.string()),
     })
   ),
   handler: async (ctx) => {
@@ -88,7 +92,21 @@ export const getBoards = query({
     if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
 
     const boards = await ctx.db.query("boards").withIndex("by_last_modified").order("desc").collect();
-    return boards;
+
+    // Enrich boards with user names
+    const enrichedBoards = [];
+    for (const board of boards) {
+      const createdByUser = await ctx.db.get(board.createdBy);
+      const lastModifiedByUser = await ctx.db.get(board.lastModifiedBy);
+
+      enrichedBoards.push({
+        ...board,
+        createdByName: createdByUser?.name,
+        lastModifiedByName: lastModifiedByUser?.name,
+      });
+    }
+
+    return enrichedBoards;
   },
 });
 
@@ -154,8 +172,9 @@ export const getBoardWithListsAndCards = query({
       board: v.object({
         _id: v.id("boards"),
         _creationTime: v.number(),
-        name: v.string(),
         shortId: v.string(),
+        name: v.string(),
+        createdBy: v.id("users"),
         lastModifiedTime: v.number(),
         lastModifiedBy: v.id("users"),
       }),

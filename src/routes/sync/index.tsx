@@ -4,6 +4,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { OverviewActions } from "@/_components/kanban/OverviewActions";
 import { LoaderBlocks } from "@/_components/LoaderBlocks";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/sync/")({
   component: RouteComponent,
@@ -38,50 +39,59 @@ function RouteComponent() {
   return (
     <section className="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-4 p-6">
       {boards.map((board) => (
-        <div key={board._id} className="p-4 flex flex-col gap-2 bg-card rounded-lg overflow-hidden">
-          <div className="flex justify-between gap-2">
-            <div className="grid">
-              <h2 className="truncate">{board.name}</h2>
-              <span className="text-xs text-muted-foreground truncate">Creator: TODO</span>
+        <div key={board._id} className="relative">
+          <Link
+            to="/sync/$boardId/$boardName"
+            params={{
+              boardId: board.shortId,
+              boardName: board.name,
+            }}
+            className="block p-4 flex flex-col gap-2 bg-card rounded-lg overflow-hidden hover:not-[:has(button:hover)]:bg-accent transition-colors">
+            <div className="flex justify-between gap-2">
+              <div className="grid">
+                <h2 className="truncate">{board.name}</h2>
+                <span className="text-xs text-muted-foreground truncate">Creator: TODO</span>
+                <span className="text-xs text-muted-foreground truncate">
+                  {new Date(board._creationTime).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}{" "}
+                  at{" "}
+                  {new Date(board._creationTime).toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
+              </div>
+              <div className="w-8 h-8 shrink-0" /> {/* Spacer for button */}
+            </div>
+            <div>
+              <ul>
+                <li>Lists: #</li>
+                <li>Cards: #</li>
+                <li>Members: #</li>
+              </ul>
+            </div>
+            <div className="mt-auto grid">
+              <span className="text-xs text-muted-foreground truncate">Last modified by TODO</span>
               <span className="text-xs text-muted-foreground truncate">
-                {new Date(board._creationTime).toLocaleDateString("en-US", {
+                {new Date(board.updatedTime).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}{" "}
                 at{" "}
-                {new Date(board._creationTime).toLocaleTimeString("en-US", {
+                {new Date(board.updatedTime).toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
                   hour12: true,
                 })}
               </span>
             </div>
-            <OverviewActions boardId={board._id} />
-          </div>
-          <div>
-            <ul>
-              <li>Lists: #</li>
-              <li>Cards: #</li>
-              <li>Members: #</li>
-            </ul>
-          </div>
-          <div className="mt-auto grid">
-            <span className="text-xs text-muted-foreground truncate">Last modified by TODO</span>
-            <span className="text-xs text-muted-foreground truncate">
-              {new Date(board.updatedTime).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}{" "}
-              at{" "}
-              {new Date(board.updatedTime).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
-            </span>
-          </div>
+          </Link>
+          <OverviewActions boardId={board._id} />
         </div>
       ))}
     </section>

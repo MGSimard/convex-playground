@@ -52,7 +52,7 @@ export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
     <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="View actions" className="shrink-0">
+          <Button variant="ghost" size="icon" aria-label="View actions" className="shrink-0 absolute top-3 right-3">
             <EllipsisVerticalIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

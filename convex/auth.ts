@@ -41,7 +41,7 @@ export const currentUserData = query({
       phone: v.optional(v.string()),
       phoneVerificationTime: v.optional(v.number()),
       isAnonymous: v.optional(v.boolean()),
-      role: v.optional(v.union(v.literal("banned"), v.literal("applicant"), v.literal("member"), v.literal("admin"))),
+      role: v.optional(v.union(v.literal("applicant"), v.literal("member"), v.literal("admin"), v.literal("owner"))),
     }),
     v.null()
   ),

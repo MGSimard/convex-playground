@@ -6,20 +6,20 @@ export type Role = (typeof VALID_ROLES)[keyof typeof VALID_ROLES];
 
 // VALID ROLES IN ORDER OF INCREASING PRIVILEGES
 export const VALID_ROLES = {
-  BANNED: "banned", // Forced to "/" displaying banned screen
   APPLICANT: "applicant", // Forced to "/" displaying awaiting approval screen
   MEMBER: "member", // Can view and modify data
   ADMIN: "admin", // Has full access
+  OWNER: "owner", // Has full access
 } as const;
 
 // ROLE HIERARCHY
 // Higher numbers represent more privileges
 // Allows for easy comparison of role levels using simple numeric comparison
 const roleHierarchy: Record<Role, number> = {
-  banned: 0,
-  applicant: 1,
-  member: 2,
-  admin: 3,
+  applicant: 0,
+  member: 1,
+  admin: 2,
+  owner: 3,
 };
 
 // CHECK PERMISSIONS

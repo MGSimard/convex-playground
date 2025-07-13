@@ -14,12 +14,12 @@ export default defineSchema({
     phone: v.optional(v.string()),
     phoneVerificationTime: v.optional(v.float64()),
     isAnonymous: v.optional(v.boolean()),
-    role: v.optional(v.union(v.literal("banned"), v.literal("applicant"), v.literal("member"), v.literal("admin"))), // Optional because OAuth providers don't return a role
+    role: v.optional(v.union(v.literal("applicant"), v.literal("member"), v.literal("admin"), v.literal("owner"))), // Optional because OAuth providers don't return a role
   })
     .index("email", ["email"])
     .index("phone", ["phone"]),
 
-  // Board management schema
+  /* BOARD MANAGEMENT SCHEMAS */
   boards: defineTable({
     name: v.string(),
     shortId: v.string(),
@@ -27,14 +27,17 @@ export default defineSchema({
   })
     .index("by_updated_time", ["updatedTime"])
     .index("by_short_id", ["shortId"]),
+
   lists: defineTable({
     boardId: v.id("boards"),
     name: v.string(),
     position: v.number(),
   }).index("by_board", ["boardId"]),
+
   cards: defineTable({
     listId: v.id("lists"),
     content: v.string(),
     position: v.number(),
   }).index("by_list", ["listId"]),
+  /**/
 });

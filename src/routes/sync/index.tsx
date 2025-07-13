@@ -46,7 +46,7 @@ function RouteComponent() {
               boardId: board.shortId,
               boardName: board.name,
             }}
-            className="block p-4 flex flex-col gap-2 bg-card rounded-lg overflow-hidden hover:not-[:has(button:hover)]:bg-accent transition-colors">
+            className="flex flex-col gap-2 p-4 bg-card hover:bg-accent rounded-lg overflow-hidden transition-colors">
             <div className="flex justify-between gap-2">
               <div className="grid">
                 <h2 className="truncate">{board.name}</h2>

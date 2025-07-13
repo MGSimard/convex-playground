@@ -15,7 +15,9 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.float64()),
     isAnonymous: v.optional(v.boolean()),
     role: v.optional(v.union(v.literal("banned"), v.literal("applicant"), v.literal("member"), v.literal("admin"))), // Optional because OAuth providers don't return a role
-  }),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
 
   // Board management schema
   boards: defineTable({

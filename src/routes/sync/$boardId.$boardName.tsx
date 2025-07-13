@@ -13,12 +13,7 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
     const boardData = await context.queryClient.ensureQueryData(
       convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId })
     );
-
-    return {
-      crumb: boardData?.board.name || "Not found",
-      boardId,
-      boardName,
-    };
+    return { crumb: boardData?.board.name || "Not found", boardId, boardName };
   },
 });
 

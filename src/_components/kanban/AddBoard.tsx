@@ -18,6 +18,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState } from "react";
+import { cn } from "@/_lib/utils";
 
 export function AddBoard() {
   const [open, setOpen] = useState(false);
@@ -74,8 +75,10 @@ export function AddBoard() {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button type="submit" className="grid place-items-center" disabled={isPending}>
-              <Loader2Icon className={`col-start-1 row-start-1 animate-spin${isPending ? " visible" : " invisible"}`} />
-              <span className={`col-start-1 row-start-1${isPending ? " invisible" : " visible"}`}>Create board</span>
+              <Loader2Icon
+                className={cn("col-start-1 row-start-1 animate-spin", isPending ? "visible" : "invisible")}
+              />
+              <span className={cn("col-start-1 row-start-1", isPending ? "invisible" : "visible")}>Create board</span>
             </Button>
           </DialogFooter>
         </form>

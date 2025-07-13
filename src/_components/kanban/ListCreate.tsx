@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { Doc } from "../../../convex/_generated/dataModel";
 
 interface ListCreateProps {
@@ -15,10 +15,29 @@ interface ListCreateProps {
 export function ListCreate({ board }: ListCreateProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [listName, setListName] = useState("");
+  const formRef = useRef<HTMLLIElement>(null);
 
   const { mutate, isPending } = useMutation({
     mutationFn: useConvexMutation(api.lists.addList),
   });
+
+  // Handle click outside to cancel form (same pattern as in List.tsx)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isCreating && formRef.current && !formRef.current.contains(event.target as Node)) {
+        setIsCreating(false);
+        setListName("");
+      }
+    };
+
+    if (isCreating) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCreating]);
 
   const handleStartCreating = () => {
     setIsCreating(true);
@@ -70,7 +89,7 @@ export function ListCreate({ board }: ListCreateProps) {
 
   if (isCreating) {
     return (
-      <li className="bg-card rounded-lg w-64 max-h-full border overflow-hidden p-2">
+      <li ref={formRef} className="bg-card rounded-lg w-64 max-h-full border overflow-hidden p-2">
         <form onSubmit={handleSave} className="space-y-2">
           <Input
             value={listName}

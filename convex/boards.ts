@@ -18,10 +18,8 @@ export const addBoard = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("ERROR: Unauthenticated.");
 
-    // EXAMPLE PERMISSION CHECK
-    // Limit board creation to admins
-    const isAdmin = await checkPermission(ctx, userId, "admin");
-    if (!isAdmin) throw new Error("ERROR: Unauthorized.");
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
 
     const trimmedName = args.name.trim();
     if (!trimmedName) {

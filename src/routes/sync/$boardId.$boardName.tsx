@@ -4,10 +4,11 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { List } from "@/_components/kanban/List";
 import { ListCreate } from "@/_components/kanban/ListCreate";
+import { LoaderBlocks } from "@/_components/LoaderBlocks";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
-  pendingComponent: () => <div className="p-6">Loading board...</div>,
+  pendingComponent: BoardLoading,
   loader: async ({ params, context }) => {
     const { boardId, boardName } = params;
     const boardData = await context.queryClient.ensureQueryData(
@@ -22,7 +23,7 @@ function BoardComponent() {
   const { data } = useSuspenseQuery(convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }));
 
   if (!data) {
-    return <div className="p-6">Board not found.</div>;
+    return <BoardNotFound boardId={boardId} />;
   }
 
   const { board, lists, cards } = data;
@@ -37,5 +38,26 @@ function BoardComponent() {
         <ListCreate board={board} />
       </ol>
     </section>
+  );
+}
+
+function BoardNotFound({ boardId }: { boardId: string }) {
+  return (
+    <div className="p-6 grow flex text-center">
+      <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center">
+        <h2 className="text-balance">The requested board ID "{boardId}" does not exist.</h2>
+      </div>
+    </div>
+  );
+}
+
+function BoardLoading() {
+  return (
+    <div className="p-6 grow flex text-center">
+      <div className="border-dashed border-2 p-4 rounded-md grow flex flex-col items-center justify-center gap-6">
+        <LoaderBlocks />
+        <h2 className="text-balance text-muted">Loading board...</h2>
+      </div>
+    </div>
   );
 }

@@ -65,7 +65,6 @@ function RouteComponent() {
                   })}
                 </span>
               </div>
-              <div className="w-8 h-8 shrink-0" /> {/* Spacer for button */}
             </div>
             <div>
               <ul>

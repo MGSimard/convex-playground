@@ -37,18 +37,18 @@ export function AddBoard() {
         { name },
         {
           onSuccess: (result, variables) => {
-            toast.success("Board created successfully!");
+            toast.success("SUCCESS: Board created successfully.");
             setOpen(false);
             const formattedBoardName = variables.name.toLowerCase().replace(/\s+/g, "-");
             navigate({ to: `/sync/${result.shortId}/${formattedBoardName}` });
           },
           onError: (error) => {
-            toast.error(`Failed to create board: ${error.message}`);
+            toast.error(`ERROR: Failed to create board: ${error.message}`);
           },
         }
       );
     } else {
-      toast.error("Board name cannot be empty.");
+      toast.error("ERROR: Board name cannot be empty.");
     }
   };
 

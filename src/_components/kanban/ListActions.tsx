@@ -38,11 +38,11 @@ export function ListActions({ listId, onAddCard }: { listId: Id<"lists">; onAddC
       { listId },
       {
         onSuccess: () => {
-          toast.success("List deleted successfully!");
+          toast.success("SUCCESS: List deleted successfully.");
           setDeleteOpen(false);
         },
         onError: (error) => {
-          toast.error(`Failed to delete list: ${error.message}`);
+          toast.error(`ERROR: Failed to delete list: ${error.message}`);
         },
       }
     );

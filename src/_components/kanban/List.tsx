@@ -132,17 +132,17 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
         { listId, content: trimmedContent, position },
         {
           onSuccess: () => {
-            toast.success("Card created successfully!");
+            toast.success("SUCCESS:Card created successfully.");
             setCardContent("");
             onComplete();
           },
           onError: (error) => {
-            toast.error(`Failed to create card: ${error.message}`);
+            toast.error(`ERROR: Failed to create card: ${error.message}`);
           },
         }
       );
     } else {
-      toast.error("Card content cannot be empty.");
+      toast.error("ERROR: Card content cannot be empty.");
     }
   };
 

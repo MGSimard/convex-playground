@@ -38,11 +38,11 @@ export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
       { boardId },
       {
         onSuccess: () => {
-          toast.success("Board deleted successfully!");
+          toast.success("SUCCESS: Board deleted successfully.");
           setDeleteOpen(false);
         },
         onError: (error) => {
-          toast.error(`Failed to delete board: ${error.message}`);
+          toast.error(`ERROR: Failed to delete board: ${error.message}`);
         },
       }
     );

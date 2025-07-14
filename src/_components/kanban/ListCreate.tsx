@@ -65,17 +65,17 @@ export function ListCreate({ board }: ListCreateProps) {
         },
         {
           onSuccess: () => {
-            toast.success("List created successfully!");
+            toast.success("SUCCESS: List created successfully.");
             setIsCreating(false);
             setListName("");
           },
           onError: (error) => {
-            toast.error(`Failed to create list: ${error.message}`);
+            toast.error(`ERROR: Failed to create list: ${error.message}`);
           },
         }
       );
     } else {
-      toast.error("List name cannot be empty.");
+      toast.error("ERROR: List name cannot be empty.");
     }
   };
 

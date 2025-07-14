@@ -32,7 +32,6 @@ function RouteComponent() {
   // Later with perms
   // Alert confirm (shadcn) on delete attempt (owner & admin only)
   // Alert confirm (shadcn) on leave attempt (Not possible for owner)
-  // Alert confirm (shadcn) on leave attempt (Not possible for owner)
   // Favorite boards (fill + stroke icon foreground if favorited, border the card if favorited)
 
   if (boards.length === 0) {

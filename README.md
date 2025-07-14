@@ -96,9 +96,7 @@ https://docs.convex.dev/understanding/best-practices/typescript
 
 - [ ] Consider optimistic updates (Especially for list/card movement & favoriting button)
 - [ ] Consider read/write perms instead of member/admin
-- [ ] Check out ensureQueryData in loader to prefetch convex on intent
 - [ ] Assign cards to users
-- [ ] Rip out radix for the card creation dropdown menu it's dogshit and creates issues with focusing the input
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
 - [ ] Move board search results to context, consume in combobox AND sync index
 - [ ] Edit card (Makes it a textarea? Or use contenteditable)

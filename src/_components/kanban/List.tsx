@@ -9,6 +9,7 @@ import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
+import { useDraggable } from "@dnd-kit/react";
 
 interface ListProps {
   list: Doc<"lists">;
@@ -19,6 +20,9 @@ interface ListProps {
 export function List({ list, cards }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
   const formRef = useRef<HTMLLIElement>(null);
+  const { ref } = useDraggable({
+    id: list._id,
+  });
 
   const handleStartCreatingAtTop = () => {
     setIsCreating("top");
@@ -50,7 +54,7 @@ export function List({ list, cards }: ListProps) {
   }, [isCreating]);
 
   return (
-    <li className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
+    <li ref={ref} className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
       <div className="flex justify-between items-center gap-2 px-2">
         <h2 className="truncate font-medium text-muted-foreground">{list.name}</h2>
         <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />

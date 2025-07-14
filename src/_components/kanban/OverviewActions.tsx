@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useConvexMutation } from "@convex-dev/react-query";
@@ -25,13 +26,42 @@ import {
 } from "@/_components/ui/alert-dialog";
 import { ArchiveIcon, EllipsisVerticalIcon, Loader2Icon, StarIcon, Trash2Icon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/_lib/utils";
 
 export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { mutate: removeBoard, isPending } = useMutation({
+  // Query to check if board is favorited
+  const { data: isFavorited = false } = useQuery({
+    ...convexQuery(api.boards.isFavorited, { boardId }),
+    initialData: false,
+  });
+
+  // Mutation to toggle favorite status
+  const { mutate: toggleFavorite } = useMutation({
+    mutationFn: useConvexMutation(api.boards.toggleFavorite),
+  });
+
+  // Mutation to remove board
+  const { mutate: removeBoard, isPending: isDeleting } = useMutation({
     mutationFn: useConvexMutation(api.boards.removeBoard),
   });
+
+  const handleToggleFavorite = () => {
+    toggleFavorite(
+      { boardId },
+      {
+        onSuccess: (result) => {
+          toast.success(
+            result.isFavorited ? "SUCCESS: Board added to favorites." : "SUCCESS: Board removed from favorites."
+          );
+        },
+        onError: (error) => {
+          toast.error(`ERROR: Failed to update favorite: ${error.message}`);
+        },
+      }
+    );
+  };
 
   const handleDeleteBoard = (boardId: Id<"boards">) => {
     removeBoard(
@@ -59,9 +89,9 @@ export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
         <DropdownMenuContent className="w-56" align="start">
           <DropdownMenuLabel className="text-sm text-muted-foreground">Board Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <StarIcon className="h-4 w-4" />
-            Favorite
+          <DropdownMenuItem onClick={handleToggleFavorite}>
+            <StarIcon className={isFavorited ? "text-foreground fill-foreground" : ""} />
+            {isFavorited ? "Unfavorite" : "Favorite"}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
@@ -96,10 +126,10 @@ export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
           <Button
             onClick={() => handleDeleteBoard(boardId)}
             className="grid place-items-center"
-            disabled={isPending}
+            disabled={isDeleting}
             variant="destructive">
-            <Loader2Icon className={`col-start-1 row-start-1 animate-spin${isPending ? " visible" : " invisible"}`} />
-            <span className={`col-start-1 row-start-1${isPending ? " invisible" : " visible"}`}>Delete Board</span>
+            <Loader2Icon className={`col-start-1 row-start-1 animate-spin${isDeleting ? " visible" : " invisible"}`} />
+            <span className={`col-start-1 row-start-1${isDeleting ? " invisible" : " visible"}`}>Delete Board</span>
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

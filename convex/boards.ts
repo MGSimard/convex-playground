@@ -67,7 +67,9 @@ export const removeBoard = mutation({
 });
 
 /**
- * Fetch all boards for the Combobox, ordered by most recent activity.
+ * Fetch all boards for Combobox & grid list, ordered by most recent activity.
+ * Favorited boards appear first, followed by unfavorited boards.
+ * Both groups are sorted by lastModifiedTime (most recent first).
  */
 export const getBoards = query({
   args: {},
@@ -82,6 +84,7 @@ export const getBoards = query({
       lastModifiedTime: v.number(),
       lastModifiedBy: v.id("users"),
       lastModifiedByName: v.optional(v.string()),
+      isFavorited: v.boolean(),
     })
   ),
   handler: async (ctx) => {
@@ -93,7 +96,15 @@ export const getBoards = query({
 
     const boards = await ctx.db.query("boards").withIndex("by_last_modified").order("desc").collect();
 
-    // Enrich boards with user names
+    // Get all user's favorites in one query for efficiency
+    const userFavorites = await ctx.db
+      .query("favorites")
+      .withIndex("by_user_and_board", (q) => q.eq("userId", userId))
+      .collect();
+
+    const favoritedBoardIds = new Set(userFavorites.map((fav) => fav.boardId));
+
+    // Enrich boards with user names and favorite status
     const enrichedBoards = [];
     for (const board of boards) {
       const createdByUser = await ctx.db.get(board.createdBy);
@@ -103,10 +114,17 @@ export const getBoards = query({
         ...board,
         createdByName: createdByUser?.name,
         lastModifiedByName: lastModifiedByUser?.name,
+        isFavorited: favoritedBoardIds.has(board._id),
       });
     }
 
-    return enrichedBoards;
+    // Separate favorited and unfavorited boards
+    const favoritedBoards = enrichedBoards.filter((board) => board.isFavorited);
+    const unfavoritedBoards = enrichedBoards.filter((board) => !board.isFavorited);
+
+    // Both groups are already sorted by lastModifiedTime DESC from the initial query
+    // Return favorited boards first, then unfavorited
+    return [...favoritedBoards, ...unfavoritedBoards];
   },
 });
 
@@ -238,5 +256,116 @@ export const getBoardWithListsAndCards = query({
       lists: sortedLists,
       cards: sortedCards,
     };
+  },
+});
+
+/**
+ * Toggle favorite status for a board.
+ */
+export const toggleFavorite = mutation({
+  args: {
+    boardId: v.id("boards"),
+  },
+  returns: v.object({
+    isFavorited: v.boolean(),
+  }),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
+
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
+    const board = await ctx.db.get(args.boardId);
+    if (!board) {
+      throw new Error(`ERROR: Board ${args.boardId} not found.`);
+    }
+
+    const existingFavorite = await ctx.db
+      .query("favorites")
+      .withIndex("by_user_and_board", (q) => q.eq("userId", userId).eq("boardId", args.boardId))
+      .unique();
+
+    if (existingFavorite) {
+      await ctx.db.delete(existingFavorite._id);
+      return { isFavorited: false };
+    } else {
+      await ctx.db.insert("favorites", {
+        userId,
+        boardId: args.boardId,
+      });
+      return { isFavorited: true };
+    }
+  },
+});
+
+/**
+ * Check if a board is favorited by the current user.
+ */
+export const isFavorited = query({
+  args: {
+    boardId: v.id("boards"),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return false;
+
+    const favorite = await ctx.db
+      .query("favorites")
+      .withIndex("by_user_and_board", (q) => q.eq("userId", userId).eq("boardId", args.boardId))
+      .unique();
+
+    return favorite !== null;
+  },
+});
+
+/**
+ * Get all favorite boards for the current user.
+ */
+export const getFavoriteBoards = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("boards"),
+      _creationTime: v.number(),
+      shortId: v.string(),
+      name: v.string(),
+      createdBy: v.id("users"),
+      createdByName: v.optional(v.string()),
+      lastModifiedTime: v.number(),
+      lastModifiedBy: v.id("users"),
+      lastModifiedByName: v.optional(v.string()),
+    })
+  ),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("ERROR: Unauthenticated.");
+
+    const isMemberPlus = await checkPermission(ctx, userId, "member");
+    if (!isMemberPlus) throw new Error("ERROR: Unauthorized.");
+
+    const favorites = await ctx.db
+      .query("favorites")
+      .withIndex("by_user_and_board", (q) => q.eq("userId", userId))
+      .collect();
+
+    const favoriteBoards = [];
+    for (const favorite of favorites) {
+      const board = await ctx.db.get(favorite.boardId);
+      if (board) {
+        const createdByUser = await ctx.db.get(board.createdBy);
+        const lastModifiedByUser = await ctx.db.get(board.lastModifiedBy);
+
+        favoriteBoards.push({
+          ...board,
+          createdByName: createdByUser?.name,
+          lastModifiedByName: lastModifiedByUser?.name,
+        });
+      }
+    }
+
+    // Sort by last modified time, most recent first
+    return favoriteBoards.sort((a, b) => b.lastModifiedTime - a.lastModifiedTime);
   },
 });

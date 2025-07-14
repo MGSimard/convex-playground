@@ -94,6 +94,7 @@ https://docs.convex.dev/understanding/best-practices/typescript
 
 ## TASK LIST:
 
+- [ ] Consider optimistic updates (Especially for list/card movement & favoriting button)
 - [ ] Consider read/write perms instead of member/admin
 - [ ] Check out ensureQueryData in loader to prefetch convex on intent
 - [ ] Assign cards to users

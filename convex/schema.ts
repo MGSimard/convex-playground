@@ -41,5 +41,11 @@ export default defineSchema({
     content: v.string(),
     position: v.number(),
   }).index("by_list", ["listId"]),
+
+  /* FAVORITES SCHEMA */
+  favorites: defineTable({
+    userId: v.id("users"),
+    boardId: v.id("boards"),
+  }).index("by_user_and_board", ["userId", "boardId"]),
   /**/
 });

@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { OverviewActions } from "@/_components/kanban/OverviewActions";
 import { LoaderBlocks } from "@/_components/LoaderBlocks";
 import { Link } from "@tanstack/react-router";
+import { cn } from "@/_lib/utils";
 
 export const Route = createFileRoute("/sync/")({
   component: RouteComponent,
@@ -48,7 +49,10 @@ function RouteComponent() {
               boardId: board.shortId,
               boardName: board.name,
             }}
-            className="flex flex-col gap-2 p-4 bg-card hover:bg-accent rounded-lg overflow-hidden transition-colors">
+            className={cn(
+              "flex flex-col gap-2 p-4 border bg-card hover:bg-accent rounded-xl text-card-foreground overflow-hidden transition-colors shadow-sm",
+              board.isFavorited ? "border-foreground/60" : ""
+            )}>
             <div className="flex justify-between gap-2">
               <div className="grid">
                 <h2 className="truncate">{board.name}</h2>

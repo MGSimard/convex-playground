@@ -160,7 +160,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
   };
 
   return (
-    <li ref={ref} className="bg-muted rounded-md p-2">
+    <li className="bg-muted rounded-md p-2">
       <form onSubmit={handleSave} className="space-y-2">
         <Input
           id="card-create-input"

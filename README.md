@@ -101,7 +101,6 @@ https://docs.convex.dev/understanding/best-practices/typescript
 - [ ] Rip out radix for the card creation dropdown menu it's dogshit and creates issues with focusing the input
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
 - [ ] Move board search results to context, consume in combobox AND sync index
-- [ ] Show favorited boards on top
 - [ ] Edit card (Makes it a textarea? Or use contenteditable)
 - [ ] Direct click on card (role?) opens dialog with options
 - [ ] Text at top of card max lines with scrollable, show list, desc?

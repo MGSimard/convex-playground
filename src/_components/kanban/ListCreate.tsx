@@ -49,7 +49,7 @@ export function ListCreate({ board }: ListCreateProps) {
     setListName("");
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleAddList = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = listName.trim();
     if (trimmedName) {
@@ -81,7 +81,7 @@ export function ListCreate({ board }: ListCreateProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSave(e);
+      handleAddList(e);
     } else if (e.key === "Escape") {
       handleCancel();
     }
@@ -90,7 +90,7 @@ export function ListCreate({ board }: ListCreateProps) {
   if (isCreating) {
     return (
       <li ref={formRef} className="bg-card rounded-lg w-64 max-h-full border overflow-hidden p-2">
-        <form onSubmit={handleSave} className="space-y-2">
+        <form onSubmit={handleAddList} className="space-y-2">
           <Input
             value={listName}
             onChange={(e) => setListName(e.target.value)}
@@ -103,7 +103,7 @@ export function ListCreate({ board }: ListCreateProps) {
           <div className="flex gap-2">
             <Button type="submit" size="sm" disabled={isPending} className="flex-1 grid place-items-center">
               <Loader2Icon className={`col-start-1 row-start-1 animate-spin${isPending ? " visible" : " invisible"}`} />
-              <span className={`col-start-1 row-start-1${isPending ? " invisible" : " visible"}`}>Save</span>
+              <span className={`col-start-1 row-start-1${isPending ? " invisible" : " visible"}`}>Add</span>
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={handleCancel} disabled={isPending}>
               <X className="h-4 w-4" />

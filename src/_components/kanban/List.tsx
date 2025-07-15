@@ -64,7 +64,7 @@ export function List({ list, cards }: ListProps) {
           </li>
         )}
         {cards.length === 0 ? (
-          <li className="text-sm font-medium border text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
+          <li className="text-sm font-medium border pointer-events-none select-none text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
             Empty
           </li>
         ) : (

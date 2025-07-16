@@ -4,6 +4,7 @@ import { DragDropProvider, useDraggable, useDroppable } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { CollisionPriority } from "@dnd-kit/abstract";
 import { move } from "@dnd-kit/helpers";
+import { useRef } from "react";
 
 export const Route = createFileRoute("/test/")({
   component: RouteComponent,
@@ -15,10 +16,16 @@ function RouteComponent() {
     B: ["B0", "B1"],
     C: [],
   });
+  const previousItems = useRef(items);
   const [columnOrder, setColumnOrder] = useState(() => Object.keys(items));
 
+  // STATEFUL OPERATIONS BY USING DRAGDROPPPROVIDER METHODS
+  // MIGHT BE ABLE TO HOOK THAT UP TO THE CONVEX BACKEND WITH OPTIMISTIC UPDATES
   return (
     <DragDropProvider
+      onDragStart={() => {
+        previousItems.current = items;
+      }}
       onDragOver={(event) => {
         const { source, target } = event.operation;
 
@@ -29,9 +36,17 @@ function RouteComponent() {
       onDragEnd={(event) => {
         const { source, target } = event.operation;
 
-        if (event.canceled || source.type !== "column") return;
+        if (event.canceled) {
+          if (source.type === "item") {
+            setItems(previousItems.current);
+          }
 
-        setColumnOrder((columns) => move(columns, event));
+          return;
+        }
+
+        if (source.type === "column") {
+          setColumnOrder((columns) => move(columns, event));
+        }
       }}>
       <div className="flex gap-4">
         {columnOrder.map((column, columnIndex) => (

@@ -13,6 +13,7 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
+import { cn } from "@/_lib/utils";
 import {
   type ListDragData,
   type ListDropData,
@@ -221,24 +222,26 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   return (
     <li
       ref={listRef}
-      className={`relative flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border py-2 ${
-        isDragging ? "opacity-50 rotate-2 scale-95" : ""
-      }`}>
+      className={cn(
+        "relative flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border py-2",
+        isDragging && "opacity-50 scale-95"
+      )}>
       {/* Drop indicators */}
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="16px" />}
 
       <div
         ref={listHeaderRef}
-        className={`flex justify-between items-center gap-2 px-2 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}>
+        className={cn("flex justify-between items-center gap-2 px-2", isDragging ? "cursor-grabbing" : "cursor-grab")}>
         <h2 className="truncate font-medium text-muted-foreground">{list.name}</h2>
         <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
       </div>
 
       <ul
         ref={listContentRef}
-        className={`flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent] ${
-          isBeingDraggedOverByCard && cards.length === 0 ? "bg-primary/10 border-2 border-dashed border-primary/30" : ""
-        }`}>
+        className={cn(
+          "flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]",
+          isBeingDraggedOverByCard && cards.length === 0 && "bg-primary/10 border-2 border-dashed border-primary/30"
+        )}>
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
           <li ref={formRef}>
@@ -247,11 +250,12 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         )}
         {cards.length === 0 ? (
           <li
-            className={`text-sm font-medium border pointer-events-none select-none text-muted-foreground flex items-center justify-center p-4 ${
+            className={cn(
+              "text-sm font-medium border pointer-events-none select-none text-muted-foreground flex items-center justify-center p-4",
               isBeingDraggedOverByCard
                 ? "bg-primary/10 border-primary/30 text-primary"
                 : "bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]"
-            }`}>
+            )}>
             {isBeingDraggedOverByCard ? "Drop card here" : "Empty"}
           </li>
         ) : (
@@ -372,8 +376,8 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
         />
         <div className="flex gap-2">
           <Button type="submit" disabled={addingCard} className="grid place-items-center">
-            <Loader2Icon className={`col-start-1 row-start-1 animate-spin${addingCard ? " visible" : " invisible"}`} />
-            <span className={`col-start-1 row-start-1${addingCard ? " invisible" : " visible"}`}>Add</span>
+            <Loader2Icon className={cn("col-start-1 row-start-1 animate-spin", addingCard ? "visible" : "invisible")} />
+            <span className={cn("col-start-1 row-start-1", addingCard ? "invisible" : "visible")}>Add</span>
           </Button>
           <Button type="button" variant="outline" size="icon" onClick={handleCancel} disabled={addingCard}>
             <X />

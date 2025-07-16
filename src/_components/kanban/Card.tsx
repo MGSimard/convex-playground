@@ -6,6 +6,7 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
+import { cn } from "@/_lib/utils";
 import {
   type CardDragData,
   type CardDropData,
@@ -155,9 +156,10 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
   return (
     <li
       ref={cardRef}
-      className={`relative text-sm text-muted-foreground bg-muted rounded-md px-3 py-1.5 break-all group hover:outline-1 hover:outline-primary ${
-        isDragging ? "opacity-50 rotate-1 scale-95 cursor-grabbing" : "cursor-grab"
-      }`}>
+      className={cn(
+        "relative text-sm text-muted-foreground bg-muted rounded-md px-3 py-1.5 break-all group hover:outline-1 hover:outline-primary",
+        isDragging ? "opacity-50 scale-95 cursor-grabbing" : "cursor-grab"
+      )}>
       {/* Drop indicators */}
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="8px" />}
 

@@ -12,6 +12,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { useEffect } from "react";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { AccessibilityProvider, useAccessibility } from "@/_components/kanban/AccessibilityContext";
+import { DropIndicator } from "@/_components/kanban/DropIndicator";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -197,13 +198,8 @@ function BoardContent() {
     reorderLists(
       { boardId, listUpdates },
       {
-        onSuccess: () => {
-          toast.success("Lists reordered successfully");
-          announce("Lists reordered successfully");
-        },
         onError: (error) => {
           toast.error(`Failed to reorder lists: ${error.message}`);
-          announce(`Failed to reorder lists: ${error.message}`);
         },
       }
     );
@@ -213,13 +209,8 @@ function BoardContent() {
     reorderCards(
       { listId, cardUpdates },
       {
-        onSuccess: () => {
-          toast.success("Cards reordered successfully");
-          announce("Cards reordered successfully");
-        },
         onError: (error) => {
           toast.error(`Failed to reorder cards: ${error.message}`);
-          announce(`Failed to reorder cards: ${error.message}`);
         },
       }
     );
@@ -229,13 +220,8 @@ function BoardContent() {
     moveCard(
       { cardId, newListId, newPosition },
       {
-        onSuccess: () => {
-          toast.success("Card moved successfully");
-          announce("Card moved successfully");
-        },
         onError: (error) => {
           toast.error(`Failed to move card: ${error.message}`);
-          announce(`Failed to move card: ${error.message}`);
         },
       }
     );

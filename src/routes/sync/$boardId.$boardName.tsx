@@ -1,11 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
+import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { List } from "@/_components/kanban/List";
 import { ListCreate } from "@/_components/kanban/ListCreate";
 import { LoaderLines } from "@/_components/LoaderLines";
 import { SquareDashed } from "lucide-react";
+import { toast } from "sonner";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { useEffect } from "react";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { AccessibilityProvider, useAccessibility } from "@/_components/kanban/AccessibilityContext";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -20,8 +26,234 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
 });
 
 function BoardComponent() {
+  return (
+    <AccessibilityProvider>
+      <BoardContent />
+    </AccessibilityProvider>
+  );
+}
+
+function BoardContent() {
   const { boardId } = Route.useLoaderData();
   const { data } = useSuspenseQuery(convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }));
+  const { announce } = useAccessibility();
+  const queryClient = useQueryClient();
+
+  const { mutate: reorderLists } = useMutation({
+    mutationFn: useConvexMutation(api.lists.reorderLists),
+    onMutate: async (variables: {
+      boardId: Id<"boards">;
+      listUpdates: Array<{ listId: Id<"lists">; position: number }>;
+    }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey
+      );
+
+      // Optimistically update to the new value
+      if (previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          (old: any) => {
+            if (!old) return old;
+
+            const updatedLists = old.lists.map((list: any) => {
+              const update = variables.listUpdates.find((u: any) => u.listId === list._id);
+              return update ? { ...list, position: update.position } : list;
+            });
+
+            return {
+              ...old,
+              lists: updatedLists.sort((a: any, b: any) => a.position - b.position),
+            };
+          }
+        );
+      }
+
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          context.previousData
+        );
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+    },
+  });
+
+  const { mutate: reorderCards } = useMutation({
+    mutationFn: useConvexMutation(api.cards.reorderCards),
+    onMutate: async (variables: {
+      listId: Id<"lists">;
+      cardUpdates: Array<{ cardId: Id<"cards">; position: number }>;
+    }) => {
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey
+      );
+
+      if (previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          (old: any) => {
+            if (!old) return old;
+
+            const updatedCards = old.cards.map((card: any) => {
+              const update = variables.cardUpdates.find((u: any) => u.cardId === card._id);
+              return update ? { ...card, position: update.position } : card;
+            });
+
+            return {
+              ...old,
+              cards: updatedCards.sort((a: any, b: any) => a.position - b.position),
+            };
+          }
+        );
+      }
+
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          context.previousData
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+    },
+  });
+
+  const { mutate: moveCard } = useMutation({
+    mutationFn: useConvexMutation(api.cards.moveCard),
+    onMutate: async (variables: { cardId: Id<"cards">; newListId: Id<"lists">; newPosition: number }) => {
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey
+      );
+
+      if (previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          (old: any) => {
+            if (!old) return old;
+
+            const updatedCards = old.cards.map((card: any) => {
+              if (card._id === variables.cardId) {
+                return { ...card, listId: variables.newListId, position: variables.newPosition };
+              }
+              return card;
+            });
+
+            return {
+              ...old,
+              cards: updatedCards.sort((a: any, b: any) => a.position - b.position),
+            };
+          }
+        );
+      }
+
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+          context.previousData
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
+      });
+    },
+  });
+
+  const handleReorderLists = (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => {
+    reorderLists(
+      { boardId, listUpdates },
+      {
+        onSuccess: () => {
+          toast.success("Lists reordered successfully");
+          announce("Lists reordered successfully");
+        },
+        onError: (error) => {
+          toast.error(`Failed to reorder lists: ${error.message}`);
+          announce(`Failed to reorder lists: ${error.message}`);
+        },
+      }
+    );
+  };
+
+  const handleReorderCards = (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => {
+    reorderCards(
+      { listId, cardUpdates },
+      {
+        onSuccess: () => {
+          toast.success("Cards reordered successfully");
+          announce("Cards reordered successfully");
+        },
+        onError: (error) => {
+          toast.error(`Failed to reorder cards: ${error.message}`);
+          announce(`Failed to reorder cards: ${error.message}`);
+        },
+      }
+    );
+  };
+
+  const handleMoveCard = (cardId: Id<"cards">, newListId: Id<"lists">, newPosition: number) => {
+    moveCard(
+      { cardId, newListId, newPosition },
+      {
+        onSuccess: () => {
+          toast.success("Card moved successfully");
+          announce("Card moved successfully");
+        },
+        onError: (error) => {
+          toast.error(`Failed to move card: ${error.message}`);
+          announce(`Failed to move card: ${error.message}`);
+        },
+      }
+    );
+  };
+
+  // Set up global drag monitoring
+  useEffect(() => {
+    return monitorForElements({
+      onDragStart: () => {
+        // Add any global drag start logic here
+        announce("Drag started");
+      },
+      onDrop: () => {
+        // Add any global drop logic here
+        announce("Drag completed");
+      },
+    });
+  }, [announce]);
 
   if (!data) {
     return <BoardNotFound boardId={boardId} />;
@@ -34,7 +266,18 @@ function BoardComponent() {
       <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
         {lists.map((list) => {
           const listCards = cards.filter((card) => card.listId === list._id);
-          return <List key={list._id} list={list} cards={listCards} />;
+          return (
+            <List
+              key={list._id}
+              list={list}
+              cards={listCards}
+              allLists={lists}
+              allCards={cards}
+              onReorderLists={handleReorderLists}
+              onReorderCards={handleReorderCards}
+              onMoveCard={handleMoveCard}
+            />
+          );
         })}
         <ListCreate board={board} />
       </ol>

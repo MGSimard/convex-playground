@@ -9,16 +9,51 @@ import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
+import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { DropIndicator } from "@/_components/kanban/DropIndicator";
+import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
+import {
+  type ListDragData,
+  type ListDropData,
+  type CardDragData,
+  type CardDropData,
+  type Edge,
+  dragRegistry,
+  isListDragData,
+  isCardDragData,
+  getReorderDestinationIndex,
+  calculatePositionForIndex,
+  attachClosestEdge,
+  extractClosestEdge,
+} from "@/_lib/drag-and-drop";
 
 interface ListProps {
   list: Doc<"lists">;
   cards: Doc<"cards">[];
+  allLists: Doc<"lists">[];
+  allCards: Doc<"cards">[];
+  onReorderLists: (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => void;
+  onReorderCards: (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => void;
+  onMoveCard: (cardId: Id<"cards">, newListId: Id<"lists">, newPosition: number) => void;
 }
 
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
-export function List({ list, cards }: ListProps) {
+export function List({ list, cards, allLists, allCards, onReorderLists, onReorderCards, onMoveCard }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
+  const [isDraggedOver, setIsDraggedOver] = useState(false);
+  const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
+  const [isDraggedOverByCard, setIsDraggedOverByCard] = useState(false);
   const formRef = useRef<HTMLLIElement>(null);
+  const listRef = useRef<HTMLLIElement>(null);
+  const listContentRef = useRef<HTMLUListElement>(null);
+  const listHeaderRef = useRef<HTMLDivElement>(null);
+  const dragState = useDragAndDrop();
+
+  const isDragging =
+    dragState.isDragging && dragState.draggedItem?.type === "list" && dragState.draggedItem.listId === list._id;
+  const isBeingDraggedOver = isDraggedOver && dragState.isDragging;
+  const isBeingDraggedOverByCard = isDraggedOverByCard && dragState.isDragging;
 
   const handleStartCreatingAtTop = () => {
     setIsCreating("top");
@@ -49,14 +84,161 @@ export function List({ list, cards }: ListProps) {
     };
   }, [isCreating]);
 
+  // Set up drag and drop for lists
+  useEffect(() => {
+    const element = listRef.current;
+    if (!element) return;
+
+    const dragData: ListDragData = {
+      type: "list",
+      listId: list._id,
+      boardId: list.boardId,
+    };
+
+    const dropData: ListDropData = {
+      type: "list",
+      listId: list._id,
+      boardId: list.boardId,
+    };
+
+    return combine(
+      // Make list draggable
+      draggable({
+        element,
+        dragHandle: listHeaderRef.current || undefined,
+        getInitialData: () => dragData,
+        onDragStart: () => {
+          dragRegistry.startDrag(dragData);
+        },
+        onDrop: () => {
+          dragRegistry.endDrag();
+        },
+      }),
+      // Make list a drop target for other lists
+      dropTargetForElements({
+        element,
+        getData: ({ input, element }) =>
+          attachClosestEdge(dropData, {
+            input,
+            element: element as HTMLElement,
+            allowedEdges: ["left", "right"],
+          }),
+        getIsSticky: () => true,
+        canDrop: ({ source }) => {
+          const sourceData = source.data;
+          return isListDragData(sourceData) && sourceData.boardId === list.boardId && sourceData.listId !== list._id;
+        },
+        onDragEnter: ({ self, source }) => {
+          if (isListDragData(source.data)) {
+            setIsDraggedOver(true);
+            setClosestEdge(extractClosestEdge(self.data));
+            dragRegistry.updateDragOver(dropData);
+          }
+        },
+        onDrag: ({ self, source }) => {
+          if (isListDragData(source.data)) {
+            setClosestEdge(extractClosestEdge(self.data));
+          }
+        },
+        onDragLeave: () => {
+          setIsDraggedOver(false);
+          setClosestEdge(null);
+          dragRegistry.updateDragOver(null);
+        },
+        onDrop: ({ self, source, location }) => {
+          setIsDraggedOver(false);
+          setClosestEdge(null);
+
+          const sourceData = source.data;
+          if (!isListDragData(sourceData)) return;
+
+          const currentIndex = allLists.findIndex((l) => l._id === sourceData.listId);
+          const targetIndex = allLists.findIndex((l) => l._id === list._id);
+
+          if (currentIndex === -1 || targetIndex === -1) return;
+
+          const destinationIndex = getReorderDestinationIndex({
+            startIndex: currentIndex,
+            indexOfTarget: targetIndex,
+            closestEdgeOfTarget: closestEdge,
+            axis: "horizontal",
+          });
+
+          const sortedLists = [...allLists].sort((a, b) => a.position - b.position);
+          const newPosition = calculatePositionForIndex(sortedLists, destinationIndex);
+
+          onReorderLists(list.boardId, [{ listId: sourceData.listId, position: newPosition }]);
+        },
+      })
+    );
+  }, [list, allLists, onReorderLists, closestEdge, listHeaderRef]);
+
+  // Set up drag and drop for cards on the list content area
+  useEffect(() => {
+    const element = listContentRef.current;
+    if (!element) return;
+
+    const dropData: CardDropData = {
+      type: "card",
+      cardId: "empty-list" as Id<"cards">, // Placeholder for empty list
+      listId: list._id,
+      boardId: list.boardId,
+    };
+
+    return dropTargetForElements({
+      element,
+      getData: () => dropData,
+      getIsSticky: () => true,
+      canDrop: ({ source }) => {
+        const sourceData = source.data;
+        return isCardDragData(sourceData) && sourceData.listId !== list._id;
+      },
+      onDragEnter: ({ self, source }) => {
+        if (isCardDragData(source.data)) {
+          setIsDraggedOverByCard(true);
+          dragRegistry.updateDragOver(dropData);
+        }
+      },
+      onDragLeave: () => {
+        setIsDraggedOverByCard(false);
+        dragRegistry.updateDragOver(null);
+      },
+      onDrop: ({ self, source, location }) => {
+        setIsDraggedOverByCard(false);
+
+        const sourceData = source.data;
+        if (!isCardDragData(sourceData)) return;
+
+        // Calculate position for adding to the end of the list
+        const listCards = cards.filter((c) => c.listId === list._id);
+        const newPosition = listCards.length > 0 ? Math.max(...listCards.map((c) => c.position)) + 1 : 0;
+
+        onMoveCard(sourceData.cardId, list._id, newPosition);
+      },
+    });
+  }, [list, cards, onMoveCard]);
+
   return (
-    <li className="flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border overflow-hidden py-2">
-      <div className="flex justify-between items-center gap-2 px-2">
+    <li
+      ref={listRef}
+      className={`relative flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border py-2 ${
+        isDragging ? "opacity-50 rotate-2 scale-95" : ""
+      }`}>
+      {/* Drop indicators */}
+      {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="16px" />}
+
+      <div
+        ref={listHeaderRef}
+        className={`flex justify-between items-center gap-2 px-2 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}>
         <h2 className="truncate font-medium text-muted-foreground">{list.name}</h2>
         <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
       </div>
 
-      <ul className="flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+      <ul
+        ref={listContentRef}
+        className={`flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent] ${
+          isBeingDraggedOverByCard && cards.length === 0 ? "bg-primary/10 border-2 border-dashed border-primary/30" : ""
+        }`}>
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
           <li ref={formRef}>
@@ -64,11 +246,25 @@ export function List({ list, cards }: ListProps) {
           </li>
         )}
         {cards.length === 0 ? (
-          <li className="text-sm font-medium border pointer-events-none select-none text-muted-foreground flex items-center justify-center p-4 bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]">
-            Empty
+          <li
+            className={`text-sm font-medium border pointer-events-none select-none text-muted-foreground flex items-center justify-center p-4 ${
+              isBeingDraggedOverByCard
+                ? "bg-primary/10 border-primary/30 text-primary"
+                : "bg-[repeating-linear-gradient(45deg,var(--border),var(--border)_4px,transparent_4px,transparent_8px)]"
+            }`}>
+            {isBeingDraggedOverByCard ? "Drop card here" : "Empty"}
           </li>
         ) : (
-          cards.map((card) => <Card key={card._id} card={card} />)
+          cards.map((card) => (
+            <Card
+              key={card._id}
+              card={card}
+              boardId={list.boardId}
+              allCards={allCards}
+              onReorderCards={onReorderCards}
+              onMoveCard={onMoveCard}
+            />
+          ))
         )}
         {/* Show card creation form at bottom if triggered from bottom button */}
         {isCreating === "bottom" && (

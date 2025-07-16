@@ -192,7 +192,9 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       getIsSticky: () => true,
       canDrop: ({ source }) => {
         const sourceData = source.data;
-        return isCardDragData(sourceData) && sourceData.listId !== list._id;
+        // Only allow drop from different lists AND only when this list is empty
+        // This prevents interference with card-to-card drops in non-empty lists
+        return isCardDragData(sourceData) && sourceData.listId !== list._id && cards.length === 0;
       },
       onDragEnter: ({ self, source }) => {
         if (isCardDragData(source.data)) {

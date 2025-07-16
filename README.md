@@ -94,6 +94,7 @@ https://docs.convex.dev/understanding/best-practices/typescript
 
 ## TASK LIST:
 
+- [ ] Finish up accessibility for kanban
 - [ ] Consider optimistic updates (Especially for list/card movement & favoriting button)
 - [ ] Consider read/write perms instead of member/admin
 - [ ] Assign cards to users

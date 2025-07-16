@@ -224,7 +224,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       ref={listRef}
       className={cn(
         "relative flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border py-2",
-        isDragging && "opacity-50 scale-95"
+        isDragging && "opacity-50 scale-98"
       )}>
       {/* Drop indicators */}
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="16px" />}

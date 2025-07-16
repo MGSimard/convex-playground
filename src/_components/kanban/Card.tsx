@@ -158,7 +158,7 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
       ref={cardRef}
       className={cn(
         "relative text-sm text-muted-foreground bg-muted rounded-md px-3 py-1.5 break-all group hover:outline-1 hover:outline-primary",
-        isDragging ? "opacity-50 scale-95 cursor-grabbing" : "cursor-grab"
+        isDragging ? "opacity-50 scale-98" : "cursor-grab"
       )}>
       {/* Drop indicators */}
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="8px" />}

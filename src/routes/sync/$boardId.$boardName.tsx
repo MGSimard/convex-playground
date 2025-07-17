@@ -10,7 +10,6 @@ import { SquareDashed } from "lucide-react";
 import { toast } from "sonner";
 import type { Id, Doc } from "../../../convex/_generated/dataModel";
 
-// Type for the board data returned by getBoardWithListsAndCards
 type BoardWithListsAndCards = {
   board: Doc<"boards">;
   lists: Doc<"lists">[];
@@ -49,7 +48,6 @@ function BoardComponent() {
         queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
       });
 
-      // Snapshot the previous value
       const previousData = queryClient.getQueryData(
         convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey
       );
@@ -197,7 +195,7 @@ function BoardComponent() {
       { boardId, listUpdates },
       {
         onError: (error) => {
-          toast.error(`Failed to reorder lists: ${error.message}`);
+          toast.error(`ERROR: Failed to reorder lists: ${error.message}`);
         },
       }
     );
@@ -208,7 +206,7 @@ function BoardComponent() {
       { listId, cardUpdates },
       {
         onError: (error) => {
-          toast.error(`Failed to reorder cards: ${error.message}`);
+          toast.error(`ERROR: Failed to reorder cards: ${error.message}`);
         },
       }
     );
@@ -219,7 +217,7 @@ function BoardComponent() {
       { cardId, newListId, newPosition },
       {
         onError: (error) => {
-          toast.error(`Failed to move card: ${error.message}`);
+          toast.error(`ERROR: Failed to move card: ${error.message}`);
         },
       }
     );

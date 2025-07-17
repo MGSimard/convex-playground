@@ -49,7 +49,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const formRef = useRef<HTMLLIElement>(null);
   const listRef = useRef<HTMLLIElement>(null);
-  const listContentRef = useRef<HTMLUListElement>(null);
+  const listContentRef = useRef<HTMLOListElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
   const dragState = useDragAndDrop();
 
@@ -268,7 +268,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         />
       </div>
 
-      <ul
+      <ol
         ref={listContentRef}
         className={cn(
           "flex flex-col [&>*]:shrink-0 px-1 mx-1 py-2 gap-2 list-none overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]",
@@ -308,7 +308,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
             <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
           </li>
         )}
-      </ul>
+      </ol>
 
       <div className="px-2">
         <Button

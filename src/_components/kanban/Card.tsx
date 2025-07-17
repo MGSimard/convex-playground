@@ -6,6 +6,7 @@ import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-d
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
+
 import { cn } from "@/_lib/utils";
 import {
   type CardDragData,
@@ -92,17 +93,15 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
             dragRegistry.updateDragOver(dropData);
           }
         },
-        onDrag: ({ self, source }) => {
-          if (isCardDragData(source.data)) {
-            setClosestEdge(extractClosestEdge(self.data));
-          }
+        onDrag: ({ self }) => {
+          setClosestEdge(extractClosestEdge(self.data));
         },
         onDragLeave: () => {
           setIsDraggedOver(false);
           setClosestEdge(null);
           dragRegistry.updateDragOver(null);
         },
-        onDrop: ({ self, source, location }) => {
+        onDrop: ({ source }) => {
           setIsDraggedOver(false);
           setClosestEdge(null);
 
@@ -156,6 +155,7 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
   return (
     <li
       ref={cardRef}
+      data-dragging={isDragging}
       className={cn(
         "relative text-sm text-muted-foreground bg-muted rounded-md px-3 py-1.5 break-all group hover:outline-1 hover:outline-primary",
         isDragging ? "opacity-50 scale-98" : "cursor-grab"
@@ -167,7 +167,8 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
       <Button
         variant="ghost"
         size="icon"
-        className="bg-muted size-6 absolute top-1 right-1 z-10 invisible group-hover:visible">
+        className="bg-muted size-6 absolute top-1 right-1 z-10 invisible group-hover:visible"
+        aria-label={`Edit card: ${card.content}`}>
         <SquarePen />
       </Button>
     </li>

@@ -11,13 +11,14 @@ import { useState, useRef, useEffect } from "react";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
+
 import { cn } from "@/_lib/utils";
 import {
   type ListDragData,
   type ListDropData,
-  type CardDragData,
   type CardDropData,
   type Edge,
   dragRegistry,
@@ -45,10 +46,11 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   const [isDraggedOver, setIsDraggedOver] = useState(false);
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
   const [isDraggedOverByCard, setIsDraggedOverByCard] = useState(false);
+  const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const formRef = useRef<HTMLLIElement>(null);
   const listRef = useRef<HTMLLIElement>(null);
   const listContentRef = useRef<HTMLUListElement>(null);
-  const listHeaderRef = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
   const dragState = useDragAndDrop();
 
   const isDragging =
@@ -67,6 +69,8 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   const handleCreationComplete = () => {
     setIsCreating(false);
   };
+
+  // Remove keyboard drag functionality from list header - this will be handled by the "Move list" button in dropdown instead
 
   // Handle click outside to cancel form
   useEffect(() => {
@@ -106,7 +110,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       // Make list draggable
       draggable({
         element,
-        dragHandle: listHeaderRef.current || undefined,
+        dragHandle: dragHandleRef.current || undefined,
         getInitialData: () => dragData,
         onDragStart: () => {
           dragRegistry.startDrag(dragData);
@@ -136,17 +140,15 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
             dragRegistry.updateDragOver(dropData);
           }
         },
-        onDrag: ({ self, source }) => {
-          if (isListDragData(source.data)) {
-            setClosestEdge(extractClosestEdge(self.data));
-          }
+        onDrag: ({ self }) => {
+          setClosestEdge(extractClosestEdge(self.data));
         },
         onDragLeave: () => {
           setIsDraggedOver(false);
           setClosestEdge(null);
           dragRegistry.updateDragOver(null);
         },
-        onDrop: ({ self, source, location }) => {
+        onDrop: ({ source }) => {
           setIsDraggedOver(false);
           setClosestEdge(null);
 
@@ -172,9 +174,9 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         },
       })
     );
-  }, [list, allLists, onReorderLists, closestEdge, listHeaderRef]);
+  }, [list, allLists, onReorderLists, closestEdge]);
 
-  // Set up drag and drop for cards on the list content area
+  // Set up drag and drop for cards on the list content area and auto-scrolling
   useEffect(() => {
     const element = listContentRef.current;
     if (!element) return;
@@ -186,7 +188,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       boardId: list.boardId,
     };
 
-    return dropTargetForElements({
+    const cleanupDropTarget = dropTargetForElements({
       element,
       getData: () => dropData,
       getIsSticky: () => true,
@@ -196,7 +198,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         // This prevents interference with card-to-card drops in non-empty lists
         return isCardDragData(sourceData) && sourceData.listId !== list._id && cards.length === 0;
       },
-      onDragEnter: ({ self, source }) => {
+      onDragEnter: ({ source }) => {
         if (isCardDragData(source.data)) {
           setIsDraggedOverByCard(true);
           dragRegistry.updateDragOver(dropData);
@@ -206,7 +208,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         setIsDraggedOverByCard(false);
         dragRegistry.updateDragOver(null);
       },
-      onDrop: ({ self, source, location }) => {
+      onDrop: ({ source }) => {
         setIsDraggedOverByCard(false);
 
         const sourceData = source.data;
@@ -219,11 +221,28 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         onMoveCard(sourceData.cardId, list._id, newPosition);
       },
     });
+
+    // Set up auto-scrolling for vertical list scrolling
+    const cleanupAutoScroll = autoScrollForElements({
+      element,
+      getAllowedAxis: () => "vertical",
+      getConfiguration: () => ({
+        maxScrollSpeed: "standard",
+        startScrollingThreshold: "percentage-based",
+        maxPixelScrollDelta: 6,
+      }),
+    });
+
+    return () => {
+      cleanupDropTarget();
+      cleanupAutoScroll();
+    };
   }, [list, cards, onMoveCard]);
 
   return (
     <li
       ref={listRef}
+      data-dragging={isDragging}
       className={cn(
         "relative flex flex-col gap-2 bg-card rounded-lg w-64 max-h-full border py-2",
         isDragging && "opacity-50 scale-98"
@@ -232,10 +251,21 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="16px" />}
 
       <div
-        ref={listHeaderRef}
-        className={cn("flex justify-between items-center gap-2 px-2", isDragging ? "cursor-grabbing" : "cursor-grab")}>
-        <h2 className="truncate font-medium text-muted-foreground">{list.name}</h2>
-        <ListActions listId={list._id} onAddCard={handleStartCreatingAtTop} />
+        ref={dragHandleRef}
+        className={cn(
+          "group flex justify-between items-center gap-2 px-2 py-1 rounded-md transition-colors",
+          isDragging ? "cursor-grabbing bg-muted/50" : "cursor-grab",
+          // Only show header hover when dropdown is not hovered - match dropdown trigger hover style
+          !isDragging && !isDropdownHovered && "hover:bg-accent hover:text-accent-foreground"
+        )}>
+        <h2 className="truncate font-medium text-muted-foreground flex-1" id={`list-title-${list._id}`}>
+          {list.name}
+        </h2>
+        <ListActions
+          listId={list._id}
+          onAddCard={handleStartCreatingAtTop}
+          onDropdownHoverChange={setIsDropdownHovered}
+        />
       </div>
 
       <ul

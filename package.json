@@ -12,7 +12,12 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@atlaskit/dropdown-menu": "^16.1.4",
+    "@atlaskit/icon": "^27.3.0",
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
+    "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "^2.1.1",
+    "@atlaskit/pragmatic-drag-and-drop-live-region": "^1.3.0",
+    "@atlaskit/pragmatic-drag-and-drop-react-accessibility": "^2.0.6",
     "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator": "^3.2.1",
     "@auth/core": "0.37.0",
     "@base-ui-components/react": "1.0.0-beta.1",
@@ -33,8 +38,8 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-query-devtools": "^5.83.0",
-    "@tanstack/react-router": "^1.127.3",
-    "@tanstack/react-router-devtools": "^1.127.3",
+    "@tanstack/react-router": "^1.128.0",
+    "@tanstack/react-router-devtools": "^1.128.0",
     "@tldraw/sync": "^3.14.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -55,23 +60,23 @@
   "devDependencies": {
     "@tanstack/eslint-config": "^0.2.0",
     "@tanstack/eslint-plugin-query": "^5.81.2",
-    "@tanstack/router-plugin": "^1.127.5",
-    "@types/node": "^24.0.13",
+    "@tanstack/router-plugin": "^1.128.0",
+    "@types/node": "^24.0.14",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@typescript-eslint/eslint-plugin": "^8.36.0",
-    "@typescript-eslint/parser": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "@vitejs/plugin-react": "^4.6.0",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-react-hooks": "6.0.0-rc.1",
     "prettier": "3.6.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0",
+    "typescript-eslint": "^8.37.0",
     "vite": "^7.0.4"
   },
   "overrides": {
-    "@tanstack/react-router": "^1.127.5"
+    "@tanstack/react-router": "^1.128.0"
   },
   "packageManager": "pnpm@10.13.1",
   "engines": {

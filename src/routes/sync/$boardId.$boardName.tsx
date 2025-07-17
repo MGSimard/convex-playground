@@ -8,11 +8,17 @@ import { ListCreate } from "@/_components/kanban/ListCreate";
 import { LoaderLines } from "@/_components/LoaderLines";
 import { SquareDashed } from "lucide-react";
 import { toast } from "sonner";
-import type { Id } from "../../../convex/_generated/dataModel";
-import { useEffect } from "react";
+import type { Id, Doc } from "../../../convex/_generated/dataModel";
+
+// Type for the board data returned by getBoardWithListsAndCards
+type BoardWithListsAndCards = {
+  board: Doc<"boards">;
+  lists: Doc<"lists">[];
+  cards: Doc<"cards">[];
+};
+import { useEffect, useRef } from "react";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { AccessibilityProvider, useAccessibility } from "@/_components/kanban/AccessibilityContext";
-import { DropIndicator } from "@/_components/kanban/DropIndicator";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -27,18 +33,10 @@ export const Route = createFileRoute("/sync/$boardId/$boardName")({
 });
 
 function BoardComponent() {
-  return (
-    <AccessibilityProvider>
-      <BoardContent />
-    </AccessibilityProvider>
-  );
-}
-
-function BoardContent() {
   const { boardId } = Route.useLoaderData();
   const { data } = useSuspenseQuery(convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }));
-  const { announce } = useAccessibility();
   const queryClient = useQueryClient();
+  const boardContainerRef = useRef<HTMLOListElement>(null);
 
   const { mutate: reorderLists } = useMutation({
     mutationFn: useConvexMutation(api.lists.reorderLists),
@@ -60,17 +58,17 @@ function BoardContent() {
       if (previousData) {
         queryClient.setQueryData(
           convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-          (old: any) => {
+          (old: BoardWithListsAndCards | undefined) => {
             if (!old) return old;
 
-            const updatedLists = old.lists.map((list: any) => {
-              const update = variables.listUpdates.find((u: any) => u.listId === list._id);
+            const updatedLists = old.lists.map((list) => {
+              const update = variables.listUpdates.find((u) => u.listId === list._id);
               return update ? { ...list, position: update.position } : list;
             });
 
             return {
               ...old,
-              lists: updatedLists.sort((a: any, b: any) => a.position - b.position),
+              lists: updatedLists.sort((a, b) => a.position - b.position),
             };
           }
         );
@@ -78,7 +76,7 @@ function BoardContent() {
 
       return { previousData };
     },
-    onError: (err, variables, context) => {
+    onError: (_, __, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousData) {
         queryClient.setQueryData(
@@ -112,17 +110,17 @@ function BoardContent() {
       if (previousData) {
         queryClient.setQueryData(
           convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-          (old: any) => {
+          (old: BoardWithListsAndCards | undefined) => {
             if (!old) return old;
 
-            const updatedCards = old.cards.map((card: any) => {
-              const update = variables.cardUpdates.find((u: any) => u.cardId === card._id);
+            const updatedCards = old.cards.map((card) => {
+              const update = variables.cardUpdates.find((u) => u.cardId === card._id);
               return update ? { ...card, position: update.position } : card;
             });
 
             return {
               ...old,
-              cards: updatedCards.sort((a: any, b: any) => a.position - b.position),
+              cards: updatedCards.sort((a, b) => a.position - b.position),
             };
           }
         );
@@ -130,7 +128,7 @@ function BoardContent() {
 
       return { previousData };
     },
-    onError: (err, variables, context) => {
+    onError: (_, __, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(
           convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
@@ -159,10 +157,10 @@ function BoardContent() {
       if (previousData) {
         queryClient.setQueryData(
           convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-          (old: any) => {
+          (old: BoardWithListsAndCards | undefined) => {
             if (!old) return old;
 
-            const updatedCards = old.cards.map((card: any) => {
+            const updatedCards = old.cards.map((card) => {
               if (card._id === variables.cardId) {
                 return { ...card, listId: variables.newListId, position: variables.newPosition };
               }
@@ -171,7 +169,7 @@ function BoardContent() {
 
             return {
               ...old,
-              cards: updatedCards.sort((a: any, b: any) => a.position - b.position),
+              cards: updatedCards.sort((a, b) => a.position - b.position),
             };
           }
         );
@@ -179,7 +177,7 @@ function BoardContent() {
 
       return { previousData };
     },
-    onError: (err, variables, context) => {
+    onError: (_, __, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(
           convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
@@ -227,19 +225,36 @@ function BoardContent() {
     );
   };
 
-  // Set up global drag monitoring
+  // Set up global drag monitoring and auto-scrolling
   useEffect(() => {
-    return monitorForElements({
+    const boardContainer = boardContainerRef.current;
+    if (!boardContainer) return;
+
+    const cleanupMonitor = monitorForElements({
       onDragStart: () => {
         // Add any global drag start logic here
-        announce("Drag started");
       },
       onDrop: () => {
         // Add any global drop logic here
-        announce("Drag completed");
       },
     });
-  }, [announce]);
+
+    // Set up auto-scrolling for horizontal board scrolling
+    const cleanupAutoScroll = autoScrollForElements({
+      element: boardContainer,
+      getAllowedAxis: () => "horizontal",
+      getConfiguration: () => ({
+        maxScrollSpeed: "fast",
+        startScrollingThreshold: "percentage-based",
+        maxPixelScrollDelta: 8,
+      }),
+    });
+
+    return () => {
+      cleanupMonitor();
+      cleanupAutoScroll();
+    };
+  }, []);
 
   if (!data) {
     return <BoardNotFound boardId={boardId} />;
@@ -249,7 +264,9 @@ function BoardContent() {
 
   return (
     <section id="kanban-board" className="min-h-0 h-full">
-      <ol className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
+      <ol
+        ref={boardContainerRef}
+        className="flex items-start [&>*]:shrink-0 gap-4 p-6 overflow-x-auto overflow-y-hidden h-full [scrollbar-color:var(--muted-foreground)_transparent]">
         {lists.map((list) => {
           const listCards = cards.filter((card) => card.listId === list._id);
           return (

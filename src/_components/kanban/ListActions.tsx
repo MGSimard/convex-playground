@@ -26,7 +26,15 @@ import {
 import { EllipsisIcon, Loader2Icon, PlusIcon, MoveIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-export function ListActions({ listId, onAddCard }: { listId: Id<"lists">; onAddCard: () => void }) {
+export function ListActions({ 
+  listId, 
+  onAddCard, 
+  onDropdownHoverChange 
+}: { 
+  listId: Id<"lists">; 
+  onAddCard: () => void;
+  onDropdownHoverChange?: (isHovered: boolean) => void;
+}) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { mutate: removeList, isPending } = useMutation({
@@ -56,7 +64,9 @@ export function ListActions({ listId, onAddCard }: { listId: Id<"lists">; onAddC
             variant="ghost"
             size="icon"
             aria-label="View list actions"
-            className="shrink-0 h-7 w-7 text-muted-foreground">
+            className="shrink-0 h-7 w-7 text-muted-foreground"
+            onMouseEnter={() => onDropdownHoverChange?.(true)}
+            onMouseLeave={() => onDropdownHoverChange?.(false)}>
             <EllipsisIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

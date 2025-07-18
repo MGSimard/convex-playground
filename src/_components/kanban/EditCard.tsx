@@ -1,6 +1,6 @@
 import { Button } from "@/_components/ui/button";
 import type { Doc } from "../../../convex/_generated/dataModel";
-import { SquarePen, Link, Eye, FileText } from "lucide-react";
+import { SquarePen, Link, FileText } from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import { cn } from "@/_lib/utils";

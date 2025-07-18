@@ -49,10 +49,10 @@ export function attachClosestEdge(
   const { input, element, allowedEdges } = options;
   const rect = element.getBoundingClientRect();
 
-  const center = {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2,
-  };
+  // const center = {
+  //   x: rect.left + rect.width / 2,
+  //   y: rect.top + rect.height / 2,
+  // };
 
   const distances = {
     top: Math.abs(input.clientY - rect.top),
@@ -121,7 +121,7 @@ export function calculateNewPosition(
 
 // Reorder destination index calculation (based on Atlassian example)
 export function getReorderDestinationIndex({
-  startIndex,
+  startIndex: _startIndex,
   indexOfTarget,
   closestEdgeOfTarget,
   axis = "vertical",

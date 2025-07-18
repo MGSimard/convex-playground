@@ -1,5 +1,5 @@
-import { Id } from "../_generated/dataModel";
-import { QueryCtx, MutationCtx } from "../_generated/server";
+import type { Id } from "../_generated/dataModel";
+import type { QueryCtx, MutationCtx } from "../_generated/server";
 
 // Derive role types from VALID_ROLES, represents permission levels
 export type Role = (typeof VALID_ROLES)[keyof typeof VALID_ROLES];

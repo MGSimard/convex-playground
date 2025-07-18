@@ -19,7 +19,6 @@ export default defineSchema({
     .index("email", ["email"])
     .index("phone", ["phone"]),
 
-  /* BOARD MANAGEMENT SCHEMAS */
   boards: defineTable({
     shortId: v.string(),
     name: v.string(),
@@ -40,12 +39,19 @@ export default defineSchema({
     listId: v.id("lists"),
     content: v.string(),
     position: v.number(),
+    links: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          url: v.string(),
+          title: v.optional(v.string()),
+        })
+      )
+    ),
   }).index("by_list", ["listId"]),
 
-  /* FAVORITES SCHEMA */
   favorites: defineTable({
     userId: v.id("users"),
     boardId: v.id("boards"),
   }).index("by_user_and_board", ["userId", "boardId"]),
-  /**/
 });

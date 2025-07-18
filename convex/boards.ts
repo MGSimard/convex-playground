@@ -212,6 +212,15 @@ export const getBoardWithListsAndCards = query({
           content: v.string(),
           position: v.number(),
           listId: v.id("lists"),
+          links: v.optional(
+            v.array(
+              v.object({
+                id: v.string(),
+                url: v.string(),
+                title: v.optional(v.string()),
+              })
+            )
+          ),
         })
       ),
     }),
@@ -230,7 +239,7 @@ export const getBoardWithListsAndCards = query({
       .unique();
 
     if (!board) {
-      return null;
+      throw new Error(`ERROR: Board ${args.shortId} not found.`);
     }
 
     const lists = await ctx.db

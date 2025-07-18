@@ -94,10 +94,6 @@ https://docs.convex.dev/understanding/best-practices/typescript
 
 ## TASK LIST:
 
-- [ ] Finish up accessibility for kanban
-- [ ] Consider optimistic updates (Especially for list/card movement & favoriting button)
-- [ ] Consider read/write perms instead of member/admin
-- [ ] Assign cards to users
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
 - [ ] Edit card (Makes it a textarea? Or use contenteditable)
 - [ ] Direct click on card (role?) opens dialog with options

@@ -26,7 +26,6 @@ import {
 } from "@/_components/ui/alert-dialog";
 import { ArchiveIcon, EllipsisVerticalIcon, Loader2Icon, StarIcon, Trash2Icon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/_lib/utils";
 
 export function OverviewActions({ boardId }: { boardId: Id<"boards"> }) {
   const [deleteOpen, setDeleteOpen] = useState(false);

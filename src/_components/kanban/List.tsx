@@ -58,34 +58,20 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   const isBeingDraggedOver = isDraggedOver && dragState.isDragging;
   const isBeingDraggedOverByCard = isDraggedOverByCard && dragState.isDragging;
 
-  const handleStartCreatingAtTop = () => {
-    setIsCreating("top");
-  };
-
-  const handleStartCreatingAtBottom = () => {
-    setIsCreating("bottom");
-  };
-
-  const handleCreationComplete = () => {
-    setIsCreating(false);
-  };
-
-  // Remove keyboard drag functionality from list header - this will be handled by the "Move list" button in dropdown instead
-
   // Handle click outside to cancel form
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent) => {
       if (isCreating && formRef.current && !formRef.current.contains(event.target as Node)) {
         setIsCreating(false);
       }
     };
 
     if (isCreating) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("pointerdown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [isCreating]);
 
@@ -263,7 +249,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         </h2>
         <ListActions
           listId={list._id}
-          onAddCard={handleStartCreatingAtTop}
+          onAddCard={() => setIsCreating("top")}
           onDropdownHoverChange={setIsDropdownHovered}
         />
       </div>
@@ -277,7 +263,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         {/* Show card creation form at top if triggered from dropdown */}
         {isCreating === "top" && (
           <li ref={formRef}>
-            <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={handleCreationComplete} />
+            <CardCreateForm listId={list._id} cards={cards} placement="top" onComplete={() => setIsCreating(false)} />
           </li>
         )}
         {cards.length === 0 ? (
@@ -305,7 +291,12 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         {/* Show card creation form at bottom if triggered from bottom button */}
         {isCreating === "bottom" && (
           <li ref={formRef}>
-            <CardCreateForm listId={list._id} cards={cards} placement="bottom" onComplete={handleCreationComplete} />
+            <CardCreateForm
+              listId={list._id}
+              cards={cards}
+              placement="bottom"
+              onComplete={() => setIsCreating(false)}
+            />
           </li>
         )}
       </ol>
@@ -315,7 +306,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
           variant="ghost"
           size="sm"
           className="text-muted-foreground w-full justify-start"
-          onClick={handleStartCreatingAtBottom}>
+          onClick={() => setIsCreating("bottom")}>
           <Plus /> Add card
         </Button>
       </div>

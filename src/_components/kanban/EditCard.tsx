@@ -1,6 +1,6 @@
 import { Button } from "@/_components/ui/button";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
-import { SquarePen, Link, FileText, ExternalLink, Loader2 } from "lucide-react";
+import { SquarePen, Link, FileText, ExternalLink, Loader2Icon } from "lucide-react";
 import { useState, useEffect, type Dispatch, type SetStateAction } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import {
@@ -162,9 +162,11 @@ export function EditCard({ card }: EditCardProps) {
               <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={!isDirty || isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save
+              <Button className="grid place-items-center" onClick={handleSave} disabled={!isDirty || isSaving}>
+                <Loader2Icon
+                  className={cn("col-start-1 row-start-1 animate-spin", isSaving ? "visible" : "invisible")}
+                />
+                <span className={cn("col-start-1 row-start-1", isSaving ? "invisible" : "visible")}>Save</span>
               </Button>
             </div>
           </main>

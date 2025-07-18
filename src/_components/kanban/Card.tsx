@@ -155,14 +155,20 @@ export function Card({ card, boardId, allCards, onReorderCards }: CardProps) {
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="8px" />}
       <p>{card.content}</p>
       {card.links && card.links.length > 0 && (
-        <div className="mt-2 space-y-1">
+        <ul className="mt-2 space-y-1">
           {card.links.map((link: CardLink) => (
-            <div key={link.id} className="flex items-center gap-1 text-xs text-muted-foreground">
-              <ExternalLink className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{getLinkDisplayText(link)}</span>
-            </div>
+            <li key={link.id} className="text-xs text-muted-foreground">
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex items-center gap-1 hover:underline">
+                <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{getLinkDisplayText(link)}</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
       <EditCard card={card} />
     </li>

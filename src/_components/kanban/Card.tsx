@@ -17,7 +17,7 @@ import {
   extractClosestEdge,
 } from "@/_lib/drag-and-drop";
 import { EditCard } from "@/_components/kanban/EditCard";
-import { ExternalLink } from "lucide-react";
+import { Link2 } from "lucide-react";
 import { getLinkDisplayText, type CardLink } from "@/_lib/links";
 
 interface CardProps {
@@ -65,9 +65,19 @@ export function Card({ card, boardId, allCards, onReorderCards }: CardProps) {
         element,
         getInitialData: () => dragData,
         onDragStart: () => {
+          // Disable pointer events on all links during card drag
+          const links = element.querySelectorAll("a");
+          links.forEach((link) => {
+            link.style.pointerEvents = "none";
+          });
           dragRegistry.startDrag(dragData);
         },
         onDrop: () => {
+          // Re-enable pointer events on all links after card drag
+          const links = element.querySelectorAll("a");
+          links.forEach((link) => {
+            link.style.pointerEvents = "";
+          });
           dragRegistry.endDrag();
         },
       }),
@@ -162,8 +172,10 @@ export function Card({ card, boardId, allCards, onReorderCards }: CardProps) {
                 href={link.url}
                 target="_blank"
                 rel="noreferrer noopener"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
                 className="flex items-center gap-1 hover:underline">
-                <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                <Link2 className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate">{getLinkDisplayText(link)}</span>
               </a>
             </li>

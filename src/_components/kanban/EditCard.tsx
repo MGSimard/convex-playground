@@ -224,7 +224,6 @@ interface TabLinksProps {
 function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAddFormExpanded, setIsAddFormExpanded] = useState(false);
 
   // Clear error after a delay
   const clearError = () => {
@@ -333,50 +332,53 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
   };
 
   return (
-    <>
-      <p className="text-xs text-muted-foreground mb-4">
-        Add external resources, references, or related content to this card.
-      </p>
+    <div className="flex flex-col h-full">
+      {/* Header description */}
+      <div className="flex-shrink-0 mb-4">
+        <p className="text-xs text-muted-foreground">
+          Add external resources, references, or related content to this card.
+        </p>
+      </div>
 
       {/* Error display */}
       {error && (
-        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+        <div className="flex-shrink-0 mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
           <p className="text-sm text-destructive font-medium">Error</p>
           <p className="text-xs text-destructive/80 mt-1">{error}</p>
         </div>
       )}
 
-      {/* Links list */}
-      {links.length > 0 && (
-        <div className="space-y-2 mb-4">
-          {links.map((link, index) => (
-            <LinkItem
-              key={link.id}
-              link={link}
-              index={index}
-              cardId={cardId}
-              onUpdate={handleUpdateLink}
-              onDelete={handleDeleteLink}
-              onReorder={handleReorderLinks}
-              isLoading={isLoading}
-            />
-          ))}
-        </div>
-      )}
+      {/* Add link form - positioned at top with clear visual hierarchy */}
+      <div className="flex-shrink-0">
+        <AddLinkForm onAdd={handleAddLink} isLoading={isLoading} />
+      </div>
 
-      {/* Empty state */}
-      {links.length === 0 && !isAddFormExpanded && (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <ExternalLink className="h-8 w-8 text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground mb-1">No links added yet</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            Add links to external resources, documentation, or related content.
-          </p>
-        </div>
-      )}
-
-      {/* Add link form */}
-      <AddLinkForm onAdd={handleAddLink} isLoading={isLoading} onExpandedChange={setIsAddFormExpanded} />
-    </>
+      {/* Links list container with proper spacing and responsive behavior */}
+      <div className="flex-1 min-h-0">
+        {links.length > 0 ? (
+          <div className="space-y-2 h-full overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+            {links.map((link, index) => (
+              <LinkItem
+                key={link.id}
+                link={link}
+                index={index}
+                cardId={cardId}
+                onUpdate={handleUpdateLink}
+                onDelete={handleDeleteLink}
+                onReorder={handleReorderLinks}
+                isLoading={isLoading}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Empty state when no links exist below the form */
+          <div className="flex flex-col items-center justify-center py-8 text-center h-full min-h-[120px]">
+            <ExternalLink className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground mb-1">No links added yet</p>
+            <p className="text-xs text-muted-foreground">Use the form above to add your first link.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

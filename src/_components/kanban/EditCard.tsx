@@ -139,7 +139,6 @@ export function EditCard({ card }: EditCardProps) {
                     variant="ghost"
                     onClick={() => setActiveTab(tab)}
                     className={cn("size-8", activeTab?.label === tab.label && "bg-primary! text-primary-foreground!")}
-                    aria-active={activeTab.label === tab.label}
                     aria-label={tab.label}>
                     {tab.icon}
                   </Button>

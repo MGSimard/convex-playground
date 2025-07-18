@@ -37,11 +37,10 @@ interface ListProps {
   allCards: Doc<"cards">[];
   onReorderLists: (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => void;
   onReorderCards: (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => void;
-  onMoveCard: (cardId: Id<"cards">, newListId: Id<"lists">, newPosition: number) => void;
 }
 
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
-export function List({ list, cards, allLists, allCards, onReorderLists, onReorderCards, onMoveCard }: ListProps) {
+export function List({ list, cards, allLists, allCards, onReorderLists, onReorderCards }: ListProps) {
   const [isCreating, setIsCreating] = useState<"top" | "bottom" | false>(false);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
@@ -204,7 +203,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         const listCards = cards.filter((c) => c.listId === list._id);
         const newPosition = listCards.length > 0 ? Math.max(...listCards.map((c) => c.position)) + 1 : 0;
 
-        onMoveCard(sourceData.cardId, list._id, newPosition);
+        onReorderCards(list._id, [{ cardId: sourceData.cardId, position: newPosition }]);
       },
     });
 
@@ -223,7 +222,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       cleanupDropTarget();
       cleanupAutoScroll();
     };
-  }, [list, cards, onMoveCard]);
+  }, [list, cards, onReorderCards]);
 
   return (
     <li
@@ -284,7 +283,6 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
               boardId={list.boardId}
               allCards={allCards}
               onReorderCards={onReorderCards}
-              onMoveCard={onMoveCard}
             />
           ))
         )}

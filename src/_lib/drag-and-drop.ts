@@ -17,7 +17,13 @@ export interface CardDragData extends Record<string | symbol, unknown> {
   boardId: Id<"boards">;
 }
 
-export type DragData = ListDragData | CardDragData;
+export interface LinkDragData extends Record<string | symbol, unknown> {
+  type: "link";
+  linkId: string;
+  cardId: Id<"cards">;
+}
+
+export type DragData = ListDragData | CardDragData | LinkDragData;
 
 // Drop target data types
 export interface ListDropData extends Record<string | symbol, unknown> {
@@ -35,7 +41,14 @@ export interface CardDropData extends Record<string | symbol, unknown> {
   closestEdge?: Edge | null;
 }
 
-export type DropData = ListDropData | CardDropData;
+export interface LinkDropData extends Record<string | symbol, unknown> {
+  type: "link";
+  linkId: string;
+  cardId: Id<"cards">;
+  closestEdge?: Edge | null;
+}
+
+export type DropData = ListDropData | CardDropData | LinkDropData;
 
 // Edge detection utilities (based on Atlassian example)
 export function attachClosestEdge(
@@ -198,6 +211,14 @@ export function isListDropData(data: Record<string | symbol, unknown>): data is 
 
 export function isCardDropData(data: Record<string | symbol, unknown>): data is CardDropData {
   return data.type === "card";
+}
+
+export function isLinkDragData(data: Record<string | symbol, unknown>): data is LinkDragData {
+  return data.type === "link";
+}
+
+export function isLinkDropData(data: Record<string | symbol, unknown>): data is LinkDropData {
+  return data.type === "link";
 }
 
 // Drag state management

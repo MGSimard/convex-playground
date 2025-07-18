@@ -91,11 +91,10 @@ function BoardComponent() {
     },
   });
 
-  const { mutate: reorderCards } = useMutation({
-    mutationFn: useConvexMutation(api.cards.reorderCards),
+  const { mutate: updateCardPositions } = useMutation({
+    mutationFn: useConvexMutation(api.cards.updateCardPositions),
     onMutate: async (variables: {
-      listId: Id<"lists">;
-      cardUpdates: Array<{ cardId: Id<"cards">; position: number }>;
+      cardUpdates: Array<{ cardId: Id<"cards">; listId: Id<"lists">; position: number }>;
     }) => {
       await queryClient.cancelQueries({
         queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
@@ -113,56 +112,7 @@ function BoardComponent() {
 
             const updatedCards = old.cards.map((card) => {
               const update = variables.cardUpdates.find((u) => u.cardId === card._id);
-              return update ? { ...card, position: update.position } : card;
-            });
-
-            return {
-              ...old,
-              cards: updatedCards.sort((a, b) => a.position - b.position),
-            };
-          }
-        );
-      }
-
-      return { previousData };
-    },
-    onError: (_, __, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(
-          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-          context.previousData
-        );
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-      });
-    },
-  });
-
-  const { mutate: moveCard } = useMutation({
-    mutationFn: useConvexMutation(api.cards.moveCard),
-    onMutate: async (variables: { cardId: Id<"cards">; newListId: Id<"lists">; newPosition: number }) => {
-      await queryClient.cancelQueries({
-        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-      });
-
-      const previousData = queryClient.getQueryData(
-        convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey
-      );
-
-      if (previousData) {
-        queryClient.setQueryData(
-          convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-          (old: BoardWithListsAndCards | undefined) => {
-            if (!old) return old;
-
-            const updatedCards = old.cards.map((card) => {
-              if (card._id === variables.cardId) {
-                return { ...card, listId: variables.newListId, position: variables.newPosition };
-              }
-              return card;
+              return update ? { ...card, listId: update.listId, position: update.position } : card;
             });
 
             return {
@@ -202,22 +152,17 @@ function BoardComponent() {
   };
 
   const handleReorderCards = (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => {
-    reorderCards(
-      { listId, cardUpdates },
+    const cardUpdatesWithListId = cardUpdates.map((update) => ({
+      cardId: update.cardId,
+      listId: listId,
+      position: update.position,
+    }));
+
+    updateCardPositions(
+      { cardUpdates: cardUpdatesWithListId },
       {
         onError: (error) => {
           toast.error(`ERROR: Failed to reorder cards: ${error.message}`);
-        },
-      }
-    );
-  };
-
-  const handleMoveCard = (cardId: Id<"cards">, newListId: Id<"lists">, newPosition: number) => {
-    moveCard(
-      { cardId, newListId, newPosition },
-      {
-        onError: (error) => {
-          toast.error(`ERROR: Failed to move card: ${error.message}`);
         },
       }
     );
@@ -276,7 +221,6 @@ function BoardComponent() {
               allCards={cards}
               onReorderLists={handleReorderLists}
               onReorderCards={handleReorderCards}
-              onMoveCard={handleMoveCard}
             />
           );
         })}

@@ -17,6 +17,8 @@ import {
   extractClosestEdge,
 } from "@/_lib/drag-and-drop";
 import { EditCard } from "@/_components/kanban/EditCard";
+import { ExternalLink } from "lucide-react";
+import { getLinkDisplayText, type CardLink } from "@/_lib/links";
 
 interface CardProps {
   card: Doc<"cards">;
@@ -26,10 +28,9 @@ interface CardProps {
     listId: Doc<"lists">["_id"],
     cardUpdates: Array<{ cardId: Doc<"cards">["_id"]; position: number }>
   ) => void;
-  onMoveCard: (cardId: Doc<"cards">["_id"], newListId: Doc<"lists">["_id"], newPosition: number) => void;
 }
 
-export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: CardProps) {
+export function Card({ card, boardId, allCards, onReorderCards }: CardProps) {
   const [isDraggedOver, setIsDraggedOver] = useState(false);
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
   const cardRef = useRef<HTMLLIElement>(null);
@@ -133,12 +134,12 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
             });
             const sortedCards = [...targetListCards].sort((a, b) => a.position - b.position);
             const newPosition = calculatePositionForIndex(sortedCards, destinationIndex);
-            onMoveCard(sourceData.cardId, targetListId, newPosition);
+            onReorderCards(targetListId, [{ cardId: sourceData.cardId, position: newPosition }]);
           }
         },
       })
     );
-  }, [card, boardId, allCards, onReorderCards, onMoveCard, closestEdge]);
+  }, [card, boardId, allCards, onReorderCards, closestEdge]);
 
   return (
     <li
@@ -153,6 +154,16 @@ export function Card({ card, boardId, allCards, onReorderCards, onMoveCard }: Ca
       )}>
       {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="8px" />}
       <p>{card.content}</p>
+      {card.links && card.links.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {card.links.map((link: CardLink) => (
+            <div key={link.id} className="flex items-center gap-1 text-xs text-muted-foreground">
+              <ExternalLink className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{getLinkDisplayText(link)}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <EditCard card={card} />
     </li>
   );

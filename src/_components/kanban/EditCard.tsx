@@ -239,7 +239,7 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       // Check for duplicate URLs
       const isDuplicate = links.some((link) => link.url === linkData.url);
       if (isDuplicate) {
-        throw new Error("This URL has already been added to this card");
+        throw new Error("ERROR: This URL has already been added to this card.");
       }
 
       const newLink: CardLink = {
@@ -250,11 +250,11 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
 
       const updatedLinks = [...links, newLink];
       onLinksChange(updatedLinks);
-      toast.success("Link added successfully");
+      toast.success("SUCCESS: Link added.");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to add link";
+      const errorMessage = error instanceof Error ? error.message : "Failed to add link.";
       setError(errorMessage);
-      toast.error(`Failed to add link: ${errorMessage}`);
+      toast.error(`ERROR: ${errorMessage}`);
       clearError();
     } finally {
       setIsLoading(false);
@@ -271,17 +271,17 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       if (updates.url) {
         const isDuplicate = links.some((link) => link.id !== linkId && link.url === updates.url);
         if (isDuplicate) {
-          throw new Error("This URL is already used by another link in this card");
+          throw new Error("ERROR: This URL is already used by another link in this card");
         }
       }
 
       const updatedLinks = updateLinkById(links, linkId, updates);
       onLinksChange(updatedLinks);
-      toast.success("Link updated successfully");
+      toast.success("SUCCESS: Link updated.");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update link";
+      const errorMessage = error instanceof Error ? error.message : "Failed to update link.";
       setError(errorMessage);
-      toast.error(`Failed to update link: ${errorMessage}`);
+      toast.error(`ERROR: ${errorMessage}`);
       clearError();
     } finally {
       setIsLoading(false);
@@ -296,9 +296,9 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
     try {
       const updatedLinks = removeLinkById(links, linkId);
       onLinksChange(updatedLinks);
-      toast.success("Link deleted successfully");
+      toast.success("SUCCESS: Link deleted.");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to delete link";
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete link.";
       setError(errorMessage);
       toast.error(`Failed to delete link: ${errorMessage}`);
       clearError();
@@ -315,7 +315,7 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
     try {
       const sourceIndex = findLinkIndex(links, sourceLinkId);
       if (sourceIndex === -1) {
-        throw new Error("Source link not found. The link may have been removed.");
+        throw new Error("ERROR: Source link not found. The link may have been removed.");
       }
 
       const reorderedLinks = reorderLinks(links, sourceIndex, targetIndex);
@@ -324,7 +324,7 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to reorder links";
       setError(errorMessage);
-      toast.error(`Failed to reorder links: ${errorMessage}`);
+      toast.error(`ERROR: ${errorMessage}`);
       clearError();
     } finally {
       setIsLoading(false);

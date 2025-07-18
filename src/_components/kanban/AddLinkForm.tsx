@@ -1,7 +1,7 @@
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Loader2Icon, Plus } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/_lib/utils";
 import { validateUrl, createCardLink, type CardLink } from "@/_lib/links";
@@ -138,12 +138,12 @@ export function AddLinkForm({ onAdd, isLoading = false }: AddLinkFormProps) {
           type="submit"
           size="sm"
           disabled={!url.trim() || !!urlError || isSubmitting || isLoading}
-          className="flex items-center gap-1.5 min-w-[80px] sm:min-w-[auto]"
+          className="grid place-items-center"
           // Prevent drag events on button
           draggable={false}
           onDragStart={(e) => e.preventDefault()}>
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          <span>Add</span>
+          <Loader2Icon className={cn("col-start-1 row-start-1 animate-spin", isSubmitting ? "visible" : "invisible")} />
+          <span className={cn("col-start-1 row-start-1", isSubmitting ? "invisible" : "visible")}>Add</span>
         </Button>
       </div>
     </form>

@@ -348,6 +348,13 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
           listId={list._id}
           onAddCard={() => setIsCreating("top")}
           onDropdownHoverChange={setIsDropdownHovered}
+          currentPosition={
+            [...allLists].sort((a, b) => a.position - b.position).findIndex((l) => l._id === list._id) + 1
+          }
+          totalLists={allLists.length}
+          boardId={list.boardId}
+          allLists={allLists}
+          onReorderLists={onReorderLists}
         />
       </div>
 

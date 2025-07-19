@@ -23,7 +23,7 @@ import {
   AlertDialogCancel,
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/_components/ui/dialog";
 import { EllipsisIcon, Loader2Icon, PlusIcon, MoveIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { MoveListDialog } from "@/_components/kanban/MoveListDialog";

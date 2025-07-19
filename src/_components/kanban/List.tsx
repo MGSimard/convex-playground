@@ -46,16 +46,87 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
   const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
   const [isDraggedOverByCard, setIsDraggedOverByCard] = useState(false);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState(list.name);
   const formRef = useRef<HTMLLIElement>(null);
   const listRef = useRef<HTMLLIElement>(null);
   const listContentRef = useRef<HTMLOListElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const dragState = useDragAndDrop();
 
   const isDragging =
     dragState.isDragging && dragState.draggedItem?.type === "list" && dragState.draggedItem.listId === list._id;
   const isBeingDraggedOver = isDraggedOver && dragState.isDragging;
   const isBeingDraggedOverByCard = isDraggedOverByCard && dragState.isDragging;
+
+  const { mutate: renameList, isPending: isRenamingList } = useMutation({
+    mutationFn: useConvexMutation(api.lists.renameList),
+  });
+
+  const handleTitleClick = () => {
+    if (!isDragging && !isRenamingList) {
+      setIsEditingTitle(true);
+    }
+  };
+
+  const handleTitleSave = () => {
+    const trimmedTitle = titleValue.trim();
+    if (trimmedTitle && trimmedTitle !== list.name) {
+      renameList(
+        { listId: list._id, newName: trimmedTitle },
+        {
+          onSuccess: () => {
+            toast.success("List renamed successfully.");
+            setIsEditingTitle(false);
+          },
+          onError: (error) => {
+            toast.error(`Failed to rename list: ${error.message}`);
+            setTitleValue(list.name); // Reset to original name on error
+            setIsEditingTitle(false);
+          },
+        }
+      );
+    } else if (trimmedTitle === "") {
+      toast.error("List name cannot be empty.");
+      setTitleValue(list.name); // Reset to original name
+      setIsEditingTitle(false);
+    } else {
+      setIsEditingTitle(false);
+    }
+  };
+
+  const handleTitleCancel = () => {
+    setTitleValue(list.name); // Reset to original name
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleTitleSave();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      handleTitleCancel();
+    }
+  };
+
+  const handleTitleBlur = () => {
+    handleTitleSave();
+  };
+
+  // Sync title value when list name changes
+  useEffect(() => {
+    setTitleValue(list.name);
+  }, [list.name]);
+
+  // Handle focusing the title input when editing starts
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
 
   // Handle click outside to cancel form
   useEffect(() => {
@@ -243,9 +314,36 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
           // Only show header hover when dropdown is not hovered - match dropdown trigger hover style
           !isDragging && !isDropdownHovered && "hover:bg-accent hover:text-accent-foreground"
         )}>
-        <h2 className="truncate font-medium text-muted-foreground flex-1" id={`list-title-${list._id}`}>
-          {list.name}
-        </h2>
+        {isEditingTitle ? (
+          <Input
+            ref={titleInputRef}
+            value={titleValue}
+            onChange={(e) => setTitleValue(e.target.value)}
+            onKeyDown={handleTitleKeyDown}
+            onBlur={handleTitleBlur}
+            className="flex-1 h-7 text-sm font-medium bg-background border-input"
+            disabled={isRenamingList}
+            autoFocus
+          />
+        ) : (
+          <h2
+            className={cn(
+              "truncate font-medium text-muted-foreground flex-1 cursor-pointer rounded px-1 py-0.5 transition-colors",
+              !isDragging && !isRenamingList && "hover:bg-accent/50"
+            )}
+            id={`list-title-${list._id}`}
+            onClick={handleTitleClick}
+            title="Click to edit list name">
+            {isRenamingList ? (
+              <span className="flex items-center gap-1">
+                <Loader2Icon className="h-3 w-3 animate-spin" />
+                {list.name}
+              </span>
+            ) : (
+              list.name
+            )}
+          </h2>
+        )}
         <ListActions
           listId={list._id}
           onAddCard={() => setIsCreating("top")}

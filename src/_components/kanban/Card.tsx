@@ -18,7 +18,7 @@ import {
 } from "@/_lib/drag-and-drop";
 import { EditCard } from "@/_components/kanban/EditCard";
 import { Link2 } from "lucide-react";
-import { getLinkDisplayText, type CardLink } from "@/_lib/links";
+import { type CardLink } from "@/_lib/links";
 
 interface CardProps {
   card: Doc<"cards">;
@@ -176,7 +176,7 @@ export function Card({ card, boardId, allCards, onReorderCards }: CardProps) {
                 onDragStart={(e) => e.preventDefault()}
                 className="flex items-center gap-1 hover:underline">
                 <Link2 className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{getLinkDisplayText(link)}</span>
+                <span className="truncate">{link.title || link.url}</span>
               </a>
             </li>
           ))}

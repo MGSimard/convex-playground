@@ -20,14 +20,7 @@ import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
 import { cn } from "@/_lib/utils";
-import {
-  type CardLink,
-  type LinkDragData,
-  type LinkDropData,
-  validateUrl,
-  updateCardLink,
-  getLinkDisplayText,
-} from "@/_lib/links";
+import { type CardLink, type LinkDragData, type LinkDropData, validateUrl, updateCardLink } from "@/_lib/links";
 import {
   type Edge,
   attachClosestEdge,
@@ -229,8 +222,6 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
     }
   };
 
-  const displayText = getLinkDisplayText(link);
-
   return (
     <div
       ref={linkRef}
@@ -256,9 +247,10 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-1 min-w-0 text-xs text-muted-foreground hover:text-foreground hover:underline truncate flex items-center"
-        title={displayText}>
-        {displayText}
+        className="flex-1 min-w-0 text-xs text-muted-foreground hover:text-foreground hover:underline flex flex-col gap-0.5"
+        title={link.title ? `${link.title} - ${link.url}` : link.url}>
+        {link.title && <span className="truncate font-medium text-foreground">{link.title}</span>}
+        <span className="truncate text-muted-foreground">{link.url}</span>
       </a>
 
       {/* Action buttons */}
@@ -361,7 +353,16 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
                 Are you sure you want to delete this link? This action cannot be undone.
                 <br />
                 <br />
-                <strong>Link:</strong> {displayText}
+                <div className="space-y-1">
+                  {link.title && (
+                    <div>
+                      <strong>Title:</strong> {link.title}
+                    </div>
+                  )}
+                  <div>
+                    <strong>URL:</strong> {link.url}
+                  </div>
+                </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

@@ -357,7 +357,7 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       {/* Links list container with proper spacing and responsive behavior */}
       <div className="flex-1 min-h-0">
         {links.length > 0 ? (
-          <div className="space-y-2 h-full overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent]">
+          <div className="space-y-2 h-full overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent] py-2 px-2">
             {links.map((link, index) => (
               <LinkItem
                 key={link.id}

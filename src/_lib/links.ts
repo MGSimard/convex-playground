@@ -86,11 +86,6 @@ export function validateUrl(url: string): { isValid: boolean; error?: string } {
   }
 }
 
-// Utility function to get display text for a link
-export function getLinkDisplayText(link: CardLink): string {
-  return link.title?.trim() || link.url;
-}
-
 // Utility function to generate unique IDs for links
 export function generateLinkId(): string {
   // Generate a unique ID using timestamp and random string

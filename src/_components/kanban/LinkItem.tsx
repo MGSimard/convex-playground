@@ -229,7 +229,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
         "relative flex items-center gap-2 p-2 rounded-md bg-muted/50 hover:bg-muted group",
         isDragging && "opacity-50 scale-98"
       )}>
-      {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="4px" />}
+      {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="8px" />}
 
       {/* Drag handle */}
       <div className="flex-shrink-0">

@@ -1,7 +1,7 @@
 import { Button } from "@/_components/ui/button";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
 import { SquarePen, Link, FileText, ExternalLink, Loader2Icon } from "lucide-react";
-import { useState, useEffect, type Dispatch, type SetStateAction } from "react";
+import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import {
   AlertDialog,
@@ -29,6 +29,7 @@ import {
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 
 const TABS = [
   {
@@ -225,6 +226,7 @@ interface TabLinksProps {
 function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Clear error after a delay
   const clearError = () => {
@@ -332,6 +334,26 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
     }
   };
 
+  // Set up autoscroll for the links container
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const cleanupAutoScroll = autoScrollForElements({
+      element: scrollContainer,
+      getAllowedAxis: () => "vertical",
+      getConfiguration: () => ({
+        maxScrollSpeed: "standard",
+        startScrollingThreshold: "percentage-based",
+        maxPixelScrollDelta: 6,
+      }),
+    });
+
+    return () => {
+      cleanupAutoScroll();
+    };
+  }, [links]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Header description */}
@@ -357,7 +379,9 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       {/* Links list container with proper spacing and responsive behavior */}
       <div className="flex-1 min-h-0">
         {links.length > 0 ? (
-          <div className="space-y-2 h-full overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent] py-2 px-2">
+          <div
+            ref={scrollContainerRef}
+            className="space-y-2 h-full overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--muted)_transparent] py-2 px-2">
             {links.map((link, index) => (
               <LinkItem
                 key={link.id}

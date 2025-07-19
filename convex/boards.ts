@@ -67,6 +67,27 @@ export const removeBoard = mutation({
 });
 
 /**
+ * Calculate activity status based on lastModifiedTime
+ */
+function calculateActivityStatus(lastModifiedTime: number, creationTime: number): string {
+  try {
+    const now = Date.now();
+    const timeToUse = lastModifiedTime || creationTime;
+    const daysDiff = Math.floor((now - timeToUse) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff < 7) {
+      return "Recent";
+    } else if (daysDiff <= 30) {
+      return `${daysDiff} days ago`;
+    } else {
+      return "Inactive";
+    }
+  } catch (error) {
+    return "Activity: -";
+  }
+}
+
+/**
  * Fetch all boards for Combobox & grid list, ordered by most recent activity.
  * Favorited boards appear first, followed by unfavorited boards.
  * Both groups are sorted by lastModifiedTime (most recent first).
@@ -85,6 +106,9 @@ export const getBoards = query({
       lastModifiedBy: v.id("users"),
       lastModifiedByName: v.optional(v.string()),
       isFavorited: v.boolean(),
+      listsCount: v.number(),
+      cardsCount: v.number(),
+      activityStatus: v.string(),
     })
   ),
   handler: async (ctx) => {
@@ -104,17 +128,75 @@ export const getBoards = query({
 
     const favoritedBoardIds = new Set(userFavorites.map((fav) => fav.boardId));
 
-    // Enrich boards with user names and favorite status
+    // Batch fetch all lists for all boards to avoid N+1 queries
+    const boardIds = boards.map((board) => board._id);
+    const allLists = await ctx.db.query("lists").collect();
+    const listsByBoard = new Map<string, any[]>();
+
+    // Group lists by board ID
+    for (const list of allLists) {
+      if (boardIds.includes(list.boardId)) {
+        if (!listsByBoard.has(list.boardId)) {
+          listsByBoard.set(list.boardId, []);
+        }
+        listsByBoard.get(list.boardId)!.push(list);
+      }
+    }
+
+    // Batch fetch all cards for all lists to avoid N+1 queries
+    const allListIds = allLists.map((list) => list._id);
+    const allCards = await ctx.db.query("cards").collect();
+    const cardsByList = new Map<string, any[]>();
+
+    // Group cards by list ID
+    for (const card of allCards) {
+      if (allListIds.includes(card.listId)) {
+        if (!cardsByList.has(card.listId)) {
+          cardsByList.set(card.listId, []);
+        }
+        cardsByList.get(card.listId)!.push(card);
+      }
+    }
+
+    // Enrich boards with user names, favorite status, and statistics
     const enrichedBoards = [];
     for (const board of boards) {
       const createdByUser = await ctx.db.get(board.createdBy);
       const lastModifiedByUser = await ctx.db.get(board.lastModifiedBy);
+
+      // Calculate statistics with fallback values
+      let listsCount = 0;
+      let cardsCount = 0;
+      let activityStatus = "Activity: -";
+
+      try {
+        // Get lists for this board
+        const boardLists = listsByBoard.get(board._id) || [];
+        listsCount = boardLists.length;
+
+        // Count cards across all lists for this board
+        for (const list of boardLists) {
+          const listCards = cardsByList.get(list._id) || [];
+          cardsCount += listCards.length;
+        }
+
+        // Calculate activity status
+        activityStatus = calculateActivityStatus(board.lastModifiedTime, board._creationTime);
+      } catch (error) {
+        // Use fallback values if calculation fails
+        listsCount = 0;
+        cardsCount = 0;
+        activityStatus = "Activity: -";
+      }
 
       enrichedBoards.push({
         ...board,
         createdByName: createdByUser?.name,
         lastModifiedByName: lastModifiedByUser?.name,
         isFavorited: favoritedBoardIds.has(board._id),
+        listsCount,
+        cardsCount,
+        activityStatus,
       });
     }
 

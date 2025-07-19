@@ -77,18 +77,18 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         { listId: list._id, newName: trimmedTitle },
         {
           onSuccess: () => {
-            toast.success("List renamed successfully.");
+            toast.success("SUCCESS: List renamed.");
             setIsEditingTitle(false);
           },
           onError: (error) => {
-            toast.error(`Failed to rename list: ${error.message}`);
+            toast.error(`ERROR: Failed to rename list: ${error.message}`);
             setTitleValue(list.name); // Reset to original name on error
             setIsEditingTitle(false);
           },
         }
       );
     } else if (trimmedTitle === "") {
-      toast.error("List name cannot be empty.");
+      toast.error("ERROR: List name cannot be empty.");
       setTitleValue(list.name); // Reset to original name
       setIsEditingTitle(false);
     } else {

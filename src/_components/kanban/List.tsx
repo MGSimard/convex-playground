@@ -304,7 +304,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         isDragging && "opacity-50 scale-98"
       )}>
       {/* Drop indicators */}
-      {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="16px" />}
+      {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="17.5px" />}
 
       <div
         ref={dragHandleRef}

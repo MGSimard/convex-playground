@@ -1,7 +1,6 @@
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
-import { Label } from "@/_components/ui/label";
-import { Loader2, Loader2Icon, Plus } from "lucide-react";
+import { Loader2Icon, Plus } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/_lib/utils";
 import { validateUrl, createCardLink, type CardLink } from "@/_lib/links";
@@ -81,70 +80,61 @@ export function AddLinkForm({ onAdd, isLoading = false }: AddLinkFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 p-3 border border-border/50 rounded-md bg-muted/30 mb-3 relative z-10 w-full"
+      className="space-y-2 p-2 border border-border/50 rounded-md bg-muted/30 mb-2 relative z-10 w-full"
       // Prevent drag events from bubbling to avoid interference with link drag-and-drop
       onDragStart={(e) => e.stopPropagation()}
       onDragOver={(e) => e.stopPropagation()}
       onDrop={(e) => e.stopPropagation()}>
-      {/* Input fields container with responsive layout */}
-      <div className="space-y-3 sm:space-y-2">
-        <div className="space-y-2">
-          <Label htmlFor="link-url" className="text-xs text-muted-foreground">
-            URL *
-          </Label>
+      {/* Compact grid layout for inputs */}
+      <div className="grid grid-cols-1 gap-1.5">
+        <div className="space-y-1">
           <Input
             id="link-url"
             type="url"
             value={url}
             onChange={(e) => handleUrlChange(e.target.value)}
-            placeholder="https://example.com"
+            placeholder="URL (required)"
             required
             autoFocus
             aria-invalid={!!urlError}
-            className={cn("h-8 text-sm w-full", urlError && "border-destructive")}
+            className={cn("h-7 text-xs w-full", urlError && "border-destructive")}
             // Prevent drag events on input fields
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
           />
           {urlError && (
-            <p className="text-xs text-destructive" role="alert">
+            <p className="text-xs text-destructive leading-tight" role="alert">
               {urlError}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="link-title" className="text-xs text-muted-foreground">
-            Title (optional)
-          </Label>
+        <div className="flex gap-1.5">
           <Input
             id="link-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Link description"
-            className="h-8 text-sm w-full"
+            placeholder="Title (optional)"
+            className="h-7 text-xs flex-1"
             // Prevent drag events on input fields
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
           />
-          <p className="text-xs text-muted-foreground hidden sm:block">If left empty, the URL will be displayed</p>
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!url.trim() || !!urlError || isSubmitting || isLoading}
+            className="h-7 w-7 grid place-items-center shrink-0"
+            // Prevent drag events on button
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}>
+            <Loader2Icon
+              className={cn("col-start-1 row-start-1 animate-spin w-3 h-3", isSubmitting ? "visible" : "invisible")}
+            />
+            <Plus className={cn("col-start-1 row-start-1 w-3 h-3", isSubmitting ? "invisible" : "visible")} />
+          </Button>
         </div>
-      </div>
-
-      {/* Button container with responsive positioning */}
-      <div className="flex items-center justify-start gap-2 pt-2">
-        <Button
-          type="submit"
-          size="sm"
-          disabled={!url.trim() || !!urlError || isSubmitting || isLoading}
-          className="grid place-items-center"
-          // Prevent drag events on button
-          draggable={false}
-          onDragStart={(e) => e.preventDefault()}>
-          <Loader2Icon className={cn("col-start-1 row-start-1 animate-spin", isSubmitting ? "visible" : "invisible")} />
-          <span className={cn("col-start-1 row-start-1", isSubmitting ? "invisible" : "visible")}>Add</span>
-        </Button>
       </div>
     </form>
   );

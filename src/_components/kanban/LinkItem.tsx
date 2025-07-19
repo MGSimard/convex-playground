@@ -12,7 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
-import { GripVertical, Edit2, Trash2, ExternalLink, Check, X, Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/_components/ui/popover";
+import { GripVertical, Edit2, Trash2, Check, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
@@ -47,7 +48,7 @@ interface LinkItemProps {
 }
 
 export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, isLoading = false }: LinkItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [editUrl, setEditUrl] = useState(link.url);
   const [editTitle, setEditTitle] = useState(link.title || "");
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -65,7 +66,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
   // Set up drag and drop
   useEffect(() => {
     const element = linkRef.current;
-    if (!element) return;
+    if (!element || isPopoverOpen) return;
 
     const dragData: LinkDragData = {
       type: "link",
@@ -142,7 +143,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
         },
       })
     );
-  }, [link.id, cardId, index, onReorder, dragState, closestEdge]);
+  }, [link.id, cardId, index, onReorder, dragState, closestEdge, isPopoverOpen]);
 
   // Real-time URL validation during editing
   const handleUrlChange = (value: string) => {
@@ -190,8 +191,8 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
         title: updatedLink.title,
       });
 
-      // Exit edit mode
-      setIsEditing(false);
+      // Close popover and reset state
+      setIsPopoverOpen(false);
       setUrlError(null);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to update link";
@@ -205,7 +206,17 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
     setEditUrl(link.url);
     setEditTitle(link.title || "");
     setUrlError(null);
-    setIsEditing(false);
+    setIsPopoverOpen(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsPopoverOpen(open);
+    if (open) {
+      // Reset form when opening
+      setEditUrl(link.url);
+      setEditTitle(link.title || "");
+      setUrlError(null);
+    }
   };
 
   const handleDelete = () => {
@@ -220,86 +231,6 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
 
   const displayText = getLinkDisplayText(link);
 
-  if (isEditing) {
-    return (
-      <div
-        ref={linkRef}
-        className={cn(
-          "relative flex items-start gap-2 p-2 border rounded-md bg-card",
-          isDragging && "opacity-50 scale-98"
-        )}>
-        {isBeingDraggedOver && closestEdge && <DropIndicator edge={closestEdge} isVisible={true} gap="4px" />}
-
-        {/* Drag handle */}
-        <div className="flex-shrink-0 mt-1">
-          <GripVertical
-            className="h-4 w-4 text-muted-foreground cursor-grab hover:text-foreground"
-            aria-label="Drag to reorder"
-          />
-        </div>
-
-        <div className="flex-1 space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor={`edit-url-${link.id}`} className="text-xs text-muted-foreground">
-              URL *
-            </Label>
-            <Input
-              id={`edit-url-${link.id}`}
-              type="url"
-              value={editUrl}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              placeholder="https://example.com"
-              required
-              autoFocus
-              aria-invalid={!!urlError}
-              className={cn(urlError && "border-destructive")}
-            />
-            {urlError && (
-              <p className="text-xs text-destructive" role="alert">
-                {urlError}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor={`edit-title-${link.id}`} className="text-xs text-muted-foreground">
-              Title (optional)
-            </Label>
-            <Input
-              id={`edit-title-${link.id}`}
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Link description"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleSaveEdit}
-              disabled={!editUrl.trim() || !!urlError || isSubmitting || isLoading}
-              className="grid place-items-center">
-              <Loader2
-                className={cn("col-start-1 row-start-1 h-4 w-4 animate-spin", isSubmitting ? "visible" : "invisible")}
-              />
-              <Check className={cn("col-start-1 row-start-1 h-4 w-4", isSubmitting ? "invisible" : "visible")} />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleCancelEdit}
-              disabled={isSubmitting || isLoading}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       ref={linkRef}
@@ -312,38 +243,104 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
       {/* Drag handle */}
       <div className="flex-shrink-0">
         <GripVertical
-          className="h-4 w-4 text-muted-foreground cursor-grab hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-4 w-4 text-muted-foreground cursor-grab hover:text-foreground transition-colors"
           aria-label="Drag to reorder"
+          aria-disabled="false"
+          role="button"
+          tabIndex={0}
         />
       </div>
 
       {/* Link content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1">
-          <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground hover:underline truncate"
-            title={displayText}>
-            {displayText}
-          </a>
-        </div>
-      </div>
+      <a
+        href={link.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 min-w-0 text-xs text-muted-foreground hover:text-foreground hover:underline truncate flex items-center"
+        title={displayText}>
+        {displayText}
+      </a>
 
       {/* Action buttons */}
-      <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsEditing(true)}
-          disabled={isLoading}
-          className="h-6 w-6 p-0"
-          aria-label="Edit link">
-          <Edit2 className="h-3 w-3" />
-        </Button>
+      <div className="flex-shrink-0 flex items-center gap-1">
+        <Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={isLoading}
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+              aria-label="Edit link">
+              <Edit2 className="h-3 w-3" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="end">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Edit Link</h4>
+                <p className="text-sm text-muted-foreground">Update the URL and title for this link.</p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-url-${link.id}`} className="text-sm">
+                    URL *
+                  </Label>
+                  <Input
+                    id={`edit-url-${link.id}`}
+                    type="url"
+                    value={editUrl}
+                    onChange={(e) => handleUrlChange(e.target.value)}
+                    placeholder="https://example.com"
+                    required
+                    autoFocus
+                    aria-invalid={!!urlError}
+                    className={cn(urlError && "border-destructive")}
+                  />
+                  {urlError && (
+                    <p className="text-sm text-destructive" role="alert">
+                      {urlError}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-title-${link.id}`} className="text-sm">
+                    Title (optional)
+                  </Label>
+                  <Input
+                    id={`edit-title-${link.id}`}
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Link description"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleSaveEdit}
+                    disabled={!editUrl.trim() || !!urlError || isSubmitting || isLoading}
+                    className="flex items-center gap-2">
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    Save
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                    disabled={isSubmitting || isLoading}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -352,7 +349,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
               variant="ghost"
               size="sm"
               disabled={isLoading}
-              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
               aria-label="Delete link">
               <Trash2 className="h-3 w-3" />
             </Button>

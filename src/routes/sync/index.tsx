@@ -6,6 +6,7 @@ import { OverviewActions } from "@/_components/kanban/OverviewActions";
 import { LoaderBlocks } from "@/_components/LoaderBlocks";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/_lib/utils";
+import { Separator } from "@/_components/ui/separator";
 
 export const Route = createFileRoute("/sync/")({
   component: RouteComponent,
@@ -74,13 +75,7 @@ function RouteComponent() {
                 </span>
               </div>
             </div>
-            <div>
-              <ul>
-                <li>Lists: #</li>
-                <li>Cards: #</li>
-                <li>Members: #</li>
-              </ul>
-            </div>
+            <Separator />
             <div className="mt-auto grid">
               <span className="text-xs text-muted-foreground truncate">
                 Last modified by {board.lastModifiedByName ?? board.lastModifiedBy}

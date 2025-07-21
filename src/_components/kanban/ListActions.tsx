@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useConvexMutation } from "@convex-dev/react-query";
@@ -24,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/_components/ui/dialog";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
 import { EllipsisIcon, Loader2Icon, PlusIcon, MoveIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { MoveListDialog } from "@/_components/kanban/MoveListDialog";
@@ -50,9 +52,18 @@ export function ListActions({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
+  // Query to get current user data for permission checking
+  const { data: currentUser } = useQuery({
+    ...convexQuery(api.auth.currentUserData, {}),
+    initialData: null,
+  });
+
   const { mutate: removeList, isPending } = useMutation({
     mutationFn: useConvexMutation(api.lists.removeList),
   });
+
+  // Check if user has admin permissions for delete functionality
+  const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
   const handleDeleteList = (listId: Id<"lists">) => {
     removeList(
@@ -120,12 +131,25 @@ export function ListActions({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem className="text-destructive hover:bg-destructive">
-                  <Trash2Icon className="h-4 w-4 text-inherit" />
-                  Delete
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
+              {isAdmin ? (
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="text-destructive hover:bg-destructive">
+                    <Trash2Icon className="h-4 w-4 text-inherit" />
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <DropdownMenuItem aria-disabled className="text-muted-foreground cursor-not-allowed opacity-50">
+                        <Trash2Icon className="h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    }></TooltipTrigger>
+                  <TooltipContent>Requires admin role</TooltipContent>
+                </Tooltip>
+              )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

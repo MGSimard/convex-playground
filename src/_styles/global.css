@@ -124,10 +124,12 @@
   button:not(:disabled),
   [role="button"]:not(:disabled),
   [role="menuitem"]:not(:disabled),
+  [role="menuitem"]:not([aria-disabled]),
   [role="option"]:not(:disabled) {
     @apply cursor-pointer;
   }
 }
+
 
 @utility max-w-8xl {
   max-width: 1440px; /* 90rem = 1440px */

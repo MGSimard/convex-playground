@@ -24,6 +24,7 @@ import {
   AlertDialogCancel,
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
 import {
   ArchiveIcon,
   EllipsisVerticalIcon,
@@ -138,12 +139,25 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
                 <ArchiveIcon className="h-4 w-4" />
                 Archive
               </DropdownMenuItem>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem className="text-destructive hover:bg-destructive">
-                  <Trash2Icon className="h-4 w-4 text-inherit" />
-                  Delete
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
+              {isAdmin ? (
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="text-destructive hover:bg-destructive">
+                    <Trash2Icon className="h-4 w-4 text-inherit" />
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <DropdownMenuItem aria-disabled className="text-muted-foreground cursor-not-allowed opacity-50">
+                        <Trash2Icon className="h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    }></TooltipTrigger>
+                  <TooltipContent>Requires admin role</TooltipContent>
+                </Tooltip>
+              )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -95,7 +95,7 @@ function RouteComponent() {
               </span>
             </div>
           </Link>
-          <OverviewActions boardId={board._id} />
+          <OverviewActions boardId={board._id} boardName={board.name} />
         </div>
       ))}
     </section>

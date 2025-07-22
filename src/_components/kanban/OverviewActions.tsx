@@ -137,8 +137,8 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
             <DropdownMenuGroup>
               {isAdmin ? (
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-destructive hover:bg-destructive">
-                    <Trash2Icon className="h-4 w-4 text-inherit" />
+                  <DropdownMenuItem variant="destructive">
+                    <Trash2Icon className="h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
                 </AlertDialogTrigger>

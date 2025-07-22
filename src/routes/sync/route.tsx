@@ -3,7 +3,7 @@ import { BoardCombobox } from "@/_components/kanban/Combobox";
 import { AddBoard } from "@/_components/kanban/AddBoard";
 import { RenameBoardDialog } from "@/_components/kanban/RenameBoardDialog";
 import { convexQuery } from "@convex-dev/react-query";
-import { useQuery, useQueryClient, skipToken } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
 import { PencilIcon } from "lucide-react";
@@ -38,17 +38,13 @@ function RouteComponent() {
   const queryClient = useQueryClient();
 
   // Query to get current user data for permission checking
-  const { data: currentUser } = useQuery({
-    ...convexQuery(api.auth.currentUserData, {}),
-    initialData: null,
-  });
+  const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
 
 
   // Query to get board data when viewing a specific board
-  const { data: boardData } = useQuery({
-    ...convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId as string }),
-    enabled: !!currentShortId,
-  });
+  const { data: boardData } = useQuery(
+    convexQuery(api.boards.getBoardWithListsAndCards, currentShortId ? { shortId: currentShortId } : "skip")
+  );
 
   // Check if user has admin permissions for rename functionality
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";

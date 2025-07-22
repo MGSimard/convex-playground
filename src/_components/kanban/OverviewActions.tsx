@@ -43,9 +43,7 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
 
   // Query to get current user data for permission checking
   const { data: currentUser } = useQuery({
-    ...convexQuery(api.auth.currentUserData, {}),
-    initialData: null,
-  });
+    ...convexQuery(api.auth.currentUserData, {})});
 
   // Query to check if board is favorited
   const { data: isFavorited = false } = useQuery({

@@ -30,7 +30,7 @@ export function useSignOut() {
         replace: true,
         resetScroll: true,
       });
-      toast.success("SUCCESS: Signed out successfully.");
+      toast.success("SUCCESS: Signed out.");
     } catch (error: unknown) {
       console.error("ERROR: Sign out failed:", error instanceof Error ? error.message : "UNKNOWN ERROR.");
       toast.error("ERROR: Sign out failed.");

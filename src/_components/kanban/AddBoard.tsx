@@ -37,7 +37,7 @@ export function AddBoard() {
         { name },
         {
           onSuccess: (result, variables) => {
-            toast.success("SUCCESS: Board created successfully.");
+            toast.success("SUCCESS: Board created.");
             setOpen(false);
             const formattedBoardName = variables.name.toLowerCase().replace(/\s+/g, "-");
             navigate({ to: `/sync/${result.shortId}/${formattedBoardName}` });

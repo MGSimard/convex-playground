@@ -458,7 +458,7 @@ function CardCreateForm({ listId, cards, placement, onComplete }: CardCreateForm
         { listId, content: trimmedContent, position },
         {
           onSuccess: () => {
-            toast.success("SUCCESS: Card created successfully.");
+            toast.success("SUCCESS: Card created.");
             setCardContent("");
             onComplete();
           },

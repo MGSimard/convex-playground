@@ -85,7 +85,7 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
       { boardId },
       {
         onSuccess: () => {
-          toast.success("SUCCESS: Board deleted successfully.");
+          toast.success("SUCCESS: Board deleted.");
           setDeleteOpen(false);
         },
         onError: (error) => {

@@ -70,7 +70,7 @@ export function ListActions({
       { listId },
       {
         onSuccess: () => {
-          toast.success("SUCCESS: List deleted successfully.");
+          toast.success("SUCCESS: List deleted.");
           setDeleteOpen(false);
         },
         onError: (error) => {

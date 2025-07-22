@@ -65,7 +65,7 @@ export function ListCreate({ board }: ListCreateProps) {
         },
         {
           onSuccess: () => {
-            toast.success("SUCCESS: List created successfully.");
+            toast.success("SUCCESS: List created.");
             setIsCreating(false);
             setListName("");
           },

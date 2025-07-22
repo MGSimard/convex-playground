@@ -1,6 +1,6 @@
 import { Button } from "@/_components/ui/button";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
-import { SquarePen, Link, FileText, ExternalLink, Loader2Icon } from "lucide-react";
+import { SquarePen, Link, FileText, ExternalLink, Loader2Icon, Trash2 } from "lucide-react";
 import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import {
@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/_components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
 import { cn } from "@/_lib/utils";
 import { Textarea } from "@/_components/ui/textarea";
 import { Label } from "@/_components/ui/label";
@@ -27,9 +28,12 @@ import {
   updateLinkById,
 } from "@/_lib/links";
 import { useConvexMutation } from "@convex-dev/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { Separator } from "../ui/separator";
 
 const TABS = [
   {
@@ -53,14 +57,25 @@ export function EditCard({ card }: EditCardProps) {
   const [cardText, setCardText] = useState(card.content);
   const [cardLinks, setCardLinks] = useState<CardLink[]>(card.links || []);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showUnsavedAlert, setShowUnsavedAlert] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Original values for dirty state comparison
   const [originalText] = useState(card.content);
   const [originalLinks] = useState<CardLink[]>(card.links || []);
 
-  // Mutation for updating card content
+  // Query to get current user data for permission checking
+  const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
+
+  // Check if user has admin permissions for delete functionality
+  const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
+
+  // Mutations
   const updateCardContent = useConvexMutation(api.cards.updateCardContent);
+  const removeCard = useConvexMutation(api.cards.removeCard);
+
+
 
   // Check if there are unsaved changes (dirty state)
   const isDirty = cardText !== originalText || JSON.stringify(cardLinks) !== JSON.stringify(originalLinks);
@@ -86,7 +101,7 @@ export function EditCard({ card }: EditCardProps) {
         links: cardLinks.length > 0 ? cardLinks : undefined,
       });
 
-      toast.success("SUCCESS: Card updated successfully.");
+      toast.success("SUCCESS: Card updated.");
       setOpen(false);
     } catch (error) {
       console.error("Failed to save card:", error);
@@ -120,6 +135,25 @@ export function EditCard({ card }: EditCardProps) {
     setOpen(false);
   };
 
+  // Handle card deletion with loading states and user feedback
+  const handleDeleteCard = async () => {
+    setIsDeleting(true);
+    try {
+      await removeCard({
+        cardId: card._id as Id<"cards">,
+      });
+
+      toast.success("SUCCESS: Card deleted.");
+      setShowDeleteDialog(false);
+      setOpen(false); // Close the edit dialog after successful deletion
+    } catch (error) {
+      console.error("Failed to delete card:", error);
+      toast.error(`ERROR: Failed to delete card: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -145,6 +179,38 @@ export function EditCard({ card }: EditCardProps) {
                   </Button>
                 </li>
               ))}
+              <li><Separator /></li>
+              {/* Delete button - positioned below tabs */}
+              <li>
+                {isAdmin ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 hover:text-destructive"
+                    onClick={() => setShowDeleteDialog(true)}
+                    aria-label="Delete card"
+                  >
+                    <Trash2/>
+                  </Button>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground cursor-not-allowed opacity-50"
+                          aria-disabled
+                          aria-label="Delete card (requires admin role)"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      }
+                    ></TooltipTrigger>
+                    <TooltipContent>Requires admin role</TooltipContent>
+                  </Tooltip>
+                )}
+              </li>
             </ul>
           </nav>
           <main className="flex flex-col w-full overflow-hidden">
@@ -159,10 +225,10 @@ export function EditCard({ card }: EditCardProps) {
               )}
             </div>
             <div className="shrink-0 flex items-center justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+              <Button variant="outline" onClick={handleCancel} disabled={isSaving || isDeleting}>
                 Cancel
               </Button>
-              <Button className="grid place-items-center" onClick={handleSave} disabled={!isDirty || isSaving}>
+              <Button className="grid place-items-center" onClick={handleSave} disabled={!isDirty || isSaving || isDeleting}>
                 <Loader2Icon
                   className={cn("col-start-1 row-start-1 animate-spin", isSaving ? "visible" : "invisible")}
                 />
@@ -185,6 +251,27 @@ export function EditCard({ card }: EditCardProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Keep Editing</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmCancel}>Discard Changes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the card and all its content.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCard} disabled={isDeleting} className="grid place-items-center bg-destructive hover:bg-destructive">
+              <Loader2Icon
+                className={cn("col-start-1 row-start-1 animate-spin", isDeleting ? "visible" : "invisible")}
+              />
+              <span className={cn("col-start-1 row-start-1", isDeleting ? "invisible" : "visible")}>Delete</span>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -26,7 +26,6 @@ import {
 } from "@/_components/ui/alert-dialog";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
 import {
-  ArchiveIcon,
   EllipsisVerticalIcon,
   Loader2Icon,
   PencilIcon,

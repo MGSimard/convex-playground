@@ -3,7 +3,7 @@ import { BoardCombobox } from "@/_components/kanban/Combobox";
 import { AddBoard } from "@/_components/kanban/AddBoard";
 import { RenameBoardDialog } from "@/_components/kanban/RenameBoardDialog";
 import { convexQuery } from "@convex-dev/react-query";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, skipToken } from "@tanstack/react-query";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
 import { PencilIcon } from "lucide-react";
@@ -43,9 +43,10 @@ function RouteComponent() {
     initialData: null,
   });
 
+
   // Query to get board data when viewing a specific board
   const { data: boardData } = useQuery({
-    ...convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId! }),
+    ...convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId as string }),
     enabled: !!currentShortId,
   });
 
@@ -53,13 +54,15 @@ function RouteComponent() {
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
   // Only show edit button when viewing a specific board and user has admin permissions
-  const showEditButton = !!currentShortId && !!boardData?.board && isAdmin;
+  const showEditButton = !!currentShortId && !!(boardData as any)?.board && isAdmin;
 
   const handleRenameSuccess = () => {
     // Invalidate board data queries to refresh the UI
-    void queryClient.invalidateQueries({
-      queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId! }).queryKey,
-    });
+    if (currentShortId) {
+      void queryClient.invalidateQueries({
+        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId }).queryKey,
+      });
+    }
     // Also invalidate board list queries in case the name appears elsewhere
     void queryClient.invalidateQueries({
       queryKey: convexQuery(api.boards.getBoards, {}).queryKey,
@@ -67,8 +70,8 @@ function RouteComponent() {
   };
 
   // Check if URL needs updating when board data changes (reactive approach)
-  if (boardData?.board && currentShortId && currentBoardName) {
-    const currentBoardNameFromData = boardData.board.name;
+  if ((boardData as any)?.board && currentShortId && currentBoardName) {
+    const currentBoardNameFromData = (boardData as any).board.name;
     const expectedSlug = createBoardSlug(currentBoardNameFromData);
 
     // If URL slug doesn't match current board name, update it

@@ -129,16 +129,12 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
               </DropdownMenuItem>
             )}
             {isAdmin && <DropdownMenuSeparator />}
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled>
               <UsersIcon className="h-4 w-4" />
-              Permissions
+              Permissions (WIP)
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <ArchiveIcon className="h-4 w-4" />
-                Archive
-              </DropdownMenuItem>
               {isAdmin ? (
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className="text-destructive hover:bg-destructive">

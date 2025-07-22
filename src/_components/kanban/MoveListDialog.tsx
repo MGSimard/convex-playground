@@ -157,39 +157,9 @@ export function MoveListDialog({
     } catch (error) {
       console.error("ERROR: ", error);
 
-      // Comprehensive error handling for different failure types
-      let errorMessage = "Failed to move list. Please try again.";
-
-      if (error instanceof Error) {
-        // Handle specific error types
-        if (
-          error.message.includes("network") ||
-          error.message.includes("fetch") ||
-          error.message.includes("NetworkError") ||
-          error.message.includes("Failed to fetch")
-        ) {
-          errorMessage = `Network error: ${error.message}. Please check your connection and try again.`;
-        } else if (
-          error.message.includes("permission") ||
-          error.message.includes("unauthorized") ||
-          error.message.includes("403")
-        ) {
-          errorMessage = `Permission error: ${error.message}. You may not have permission to move this list.`;
-        } else if (
-          error.message.includes("validation") ||
-          error.message.includes("invalid") ||
-          error.message.includes("400")
-        ) {
-          errorMessage = `Validation error: ${error.message}. Please check your input and try again.`;
-        } else {
-          errorMessage = `Failed to move list: ${error.message}`;
-        }
-      } else if (typeof error === "string") {
-        errorMessage = `Failed to move list: ${error}`;
-      }
-
-      // Show error toast notification with specific error details
-      toast.error(errorMessage);
+      // Simple, standardized error handling
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toast.error(`ERROR: Failed to move list: ${errorMessage}`);
 
       // Keep the dialog open so user can retry
     } finally {

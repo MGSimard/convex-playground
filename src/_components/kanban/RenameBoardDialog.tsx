@@ -53,13 +53,13 @@ export function RenameBoardDialog({ boardId, currentName, open, onOpenChange, on
     if (!trimmedName) {
       const errorMsg = "Board name cannot be empty.";
       setError(errorMsg);
-      toast.error(`ERROR: ${errorMsg}`);
+      toast.error(errorMsg);
       return;
     }
 
     // Check if name is the same as current (no-op but allowed)
     if (trimmedName === currentName.trim()) {
-      toast.success("SUCCESS: Board renamed successfully.");
+      toast.success("SUCCESS: Board renamed.");
       onOpenChange(false);
       onSuccess?.();
       return;
@@ -70,38 +70,16 @@ export function RenameBoardDialog({ boardId, currentName, open, onOpenChange, on
       {
         onSuccess: () => {
           setError(null);
-          toast.success("SUCCESS: Board renamed successfully.");
+          toast.success("SUCCESS: Board renamed.");
           onOpenChange(false);
           onSuccess?.();
         },
         onError: (error) => {
           console.error("Board rename error:", error);
 
-          // Handle specific error cases as per requirements
-          let errorMessage = "Failed to rename board";
-
-          if (error.message.includes("Unauthenticated")) {
-            errorMessage = "You must be logged in to rename boards";
-            toast.error("ERROR: Unauthenticated");
-          } else if (error.message.includes("Unauthorized")) {
-            errorMessage = "You don't have permission to rename this board";
-            toast.error("ERROR: Unauthorized");
-          } else if (error.message.includes("not found")) {
-            errorMessage = "Board not found";
-            toast.error("ERROR: Board not found");
-          } else if (error.message.includes("network") || error.message.includes("fetch")) {
-            errorMessage = "Network error. Please check your connection and try again";
-            toast.error("ERROR: Network error. Please try again.");
-          } else if (error.message.includes("timeout")) {
-            errorMessage = "Request timed out. Please try again";
-            toast.error("ERROR: Request timed out. Please try again.");
-          } else {
-            // Generic error with the actual error message
-            errorMessage = error.message || "An unexpected error occurred";
-            toast.error(`ERROR: ${errorMessage}`);
-          }
-
-          setError(errorMessage);
+          // Simple error handling pattern
+          toast.error(`ERROR: Failed to rename board: ${error.message}`);
+          setError(error.message);
         },
       }
     );

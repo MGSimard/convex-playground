@@ -95,11 +95,7 @@ https://docs.convex.dev/understanding/best-practices/typescript
 ## TASK LIST:
 
 - [ ] Look into beautifing convex errors (currently it prints out the whole weird convex throw instead of my message only in sonner)
-- [ ] Edit card (Makes it a textarea? Or use contenteditable)
-- [ ] Direct click on card (role?) opens dialog with options
-- [ ] Text at top of card max lines with scrollable, show list, desc?
 - [ ] Error & NotFound routes
-- [ ] Finish auth system (need roles, authorization, perms)
 - [ ] Team Settings
 - [ ] General organization settings
 - [ ] Implement perms on boards (Join, delete, leave (owner can't leave))

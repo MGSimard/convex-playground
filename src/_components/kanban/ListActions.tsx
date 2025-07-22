@@ -142,7 +142,7 @@ export function ListActions({
                 <Tooltip>
                   <TooltipTrigger
                     render={
-                      <DropdownMenuItem aria-disabled className="text-muted-foreground cursor-not-allowed opacity-50">
+                      <DropdownMenuItem aria-disabled className="cursor-not-allowed opacity-50">
                         <Trash2Icon className="h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

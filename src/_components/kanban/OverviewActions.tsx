@@ -118,13 +118,24 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
               {isFavorited ? "Unfavorite" : "Favorite"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {isAdmin && (
+            {isAdmin ? (
               <DropdownMenuItem onClick={() => setRenameOpen(true)}>
                 <PencilIcon className="h-4 w-4" />
                 Rename
               </DropdownMenuItem>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <DropdownMenuItem aria-disabled className="cursor-not-allowed opacity-50">
+                      <PencilIcon className="h-4 w-4" />
+                      Rename
+                    </DropdownMenuItem>
+                  }></TooltipTrigger>
+                <TooltipContent>Requires admin role</TooltipContent>
+              </Tooltip>
             )}
-            {isAdmin && <DropdownMenuSeparator />}
+            <DropdownMenuSeparator />
             <DropdownMenuItem disabled>
               <UsersIcon className="h-4 w-4" />
               Permissions (WIP)
@@ -142,7 +153,7 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
                 <Tooltip>
                   <TooltipTrigger
                     render={
-                      <DropdownMenuItem aria-disabled className="text-muted-foreground cursor-not-allowed opacity-50">
+                      <DropdownMenuItem aria-disabled className="cursor-not-allowed opacity-50">
                         <Trash2Icon className="h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

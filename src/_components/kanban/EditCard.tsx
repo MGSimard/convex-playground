@@ -190,7 +190,7 @@ export function EditCard({ card }: EditCardProps) {
                     onClick={() => setShowDeleteDialog(true)}
                     aria-label="Delete card"
                   >
-                    <Trash2/>
+                    <Trash2 />
                   </Button>
                 ) : (
                   <Tooltip>
@@ -199,7 +199,7 @@ export function EditCard({ card }: EditCardProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-8 text-muted-foreground cursor-not-allowed opacity-50"
+                          className="size-8 cursor-not-allowed opacity-50"
                           aria-disabled
                           aria-label="Delete card (requires admin role)"
                         >

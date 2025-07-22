@@ -6,6 +6,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
 import { PencilIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -49,8 +50,8 @@ function RouteComponent() {
   // Check if user has admin permissions for rename functionality
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
-  // Only show edit button when viewing a specific board and user has admin permissions
-  const showEditButton = !!currentShortId && !!(boardData as any)?.board && isAdmin;
+  // Show edit button when viewing a specific board (for all users)
+  const showEditButton = !!currentShortId && !!(boardData as any)?.board;
 
   const handleRenameSuccess = () => {
     // Invalidate board data queries to refresh the UI
@@ -89,18 +90,35 @@ function RouteComponent() {
         <BoardCombobox currentShortId={currentShortId} />
         <AddBoard />
         {showEditButton && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setRenameOpen(true)}
-            aria-label="Rename board"
-            className="ml-2">
-            <PencilIcon className="h-4 w-4" />
-          </Button>
+          isAdmin ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setRenameOpen(true)}
+              aria-label="Rename board"
+              className="ml-2">
+              <PencilIcon className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-disabled
+                    aria-label="Rename board (requires admin role)"
+                    className="ml-2 cursor-not-allowed opacity-50">
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                }></TooltipTrigger>
+              <TooltipContent>Requires admin role</TooltipContent>
+            </Tooltip>
+          )
         )}
       </header>
       <Outlet />
-      {showEditButton && boardData?.board && (
+      {showEditButton && boardData?.board && isAdmin && (
         <RenameBoardDialog
           boardId={boardData.board._id}
           currentName={boardData.board.name}

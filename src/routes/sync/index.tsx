@@ -5,7 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { OverviewActions } from "@/_components/kanban/OverviewActions";
 import { LoaderBlocks } from "@/_components/LoaderBlocks";
 import { Link } from "@tanstack/react-router";
-import { cn } from "@/_lib/utils";
+import { cn, createBoardSlug } from "@/_lib/utils";
 import { Separator } from "@/_components/ui/separator";
 
 export const Route = createFileRoute("/sync/")({
@@ -48,7 +48,7 @@ function RouteComponent() {
             to="/sync/$boardId/$boardName"
             params={{
               boardId: board.shortId,
-              boardName: board.name,
+              boardName: createBoardSlug(board.name),
             }}
             className={cn(
               "flex flex-col gap-2 p-4 border bg-card hover:bg-accent rounded-xl text-card-foreground overflow-hidden transition-colors shadow-sm",

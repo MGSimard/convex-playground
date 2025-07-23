@@ -9,6 +9,7 @@ import { Button } from "@/_components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
 import { PencilIcon } from "lucide-react";
 import { useState } from "react";
+import { createBoardSlug } from "@/_lib/utils";
 
 export const Route = createFileRoute("/sync")({
   component: RouteComponent,
@@ -19,16 +20,6 @@ export const Route = createFileRoute("/sync")({
   },
   loader: () => ({ crumb: "Sync" }),
 });
-
-// Utility function to create URL-safe slugs from board names
-function createBoardSlug(boardName: string): string {
-  return boardName
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "") // Remove special characters except spaces and hyphens
-    .replace(/[\s_-]+/g, "-") // Replace spaces, underscores, and multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
-}
 
 function RouteComponent() {
   const params = useParams({ strict: false });

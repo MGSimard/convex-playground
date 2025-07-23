@@ -2,14 +2,16 @@ import { createFileRoute, Outlet, redirect, useParams, useNavigate } from "@tans
 import { BoardCombobox } from "@/_components/kanban/Combobox";
 import { AddBoard } from "@/_components/kanban/AddBoard";
 import { RenameBoardDialog } from "@/_components/kanban/RenameBoardDialog";
-import { convexQuery } from "@convex-dev/react-query";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
-import { PencilIcon } from "lucide-react";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogTrigger } from "@/_components/ui/alert-dialog";
+import { PencilIcon, Trash2Icon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { createBoardSlug } from "@/_lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/sync")({
   component: RouteComponent,
@@ -27,6 +29,7 @@ function RouteComponent() {
   const currentShortId = params.boardId;
   const currentBoardName = params.boardName;
   const [renameOpen, setRenameOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Query to get current user data for permission checking
@@ -37,6 +40,11 @@ function RouteComponent() {
   const { data: boardData } = useQuery(
     convexQuery(api.boards.getBoardWithListsAndCards, currentShortId ? { shortId: currentShortId } : "skip")
   );
+
+  // Mutation to remove board
+  const { mutate: removeBoard, isPending: isDeleting } = useMutation({
+    mutationFn: useConvexMutation(api.boards.removeBoard),
+  });
 
   // Check if user has admin permissions for rename functionality
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
@@ -55,6 +63,25 @@ function RouteComponent() {
     void queryClient.invalidateQueries({
       queryKey: convexQuery(api.boards.getBoards, {}).queryKey,
     });
+  };
+
+  const handleDeleteBoard = () => {
+    if (!boardData?.board) return;
+
+    removeBoard(
+      { boardId: boardData.board._id },
+      {
+        onSuccess: () => {
+          toast.success("SUCCESS: Board deleted.");
+          setDeleteOpen(false);
+          // Navigate back to boards list after successful deletion
+          void navigate({ to: "/sync" });
+        },
+        onError: (error) => {
+          toast.error(`ERROR: Failed to delete board: ${error.message}`);
+        },
+      }
+    );
   };
 
   // Check if URL needs updating when board data changes (reactive approach)
@@ -107,6 +134,33 @@ function RouteComponent() {
             </Tooltip>
           )
         )}
+        {showEditButton && (
+          isAdmin ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteOpen(true)}
+              aria-label="Delete board"
+              className="ml-2">
+              <Trash2Icon className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-disabled
+                    aria-label="Delete board (requires admin role)"
+                    className="ml-2 cursor-not-allowed opacity-50">
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
+                }></TooltipTrigger>
+              <TooltipContent>Requires admin role</TooltipContent>
+            </Tooltip>
+          )
+        )}
       </header>
       <Outlet />
       {showEditButton && boardData?.board && isAdmin && (
@@ -117,6 +171,32 @@ function RouteComponent() {
           onOpenChange={setRenameOpen}
           onSuccess={handleRenameSuccess}
         />
+      )}
+      {showEditButton && boardData?.board && isAdmin && (
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the board and all its contents, including lists
+                and cards.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <Button
+                onClick={handleDeleteBoard}
+                className="grid place-items-center"
+                disabled={isDeleting}
+                variant="destructive">
+                <Loader2Icon
+                  className={`col-start-1 row-start-1 animate-spin${isDeleting ? " visible" : " invisible"}`}
+                />
+                <span className={`col-start-1 row-start-1${isDeleting ? " invisible" : " visible"}`}>Delete Board</span>
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   );

@@ -60,7 +60,7 @@ export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
             {boards.length > 0 && (
               <CommandGroup className="overflow-hidden">
                 {boards.map((board) => (
-                  <CommandItem key={board._id} value={board._id} onSelect={() => handleBoardSelect(board.shortId)}>
+                  <CommandItem key={board._id} value={board.name} onSelect={() => handleBoardSelect(board.shortId)}>
                     <span className="truncate">{board.name}</span>
                     <CheckIcon
                       className={cn("ml-auto h-4 w-4 opacity-0", currentShortId === board.shortId && "opacity-100")}

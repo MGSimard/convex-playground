@@ -102,4 +102,4 @@ https://docs.convex.dev/understanding/best-practices/typescript
 - [ ] Start chatting functionality
 - [ ] Notion functionality
 - [ ] Overview
-- [ ] Being able to reference cortex docs, sync boards, trace documents from within Hive chat?
+- [ ] Being able to reference sync boards, trace documents from within Hive chat?

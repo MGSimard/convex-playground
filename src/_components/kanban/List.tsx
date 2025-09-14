@@ -328,7 +328,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
         ) : (
           <h2
             className={cn(
-              "truncate font-medium text-muted-foreground flex-1 cursor-pointer rounded px-1 py-0.5 transition-colors",
+              "truncate font-medium text-muted-foreground cursor-text rounded px-1 py-0.5 transition-colors",
               !isDragging && !isRenamingList && "hover:bg-accent/50"
             )}
             id={`list-title-${list._id}`}

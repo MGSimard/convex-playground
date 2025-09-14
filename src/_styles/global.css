@@ -32,7 +32,7 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary:oklch(0.7 0.2532 217.06);
+  --sidebar-primary: oklch(0.7 0.2532 217.06);
   --sidebar-primary-foreground: oklch(0.971 0.023 213.63);
   --sidebar-accent: oklch(0.967 0.001 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
@@ -115,7 +115,7 @@
 }
 
 @layer base {
-  * {
+  *:not(input):not(textarea):not(select) {
     @apply border-border outline-ring/50;
   }
   body {
@@ -129,7 +129,6 @@
     @apply cursor-pointer;
   }
 }
-
 
 @utility max-w-8xl {
   max-width: 1440px; /* 90rem = 1440px */
@@ -179,7 +178,3 @@
     height: 0;
   }
 }
-
-/* * {
-  outline: 1px solid red;
-} */

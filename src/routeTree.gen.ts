@@ -16,7 +16,6 @@ import { Route as TraceIndexRouteImport } from './routes/trace/index'
 import { Route as SyncIndexRouteImport } from './routes/sync/index'
 import { Route as OrganizationSettingsIndexRouteImport } from './routes/organization-settings/index'
 import { Route as HiveIndexRouteImport } from './routes/hive/index'
-import { Route as CortexIndexRouteImport } from './routes/cortex/index'
 import { Route as OrganizationSettingsTeamRouteImport } from './routes/organization-settings/team'
 import { Route as SyncBoardIdBoardNameRouteImport } from './routes/sync/$boardId.$boardName'
 
@@ -57,11 +56,6 @@ const HiveIndexRoute = HiveIndexRouteImport.update({
   path: '/hive/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CortexIndexRoute = CortexIndexRouteImport.update({
-  id: '/cortex/',
-  path: '/cortex/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OrganizationSettingsTeamRoute =
   OrganizationSettingsTeamRouteImport.update({
     id: '/team',
@@ -79,7 +73,6 @@ export interface FileRoutesByFullPath {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/sync': typeof SyncRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
-  '/cortex': typeof CortexIndexRoute
   '/hive': typeof HiveIndexRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
   '/sync/': typeof SyncIndexRoute
@@ -89,7 +82,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
-  '/cortex': typeof CortexIndexRoute
   '/hive': typeof HiveIndexRoute
   '/organization-settings': typeof OrganizationSettingsIndexRoute
   '/sync': typeof SyncIndexRoute
@@ -102,7 +94,6 @@ export interface FileRoutesById {
   '/organization-settings': typeof OrganizationSettingsRouteRouteWithChildren
   '/sync': typeof SyncRouteRouteWithChildren
   '/organization-settings/team': typeof OrganizationSettingsTeamRoute
-  '/cortex/': typeof CortexIndexRoute
   '/hive/': typeof HiveIndexRoute
   '/organization-settings/': typeof OrganizationSettingsIndexRoute
   '/sync/': typeof SyncIndexRoute
@@ -116,7 +107,6 @@ export interface FileRouteTypes {
     | '/organization-settings'
     | '/sync'
     | '/organization-settings/team'
-    | '/cortex'
     | '/hive'
     | '/organization-settings/'
     | '/sync/'
@@ -126,7 +116,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/organization-settings/team'
-    | '/cortex'
     | '/hive'
     | '/organization-settings'
     | '/sync'
@@ -138,7 +127,6 @@ export interface FileRouteTypes {
     | '/organization-settings'
     | '/sync'
     | '/organization-settings/team'
-    | '/cortex/'
     | '/hive/'
     | '/organization-settings/'
     | '/sync/'
@@ -150,7 +138,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OrganizationSettingsRouteRoute: typeof OrganizationSettingsRouteRouteWithChildren
   SyncRouteRoute: typeof SyncRouteRouteWithChildren
-  CortexIndexRoute: typeof CortexIndexRoute
   HiveIndexRoute: typeof HiveIndexRoute
   TraceIndexRoute: typeof TraceIndexRoute
 }
@@ -206,13 +193,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HiveIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cortex/': {
-      id: '/cortex/'
-      path: '/cortex'
-      fullPath: '/cortex'
-      preLoaderRoute: typeof CortexIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/organization-settings/team': {
       id: '/organization-settings/team'
       path: '/team'
@@ -264,7 +244,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OrganizationSettingsRouteRoute: OrganizationSettingsRouteRouteWithChildren,
   SyncRouteRoute: SyncRouteRouteWithChildren,
-  CortexIndexRoute: CortexIndexRoute,
   HiveIndexRoute: HiveIndexRoute,
   TraceIndexRoute: TraceIndexRoute,
 }

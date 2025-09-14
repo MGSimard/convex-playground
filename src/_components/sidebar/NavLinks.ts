@@ -1,4 +1,4 @@
-import { Building, Columns3, Gauge, MessageSquareText, NotepadText, PencilRuler, Users } from "lucide-react";
+import { Building, Columns3, Gauge, MessageSquareText, PencilRuler, Users } from "lucide-react";
 
 export const NAV_LINKS = {
   admin: [
@@ -30,11 +30,6 @@ export const NAV_LINKS = {
       title: "Sync",
       url: "/sync",
       icon: Columns3,
-    },
-    {
-      title: "Cortex",
-      url: "/cortex",
-      icon: NotepadText,
     },
     {
       title: "Trace",

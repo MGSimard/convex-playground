@@ -7,7 +7,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogTrigger } from "@/_components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/_components/ui/alert-dialog";
 import { PencilIcon, Trash2Icon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { createBoardSlug } from "@/_lib/utils";

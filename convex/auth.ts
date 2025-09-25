@@ -1,4 +1,4 @@
-import { convexAuth, getAuthUserId, getAuthSessionId } from "@convex-dev/auth/server";
+import { convexAuth, getAuthSessionId, getAuthUserId } from "@convex-dev/auth/server";
 import GitHub from "@auth/core/providers/github";
 import { v } from "convex/values";
 import { query } from "./_generated/server";

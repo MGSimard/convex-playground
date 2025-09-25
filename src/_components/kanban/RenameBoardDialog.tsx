@@ -130,11 +130,7 @@ export function RenameBoardDialog({ boardId, currentName, open, onOpenChange }: 
             )}
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" disabled={isPending}>
-                Cancel
-              </Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="outline" disabled={isPending} />}>Cancel</DialogClose>
             <Button type="submit" className="grid place-items-center" disabled={isPending || !isValid}>
               <Loader2Icon
                 className={cn("col-start-1 row-start-1 animate-spin", isPending ? "visible" : "invisible")}

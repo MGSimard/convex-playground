@@ -1,3 +1,10 @@
+import { Check, Edit2, GripVertical, Loader2, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import type { CardLink, LinkDragData, LinkDropData } from "@/_lib/links";
+import type { Edge } from "@/_lib/drag-and-drop";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
@@ -13,22 +20,11 @@ import {
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/_components/ui/popover";
-import { GripVertical, Edit2, Trash2, Check, Loader2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
 import { cn } from "@/_lib/utils";
-import { type CardLink, type LinkDragData, type LinkDropData, validateUrl, updateCardLink } from "@/_lib/links";
-import {
-  type Edge,
-  attachClosestEdge,
-  extractClosestEdge,
-  getReorderDestinationIndex,
-  dragRegistry,
-} from "@/_lib/drag-and-drop";
-import type { Id } from "../../../convex/_generated/dataModel";
+import { updateCardLink, validateUrl } from "@/_lib/links";
+import { attachClosestEdge, dragRegistry, extractClosestEdge, getReorderDestinationIndex } from "@/_lib/drag-and-drop";
 
 interface LinkItemProps {
   link: CardLink;
@@ -43,7 +39,7 @@ interface LinkItemProps {
 export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, isLoading = false }: LinkItemProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [editUrl, setEditUrl] = useState(link.url);
-  const [editTitle, setEditTitle] = useState(link.title || "");
+  const [editTitle, setEditTitle] = useState(link.title ?? "");
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
@@ -88,10 +84,10 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
       // Make link a drop target
       dropTargetForElements({
         element,
-        getData: ({ input, element }) =>
+        getData: ({ input, element: targetElement }) =>
           attachClosestEdge(dropData, {
             input,
-            element: element as HTMLElement,
+            element: targetElement as HTMLElement,
             allowedEdges: ["top", "bottom"],
           }),
         getIsSticky: () => true,
@@ -151,7 +147,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
     if (value.trim()) {
       const validation = validateUrl(value);
       if (!validation.isValid) {
-        setUrlError(validation.error || "Invalid URL");
+        setUrlError(validation.error ?? "Invalid URL");
       } else {
         setUrlError(null);
       }
@@ -165,7 +161,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
     // Validate URL before saving
     const validation = validateUrl(trimmedUrl);
     if (!validation.isValid) {
-      setUrlError(validation.error || "Invalid URL");
+      setUrlError(validation.error ?? "Invalid URL");
       return;
     }
 
@@ -175,7 +171,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
       // Update the link using the utility function
       const updatedLink = updateCardLink(link, {
         url: trimmedUrl,
-        title: trimmedTitle || undefined,
+        title: trimmedTitle,
       });
 
       // Call the onUpdate callback
@@ -197,7 +193,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
 
   const handleCancelEdit = () => {
     setEditUrl(link.url);
-    setEditTitle(link.title || "");
+    setEditTitle(link.title ?? "");
     setUrlError(null);
     setIsPopoverOpen(false);
   };
@@ -207,7 +203,7 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
     if (open) {
       // Reset form when opening
       setEditUrl(link.url);
-      setEditTitle(link.title || "");
+      setEditTitle(link.title ?? "");
       setUrlError(null);
     }
   };
@@ -256,16 +252,18 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
       {/* Action buttons */}
       <div className="flex-shrink-0 flex items-center gap-1">
         <Popover open={isPopoverOpen} onOpenChange={handleOpenChange}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isLoading}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-              aria-label="Edit link">
-              <Edit2 className="h-3 w-3" />
-            </Button>
+          <PopoverTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isLoading}
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                aria-label="Edit link"
+              />
+            }>
+            <Edit2 className="h-3 w-3" />
           </PopoverTrigger>
           <PopoverContent className="w-80" align="end">
             <div className="space-y-4">
@@ -335,16 +333,18 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
         </Popover>
 
         <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isLoading}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-              aria-label="Delete link">
-              <Trash2 className="h-3 w-3" />
-            </Button>
+          <AlertDialogTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isLoading}
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                aria-label="Delete link"
+              />
+            }>
+            <Trash2 className="h-3 w-3" />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>

@@ -3,11 +3,11 @@ import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { api } from "../../../convex/_generated/api";
 import { cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/_components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/_components/ui/popover";
-import { api } from "../../../convex/_generated/api";
 
 interface BoardComboboxProps {
   currentShortId?: string;
@@ -36,17 +36,19 @@ export function BoardCombobox({ currentShortId }: BoardComboboxProps) {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between overflow-hidden">
-          <h1 className={cn("truncate", !currentBoard && "text-muted-foreground")}>
-            {currentBoard ? currentBoard.name : "Select board..."}
-          </h1>
-          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[200px] justify-between overflow-hidden"
+          />
+        }>
+        <h1 className={cn("truncate", !currentBoard && "text-muted-foreground")}>
+          {currentBoard ? currentBoard.name : "Select board..."}
+        </h1>
+        <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>

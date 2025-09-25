@@ -1,33 +1,33 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { EllipsisIcon, Loader2Icon, MoveIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { useConvexMutation } from "@convex-dev/react-query";
+
 import { Button } from "@/_components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuGroup,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/_components/ui/dropdown-menu";
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/_components/ui/dialog";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
-import { EllipsisIcon, Loader2Icon, PlusIcon, MoveIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
 import { MoveListDialog } from "@/_components/kanban/MoveListDialog";
 
 export function ListActions({
@@ -46,8 +46,8 @@ export function ListActions({
   currentPosition: number;
   totalLists: number;
   boardId: Id<"boards">;
-  allLists: Array<{ _id: Id<"lists">; position: number }>;
-  onReorderLists: (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => void;
+  allLists: { _id: Id<"lists">; position: number }[];
+  onReorderLists: (boardId: Id<"boards">, listUpdates: { listId: Id<"lists">; position: number }[]) => void;
 }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -65,7 +65,7 @@ export function ListActions({
   // Check if user has admin permissions for delete functionality
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
-  const handleDeleteList = (listId: Id<"lists">) => {
+  const handleDeleteList = () => {
     removeList(
       { listId },
       {
@@ -101,23 +101,20 @@ export function ListActions({
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="View list actions"
-              className="shrink-0 h-7 w-7 text-muted-foreground"
-              onMouseEnter={() => onDropdownHoverChange?.(true)}
-              onMouseLeave={() => onDropdownHoverChange?.(false)}>
-              <EllipsisIcon className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="View list actions"
+                className="shrink-0 h-7 w-7 text-muted-foreground"
+                onMouseEnter={() => onDropdownHoverChange?.(true)}
+                onMouseLeave={() => onDropdownHoverChange?.(false)}
+              />
+            }>
+            <EllipsisIcon className="h-4 w-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-56"
-            align="start"
-            onCloseAutoFocus={(e) => {
-              e.preventDefault();
-            }}>
+          <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuLabel className="text-sm text-muted-foreground">List Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onAddCard}>
@@ -132,11 +129,9 @@ export function ListActions({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {isAdmin ? (
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-destructive hover:bg-destructive">
-                    <Trash2Icon className="h-4 w-4 text-inherit" />
-                    Delete
-                  </DropdownMenuItem>
+                <AlertDialogTrigger render={<DropdownMenuItem className="text-destructive hover:bg-destructive" />}>
+                  <Trash2Icon className="h-4 w-4 text-inherit" />
+                  Delete
                 </AlertDialogTrigger>
               ) : (
                 <Tooltip>
@@ -163,7 +158,7 @@ export function ListActions({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <Button
-              onClick={() => handleDeleteList(listId)}
+              onClick={handleDeleteList}
               className="grid place-items-center"
               disabled={isPending}
               variant="destructive">

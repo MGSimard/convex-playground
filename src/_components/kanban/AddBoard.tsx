@@ -1,4 +1,12 @@
-import { Button } from "@/_components/ui/button";
+import { Loader2Icon, PlusIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useConvexMutation } from "@convex-dev/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { useState } from "react";
+import { api } from "../../../convex/_generated/api";
+import { Label } from "@/_components/ui/label";
+import { Input } from "@/_components/ui/input";
 import {
   Dialog,
   DialogClose,
@@ -9,15 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/_components/ui/dialog";
-import { Input } from "@/_components/ui/input";
-import { Label } from "@/_components/ui/label";
-import { Loader2Icon, PlusIcon } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { api } from "../../../convex/_generated/api";
-import { toast } from "sonner";
-import { useState } from "react";
+import { Button } from "@/_components/ui/button";
 import { cn } from "@/_lib/utils";
 
 export function AddBoard() {
@@ -54,10 +54,8 @@ export function AddBoard() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Create new board">
-          <PlusIcon className="h-4 w-4" />
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="icon" aria-label="Create new board" />}>
+        <PlusIcon className="h-4 w-4" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
@@ -71,9 +69,7 @@ export function AddBoard() {
             <Input id="name-1" name="name" placeholder="e.g. 'My Board'" required />
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
             <Button type="submit" className="grid place-items-center" disabled={isPending}>
               <Loader2Icon
                 className={cn("col-start-1 row-start-1 animate-spin", isPending ? "visible" : "invisible")}

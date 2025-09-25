@@ -8,11 +8,7 @@
  * @module
  */
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
+import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as boards from "../boards.js";
 import type * as cards from "../cards.js";
@@ -36,11 +32,5 @@ declare const fullApi: ApiFromModules<{
   "lib/permissions": typeof lib_permissions;
   lists: typeof lists;
 }>;
-export declare const api: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "public">
->;
-export declare const internal: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "internal">
->;
+export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
+export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">>;

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Tldraw, Editor } from "tldraw";
+import {  Tldraw } from "tldraw";
+import type {Editor} from "tldraw";
 import "tldraw/tldraw.css";
 import { useTheme } from "@/_components/ThemeProvider";
 

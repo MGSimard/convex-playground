@@ -1,5 +1,5 @@
 import type { Id } from "../_generated/dataModel";
-import type { QueryCtx, MutationCtx } from "../_generated/server";
+import type { MutationCtx, QueryCtx } from "../_generated/server";
 
 // Derive role types from VALID_ROLES, represents permission levels
 export type Role = (typeof VALID_ROLES)[keyof typeof VALID_ROLES];
@@ -42,7 +42,7 @@ export async function checkPermission(
   // 1. The user ID is invalid or the user was deleted
   // 2. The user object doesn't have a role field
   // 3. The user's role is not one of the valid roles
-  if (!user || !user.role || !(user.role in roleHierarchy)) return false;
+  if (!user?.role || !(user.role in roleHierarchy)) return false;
 
   // Compare the user's role level against the required role level
   return roleHierarchy[user.role] >= roleHierarchy[requiredRole];

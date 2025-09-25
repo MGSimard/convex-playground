@@ -114,19 +114,19 @@ export function normalizeUrl(url: string): string {
 export function createCardLink(url: string, title?: string): CardLink {
   const validation = validateUrl(url);
   if (!validation.isValid) {
-    throw new Error(validation.error || "Invalid URL");
+    throw new Error(validation.error ?? "Invalid URL");
   }
 
   return {
     id: generateLinkId(),
     url: normalizeUrl(url),
-    title: title?.trim() || undefined,
+    title: title?.trim() ?? undefined,
   };
 }
 
 // Utility function to update a CardLink with error handling
 export function updateCardLink(link: CardLink, updates: { url?: string; title?: string }): CardLink {
-  if (!link || !link.id) {
+  if (!link.id) {
     throw new Error("Invalid link object");
   }
 
@@ -135,7 +135,7 @@ export function updateCardLink(link: CardLink, updates: { url?: string; title?: 
   if (updates.url !== undefined) {
     const validation = validateUrl(updates.url);
     if (!validation.isValid) {
-      throw new Error(validation.error || "Invalid URL");
+      throw new Error(validation.error ?? "Invalid URL");
     }
     updatedLink.url = normalizeUrl(updates.url);
   }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { EllipsisVerticalIcon, Loader2Icon, PencilIcon, StarIcon, Trash2Icon, UsersIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -32,7 +32,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/toolti
 export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">; boardName: string }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   // Query to get current user data for permission checking
   const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
@@ -62,14 +61,14 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
             result.isFavorited ? "SUCCESS: Board added to favorites." : "SUCCESS: Board removed from favorites."
           );
         },
-        onError: (error) => {
-          toast.error(`ERROR: Failed to update favorite: ${error.message}`);
+        onError: (error: unknown) => {
+          toast.error(`ERROR: Failed to update favorite: ${error instanceof Error ? error.message : "Unknown error"}`);
         },
       }
     );
   };
 
-  const handleDeleteBoard = (boardId: Id<"boards">) => {
+  const handleDeleteBoard = () => {
     removeBoard(
       { boardId },
       {
@@ -77,8 +76,8 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
           toast.success("SUCCESS: Board deleted.");
           setDeleteOpen(false);
         },
-        onError: (error) => {
-          toast.error(`ERROR: Failed to delete board: ${error.message}`);
+        onError: (error: unknown) => {
+          toast.error(`ERROR: Failed to delete board: ${error instanceof Error ? error.message : "Unknown error"}`);
         },
       }
     );
@@ -91,10 +90,16 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
     <>
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="View actions" className="shrink-0 absolute top-3 right-3">
-              <EllipsisVerticalIcon className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="View actions"
+                className="shrink-0 absolute top-3 right-3"
+              />
+            }>
+            <EllipsisVerticalIcon className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuLabel className="text-sm text-muted-foreground">Board Actions</DropdownMenuLabel>
@@ -128,11 +133,9 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {isAdmin ? (
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem variant="destructive">
-                    <Trash2Icon className="h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
+                <AlertDialogTrigger render={<DropdownMenuItem variant="destructive" />}>
+                  <Trash2Icon className="h-4 w-4" />
+                  Delete
                 </AlertDialogTrigger>
               ) : (
                 <Tooltip>
@@ -160,7 +163,7 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <Button
-              onClick={() => handleDeleteBoard(boardId)}
+              onClick={handleDeleteBoard}
               className="grid place-items-center"
               disabled={isDeleting}
               variant="destructive">

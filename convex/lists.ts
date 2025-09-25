@@ -1,7 +1,7 @@
-import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { checkPermission } from "./lib/permissions";
 
 // ADD LIST TO BOARD

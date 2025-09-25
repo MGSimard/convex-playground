@@ -1,20 +1,20 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
-import { Loader2Icon } from "lucide-react";
 import { cn } from "@/_lib/utils";
-import { toast } from "sonner";
 import { calculatePositionForIndex } from "@/_lib/drag-and-drop";
-import type { Id } from "../../../convex/_generated/dataModel";
 
 interface MoveListDialogProps {
   listId: Id<"lists">;
   currentPosition: number;
   totalLists: number;
   boardId: Id<"boards">;
-  allLists: Array<{ _id: Id<"lists">; position: number }>;
-  onReorderLists: (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => void;
+  allLists: { _id: Id<"lists">; position: number }[];
+  onReorderLists: (boardId: Id<"boards">, listUpdates: { listId: Id<"lists">; position: number }[]) => void;
   onClose: () => void;
 }
 
@@ -168,10 +168,10 @@ export function MoveListDialog({
   };
 
   // Handle keyboard events
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleSubmit(e);
+      await handleSubmit(e);
     }
   };
 

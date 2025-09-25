@@ -1,9 +1,10 @@
-import { Button } from "@/_components/ui/button";
-import { Input } from "@/_components/ui/input";
 import { Loader2Icon, Plus } from "lucide-react";
 import { useState } from "react";
+import type {CardLink} from "@/_lib/links";
+import { Button } from "@/_components/ui/button";
+import { Input } from "@/_components/ui/input";
 import { cn } from "@/_lib/utils";
-import { validateUrl, createCardLink, type CardLink } from "@/_lib/links";
+import {  createCardLink, validateUrl } from "@/_lib/links";
 
 interface AddLinkFormProps {
   onAdd: (link: Omit<CardLink, "id">) => void;

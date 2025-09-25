@@ -1,24 +1,25 @@
-import type { Doc } from "../../../convex/_generated/dataModel";
 import { useEffect, useRef, useState } from "react";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { Link2 } from "lucide-react";
+import type { Doc } from "../../../convex/_generated/dataModel";
+import type {CardLink} from "@/_lib/links";
+import type {CardDragData, CardDropData, Edge} from "@/_lib/drag-and-drop";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
 import { cn } from "@/_lib/utils";
 import {
-  type CardDragData,
-  type CardDropData,
-  type Edge,
-  dragRegistry,
-  isCardDragData,
-  getReorderDestinationIndex,
-  calculatePositionForIndex,
+  
+  
+  
   attachClosestEdge,
+  calculatePositionForIndex,
+  dragRegistry,
   extractClosestEdge,
+  getReorderDestinationIndex,
+  isCardDragData
 } from "@/_lib/drag-and-drop";
 import { EditCard } from "@/_components/kanban/EditCard";
-import { Link2 } from "lucide-react";
-import { type CardLink } from "@/_lib/links";
 
 interface CardProps {
   card: Doc<"cards">;
@@ -26,7 +27,7 @@ interface CardProps {
   allCards: Doc<"cards">[];
   onReorderCards: (
     listId: Doc<"lists">["_id"],
-    cardUpdates: Array<{ cardId: Doc<"cards">["_id"]; position: number }>
+    cardUpdates: { cardId: Doc<"cards">["_id"]; position: number }[]
   ) => void;
 }
 

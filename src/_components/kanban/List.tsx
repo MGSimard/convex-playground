@@ -1,33 +1,30 @@
-import { Button } from "@/_components/ui/button";
-import { Input } from "@/_components/ui/input";
-import { Plus, X, Loader2Icon } from "lucide-react";
-import { ListActions } from "@/_components/kanban/ListActions";
-import { Card } from "@/_components/kanban/Card";
+import { Loader2Icon, Plus, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
-import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
-import { useState, useRef, useEffect } from "react";
-import type { Doc, Id } from "../../../convex/_generated/dataModel";
+import { useEffect, useRef, useState } from "react";
 import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { api } from "../../../convex/_generated/api";
+import type { Doc, Id } from "../../../convex/_generated/dataModel";
+import type { CardDropData, Edge, ListDragData, ListDropData } from "@/_lib/drag-and-drop";
+import { ListActions } from "@/_components/kanban/ListActions";
+import { Card } from "@/_components/kanban/Card";
+import { Input } from "@/_components/ui/input";
+import { Button } from "@/_components/ui/button";
 import { DropIndicator } from "@/_components/kanban/DropIndicator";
 import { useDragAndDrop } from "@/_hooks/useDragAndDrop";
 
 import { cn } from "@/_lib/utils";
 import {
-  type ListDragData,
-  type ListDropData,
-  type CardDropData,
-  type Edge,
-  dragRegistry,
-  isListDragData,
-  isCardDragData,
-  getReorderDestinationIndex,
-  calculatePositionForIndex,
   attachClosestEdge,
+  calculatePositionForIndex,
+  dragRegistry,
   extractClosestEdge,
+  getReorderDestinationIndex,
+  isCardDragData,
+  isListDragData,
 } from "@/_lib/drag-and-drop";
 
 interface ListProps {
@@ -35,8 +32,8 @@ interface ListProps {
   cards: Doc<"cards">[];
   allLists: Doc<"lists">[];
   allCards: Doc<"cards">[];
-  onReorderLists: (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => void;
-  onReorderCards: (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => void;
+  onReorderLists: (boardId: Id<"boards">, listUpdates: { listId: Id<"lists">; position: number }[]) => void;
+  onReorderCards: (listId: Id<"lists">, cardUpdates: { cardId: Id<"cards">; position: number }[]) => void;
 }
 
 // <ul mx-1 px-1> makes the scrollbar position look better than px-2
@@ -166,7 +163,7 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       // Make list draggable
       draggable({
         element,
-        dragHandle: dragHandleRef.current || undefined,
+        dragHandle: dragHandleRef.current ?? undefined,
         getInitialData: () => dragData,
         onDragStart: () => {
           dragRegistry.startDrag(dragData);
@@ -178,10 +175,10 @@ export function List({ list, cards, allLists, allCards, onReorderLists, onReorde
       // Make list a drop target for other lists
       dropTargetForElements({
         element,
-        getData: ({ input, element }) =>
+        getData: ({ input, element: targetElement }) =>
           attachClosestEdge(dropData, {
             input,
-            element: element as HTMLElement,
+            element: targetElement as HTMLElement,
             allowedEdges: ["left", "right"],
           }),
         getIsSticky: () => true,

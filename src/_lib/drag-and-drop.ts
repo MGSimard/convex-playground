@@ -101,7 +101,7 @@ export function extractClosestEdge(data: Record<string | symbol, unknown>): Edge
 
 // Position calculation utilities
 export function calculateNewPosition(
-  items: Array<{ _id: string; position: number }>,
+  items: { _id: string; position: number }[],
   fromIndex: number,
   toIndex: number
 ): number {
@@ -235,7 +235,7 @@ class DragRegistry {
     draggedOverItem: null,
   };
 
-  private subscribers: Array<(state: DragState) => void> = [];
+  private subscribers: ((state: DragState) => void)[] = [];
 
   getState(): DragState {
     return this.state;

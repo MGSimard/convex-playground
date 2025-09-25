@@ -1,7 +1,8 @@
-import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { checkPermission } from "./lib/permissions";
+import type { Doc } from "./_generated/dataModel";
 
 /**
  * Add a new board with the given name.
@@ -82,7 +83,7 @@ function calculateActivityStatus(lastModifiedTime: number, creationTime: number)
     } else {
       return "Inactive";
     }
-  } catch (error) {
+  } catch (_) {
     return "Activity: -";
   }
 }
@@ -131,7 +132,7 @@ export const getBoards = query({
     // Batch fetch all lists for all boards to avoid N+1 queries
     const boardIds = boards.map((board) => board._id);
     const allLists = await ctx.db.query("lists").collect();
-    const listsByBoard = new Map<string, any[]>();
+    const listsByBoard = new Map<string, Doc<"lists">[]>();
 
     // Group lists by board ID
     for (const list of allLists) {
@@ -146,7 +147,7 @@ export const getBoards = query({
     // Batch fetch all cards for all lists to avoid N+1 queries
     const allListIds = allLists.map((list) => list._id);
     const allCards = await ctx.db.query("cards").collect();
-    const cardsByList = new Map<string, any[]>();
+    const cardsByList = new Map<string, Doc<"cards">[]>();
 
     // Group cards by list ID
     for (const card of allCards) {
@@ -171,18 +172,18 @@ export const getBoards = query({
 
       try {
         // Get lists for this board
-        const boardLists = listsByBoard.get(board._id) || [];
+        const boardLists = listsByBoard.get(board._id) ?? [];
         listsCount = boardLists.length;
 
         // Count cards across all lists for this board
         for (const list of boardLists) {
-          const listCards = cardsByList.get(list._id) || [];
+          const listCards = cardsByList.get(list._id) ?? [];
           cardsCount += listCards.length;
         }
 
         // Calculate activity status
         activityStatus = calculateActivityStatus(board.lastModifiedTime, board._creationTime);
-      } catch (error) {
+      } catch (_) {
         // Use fallback values if calculation fails
         listsCount = 0;
         cardsCount = 0;

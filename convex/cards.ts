@@ -1,7 +1,7 @@
-import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { checkPermission } from "./lib/permissions";
 import type { Id } from "./_generated/dataModel";
 
@@ -146,7 +146,7 @@ function validateUrl(url: string): boolean {
 }
 
 // Helper function to validate links array
-function validateLinks(links: Array<{ id: string; url: string; title?: string }>): void {
+function validateLinks(links: { id: string; url: string; title?: string }[]): void {
   const seenIds = new Set<string>();
   const seenUrls = new Set<string>();
 
@@ -247,7 +247,7 @@ export const updateCardContent = mutation({
     }
 
     // Prepare update object
-    const updateData: { content?: string; links?: Array<{ id: string; url: string; title?: string }> } = {};
+    const updateData: { content?: string; links?: { id: string; url: string; title?: string }[] } = {};
 
     if (args.content !== undefined) {
       updateData.content = args.content.trim();

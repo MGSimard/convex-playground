@@ -38,7 +38,6 @@ function RouteComponent() {
   const currentBoardName = params.boardName;
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   // Query to get current user data for permission checking
   const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
@@ -155,7 +154,7 @@ function RouteComponent() {
           ))}
       </header>
       <Outlet />
-      {showEditButton && boardData?.board && isAdmin && (
+      {showEditButton && isAdmin && (
         <RenameBoardDialog
           boardId={boardData.board._id}
           currentName={boardData.board.name}
@@ -163,7 +162,7 @@ function RouteComponent() {
           onOpenChange={setRenameOpen}
         />
       )}
-      {showEditButton && boardData?.board && isAdmin && (
+      {showEditButton && isAdmin && (
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>

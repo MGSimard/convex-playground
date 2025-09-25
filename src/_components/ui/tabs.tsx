@@ -1,64 +1,88 @@
-import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
+import * as React from "react";
+import { Tabs as BaseTabs } from "@base-ui-components/react/tabs";
 
-import { cn } from "@/_lib/utils"
+import { cn } from "@/_lib/utils";
+
+type TabsVariant = "capsule" | "underline";
+
+type TabsContext = {
+  variant: TabsVariant;
+};
+
+const TabsContext = React.createContext<TabsContext | null>(null);
+
+const useTabs = () => {
+  const context = React.use(TabsContext);
+
+  if (!context) {
+    throw new Error("useTabs must be used within a Tabs");
+  }
+
+  return context;
+};
 
 function Tabs({
+  variant = "capsule",
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: React.ComponentProps<typeof BaseTabs.Root> & {
+  variant?: TabsVariant;
+}) {
   return (
-    <TabsPrimitive.Root
-      data-slot="tabs"
-      className={cn("flex flex-col gap-2", className)}
-      {...props}
-    />
-  )
+    <TabsContext.Provider value={{ variant }}>
+      <BaseTabs.Root className={cn("flex flex-col gap-2", className)} {...props} />
+    </TabsContext.Provider>
+  );
 }
 
-function TabsList({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
+function TabsList({ className, children, ...props }: React.ComponentProps<typeof BaseTabs.List>) {
+  const { variant } = useTabs();
+
   return (
-    <TabsPrimitive.List
-      data-slot="tabs-list"
+    <BaseTabs.List
       className={cn(
-        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+        "text-muted-foreground relative z-0 inline-flex h-9 w-fit items-center justify-center gap-x-1 p-1",
+        variant === "capsule" ? "bg-muted rounded-lg" : "",
+        className
+      )}
+      {...props}>
+      {children}
+      <TabIndicator />
+    </BaseTabs.List>
+  );
+}
+
+function TabsTrigger({ className, ...props }: React.ComponentProps<typeof BaseTabs.Tab>) {
+  return (
+    <BaseTabs.Tab
+      className={cn(
+        "text-muted-foreground data-selected:text-foreground focus-visible:ring-ring/50 [&_svg:not([class*='size-'])] z-[1] flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm text-nowrap whitespace-nowrap outline-none focus-visible:ring-[3px] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
-function TabsTrigger({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+function TabIndicator({ className, ...props }: React.ComponentProps<typeof BaseTabs.Indicator>) {
+  const { variant } = useTabs();
+
   return (
-    <TabsPrimitive.Trigger
-      data-slot="tabs-trigger"
+    <BaseTabs.Indicator
       className={cn(
-        "data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "absolute left-0 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 transition-all duration-300 ease-in-out",
+        variant === "underline"
+          ? "bg-primary top-full z-10 h-px"
+          : "bg-accent border-ring/70 top-1/2 -z-[1] h-[var(--active-tab-height)] rounded-md border shadow-sm",
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
-function TabsContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      data-slot="tabs-content"
-      className={cn("flex-1 outline-none", className)}
-      {...props}
-    />
-  )
+function TabsContent({ className, ...props }: React.ComponentProps<typeof BaseTabs.Panel>) {
+  return <BaseTabs.Panel className={cn("flex-1 outline-none", className)} {...props} />;
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+export { Tabs, TabsList, TabsTrigger, TabsContent };

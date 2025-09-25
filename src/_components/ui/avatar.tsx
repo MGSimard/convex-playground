@@ -1,29 +1,39 @@
 import * as React from "react";
-import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import { Avatar as AvatarBase } from "@base-ui-components/react/avatar";
+import { cva } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 
 import { cn } from "@/_lib/utils";
 
-function Avatar({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Root>) {
-  return (
-    <AvatarPrimitive.Root
-      data-slot="avatar"
-      className={cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", className)}
-      {...props}
-    />
-  );
+const avatarVariants = cva("relative flex shrink-0 overflow-hidden rounded-full", {
+  variants: {
+    size: {
+      sm: "size-8 text-sm",
+      md: "size-10",
+      lg: "size-12 text-lg",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+function Avatar({
+  className,
+  size,
+  ...props
+}: React.ComponentProps<typeof AvatarBase.Root> & VariantProps<typeof avatarVariants>) {
+  return <AvatarBase.Root className={cn(avatarVariants({ size }), className)} {...props} />;
 }
 
-function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return (
-    <AvatarPrimitive.Image data-slot="avatar-image" className={cn("aspect-square size-full", className)} {...props} />
-  );
+function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarBase.Image>) {
+  return <AvatarBase.Image className={cn("size-full object-cover", className)} {...props} />;
 }
 
-function AvatarFallback({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+function AvatarFallback({ className, ...props }: React.ComponentProps<typeof AvatarBase.Fallback>) {
   return (
-    <AvatarPrimitive.Fallback
-      data-slot="avatar-fallback"
-      className={cn("bg-muted flex size-full items-center justify-center rounded-full", className)}
+    <AvatarBase.Fallback
+      className={cn("bg-muted flex size-full items-center justify-center rounded-full select-none", className)}
       {...props}
     />
   );

@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
+import type { VariantProps } from "class-variance-authority";
 import { useIsMobile } from "@/_hooks/useMobile";
 import { cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
@@ -9,7 +10,7 @@ import { Input } from "@/_components/ui/input";
 import { Separator } from "@/_components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/_components/ui/sheet";
 import { Skeleton } from "@/_components/ui/skeleton";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -31,7 +32,7 @@ type SidebarContextProps = {
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
 
 function useSidebar() {
-  const context = React.useContext(SidebarContext);
+  const context = React.use(SidebarContext);
   if (!context) {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
@@ -251,6 +252,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 
   return (
     <button
+      type="button"
       data-sidebar="rail"
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"

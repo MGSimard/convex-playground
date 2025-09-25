@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { routeTree } from "./routeTree.gen";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { routeTree } from "./routeTree.gen";
 import { DefaultNotFound } from "@/_components/DefaultNotFound";
 import "@/_styles/global.css";
 
@@ -37,7 +37,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-const rootElement = document.getElementById("app");
+const rootElement = document.getElementById("root");
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(

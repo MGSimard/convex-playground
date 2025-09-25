@@ -13,8 +13,7 @@ import { Button } from "@/_components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -245,8 +244,10 @@ export function EditCard({ card }: EditCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep Editing</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmCancel}>Discard Changes</AlertDialogAction>
+            <AlertDialogClose>Keep Editing</AlertDialogClose>
+            <Button variant="destructive" onClick={handleConfirmCancel}>
+              Discard Changes
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -261,8 +262,9 @@ export function EditCard({ card }: EditCardProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose disabled={isDeleting}>Cancel</AlertDialogClose>
+            <Button
+              variant="destructive"
               onClick={handleDeleteCard}
               disabled={isDeleting}
               className="grid place-items-center bg-destructive hover:bg-destructive">
@@ -270,7 +272,7 @@ export function EditCard({ card }: EditCardProps) {
                 className={cn("col-start-1 row-start-1 animate-spin", isDeleting ? "visible" : "invisible")}
               />
               <span className={cn("col-start-1 row-start-1", isDeleting ? "invisible" : "visible")}>Delete</span>
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -12,7 +12,7 @@ import { Button } from "@/_components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
 import {
   AlertDialog,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -173,7 +173,7 @@ function RouteComponent() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogClose>Cancel</AlertDialogClose>
               <Button
                 onClick={handleDeleteBoard}
                 className="grid place-items-center"

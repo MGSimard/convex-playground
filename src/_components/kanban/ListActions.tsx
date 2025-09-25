@@ -18,7 +18,7 @@ import {
 } from "@/_components/ui/dropdown-menu";
 import {
   AlertDialog,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -156,7 +156,7 @@ export function ListActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogClose>Cancel</AlertDialogClose>
             <Button
               onClick={handleDeleteList}
               className="grid place-items-center"

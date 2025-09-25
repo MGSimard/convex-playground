@@ -10,8 +10,7 @@ import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -366,12 +365,13 @@ export function LinkItem({ link, index, cardId, onUpdate, onDelete, onReorder, i
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
+              <AlertDialogClose>Cancel</AlertDialogClose>
+              <Button
+                variant="destructive"
                 onClick={handleDelete}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 Delete
-              </AlertDialogAction>
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

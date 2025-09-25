@@ -1,5 +1,10 @@
 import { Ellipsis, LifeBuoy, LogIn, LogOut, Settings2 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/_components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { AuthLoading, Authenticated, Unauthenticated } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/_components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,12 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/_components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/_components/ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../../../convex/_generated/api";
-import { convexQuery } from "@convex-dev/react-query";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/_components/ui/avatar";
 import { Skeleton } from "@/_components/ui/skeleton";
 import { useSignOut } from "@/_hooks/useSignOut";
 
@@ -37,20 +37,22 @@ export function NavUser() {
         </Unauthenticated>
         <Authenticated>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.image} alt="User avatar" />
-                  <AvatarFallback className="rounded-lg">{user?.name?.charAt(0) ?? "?"}</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user?.name ?? "Unknown"}</span>
-                  <span className="truncate text-xs">{user?.email ?? "Unknown@email.com"}</span>
-                </div>
-                <Ellipsis className="ml-auto size-4" />
-              </SidebarMenuButton>
+            <DropdownMenuTrigger
+              render={
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                />
+              }>
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage src={user?.image} alt="User avatar" />
+                <AvatarFallback className="rounded-lg">{user?.name?.charAt(0) ?? "?"}</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{user?.name ?? "Unknown"}</span>
+                <span className="truncate text-xs">{user?.email ?? "Unknown@email.com"}</span>
+              </div>
+              <Ellipsis className="ml-auto size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"

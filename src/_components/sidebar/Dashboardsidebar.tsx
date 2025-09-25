@@ -1,8 +1,8 @@
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/_components/ui/sidebar";
 import { NavMain } from "./NavMain";
 import { NavAdmin } from "./NavAdmin";
 import { NavUser } from "./NavUser";
 import { NAV_LINKS } from "./NavLinks";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/_components/ui/sidebar";
 
 export function DashboardSidebar() {
   return (

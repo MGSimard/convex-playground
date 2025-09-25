@@ -1,7 +1,15 @@
-import { Button } from "@/_components/ui/button";
+import { ExternalLink, FileText, Link, Loader2Icon, SquarePen, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { api } from "../../../convex/_generated/api";
+import { Separator } from "../ui/separator";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
-import { SquarePen, Link, FileText, ExternalLink, Loader2Icon, Trash2 } from "lucide-react";
-import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import type { CardLink } from "@/_lib/links";
+import { Button } from "@/_components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/_components/ui/dialog";
 import {
   AlertDialog,
@@ -19,21 +27,7 @@ import { Textarea } from "@/_components/ui/textarea";
 import { Label } from "@/_components/ui/label";
 import { LinkItem } from "@/_components/kanban/LinkItem";
 import { AddLinkForm } from "@/_components/kanban/AddLinkForm";
-import {
-  type CardLink,
-  generateLinkId,
-  reorderLinks,
-  findLinkIndex,
-  removeLinkById,
-  updateLinkById,
-} from "@/_lib/links";
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useQuery } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
-import { api } from "../../../convex/_generated/api";
-import { toast } from "sonner";
-import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
-import { Separator } from "../ui/separator";
+import { findLinkIndex, generateLinkId, removeLinkById, reorderLinks, updateLinkById } from "@/_lib/links";
 
 const TABS = [
   {
@@ -55,7 +49,7 @@ export function EditCard({ card }: EditCardProps) {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>(TABS[0]);
   const [cardText, setCardText] = useState(card.content);
-  const [cardLinks, setCardLinks] = useState<CardLink[]>(card.links || []);
+  const [cardLinks, setCardLinks] = useState<CardLink[]>(card.links ?? []);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showUnsavedAlert, setShowUnsavedAlert] = useState(false);
@@ -63,7 +57,7 @@ export function EditCard({ card }: EditCardProps) {
 
   // Original values for dirty state comparison
   const [originalText] = useState(card.content);
-  const [originalLinks] = useState<CardLink[]>(card.links || []);
+  const [originalLinks] = useState<CardLink[]>(card.links ?? []);
 
   // Query to get current user data for permission checking
   const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
@@ -75,8 +69,6 @@ export function EditCard({ card }: EditCardProps) {
   const updateCardContent = useConvexMutation(api.cards.updateCardContent);
   const removeCard = useConvexMutation(api.cards.removeCard);
 
-
-
   // Check if there are unsaved changes (dirty state)
   const isDirty = cardText !== originalText || JSON.stringify(cardLinks) !== JSON.stringify(originalLinks);
 
@@ -84,7 +76,7 @@ export function EditCard({ card }: EditCardProps) {
   useEffect(() => {
     if (open) {
       setCardText(card.content);
-      setCardLinks(card.links || []);
+      setCardLinks(card.links ?? []);
       setActiveTab(TABS[0]);
     }
   }, [open, card.content, card.links]);
@@ -157,13 +149,15 @@ export function EditCard({ card }: EditCardProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="bg-muted size-6 absolute top-1 right-1 z-10 invisible group-hover:visible transition-all duration-150">
-            <SquarePen />
-          </Button>
+        <DialogTrigger
+          render={
+            <Button
+              size="icon"
+              variant="ghost"
+              className="bg-muted size-6 absolute top-1 right-1 z-10 invisible group-hover:visible transition-all duration-150"
+            />
+          }>
+          <SquarePen />
         </DialogTrigger>
         <DialogContent className="overflow-hidden p-0 gap-0 flex h-[min(500px,calc(100dvh-32px))] max-w-[min(500px,calc(100dvw-32px))]">
           <nav className="shrink-0 border-r bg-sidebar p-2">
@@ -173,13 +167,15 @@ export function EditCard({ card }: EditCardProps) {
                   <Button
                     variant="ghost"
                     onClick={() => setActiveTab(tab)}
-                    className={cn("size-8", activeTab?.label === tab.label && "bg-primary! text-primary-foreground!")}
+                    className={cn("size-8", activeTab.label === tab.label && "bg-primary! text-primary-foreground!")}
                     aria-label={tab.label}>
                     {tab.icon}
                   </Button>
                 </li>
               ))}
-              <li><Separator /></li>
+              <li>
+                <Separator />
+              </li>
               {/* Delete button - positioned below tabs */}
               <li>
                 {isAdmin ? (
@@ -188,8 +184,7 @@ export function EditCard({ card }: EditCardProps) {
                     size="icon"
                     className="size-8 hover:text-destructive"
                     onClick={() => setShowDeleteDialog(true)}
-                    aria-label="Delete card"
-                  >
+                    aria-label="Delete card">
                     <Trash2 />
                   </Button>
                 ) : (
@@ -201,12 +196,10 @@ export function EditCard({ card }: EditCardProps) {
                           size="icon"
                           className="size-8 cursor-not-allowed opacity-50"
                           aria-disabled
-                          aria-label="Delete card (requires admin role)"
-                        >
+                          aria-label="Delete card (requires admin role)">
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                      }
-                    ></TooltipTrigger>
+                      }></TooltipTrigger>
                     <TooltipContent>Requires admin role</TooltipContent>
                   </Tooltip>
                 )}
@@ -228,7 +221,10 @@ export function EditCard({ card }: EditCardProps) {
               <Button variant="outline" onClick={handleCancel} disabled={isSaving || isDeleting}>
                 Cancel
               </Button>
-              <Button className="grid place-items-center" onClick={handleSave} disabled={!isDirty || isSaving || isDeleting}>
+              <Button
+                className="grid place-items-center"
+                onClick={handleSave}
+                disabled={!isDirty || isSaving || isDeleting}>
                 <Loader2Icon
                   className={cn("col-start-1 row-start-1 animate-spin", isSaving ? "visible" : "invisible")}
                 />
@@ -266,7 +262,10 @@ export function EditCard({ card }: EditCardProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteCard} disabled={isDeleting} className="grid place-items-center bg-destructive hover:bg-destructive">
+            <AlertDialogAction
+              onClick={handleDeleteCard}
+              disabled={isDeleting}
+              className="grid place-items-center bg-destructive hover:bg-destructive">
               <Loader2Icon
                 className={cn("col-start-1 row-start-1 animate-spin", isDeleting ? "visible" : "invisible")}
               />
@@ -341,8 +340,8 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       const updatedLinks = [...links, newLink];
       onLinksChange(updatedLinks);
       toast.success("SUCCESS: Link added.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to add link.";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to add link.";
       setError(errorMessage);
       toast.error(`ERROR: ${errorMessage}`);
       clearError();
@@ -368,8 +367,8 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       const updatedLinks = updateLinkById(links, linkId, updates);
       onLinksChange(updatedLinks);
       toast.success("SUCCESS: Link updated.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update link.";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update link.";
       setError(errorMessage);
       toast.error(`ERROR: ${errorMessage}`);
       clearError();
@@ -387,8 +386,8 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       const updatedLinks = removeLinkById(links, linkId);
       onLinksChange(updatedLinks);
       toast.success("SUCCESS: Link deleted.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to delete link.";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete link.";
       setError(errorMessage);
       toast.error(`Failed to delete link: ${errorMessage}`);
       clearError();
@@ -411,8 +410,8 @@ function TabLinks({ cardId, links, onLinksChange }: TabLinksProps) {
       const reorderedLinks = reorderLinks(links, sourceIndex, targetIndex);
       onLinksChange(reorderedLinks);
       // Don't show success toast for reordering as it's a frequent operation
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to reorder links";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to reorder links";
       setError(errorMessage);
       toast.error(`ERROR: ${errorMessage}`);
       clearError();

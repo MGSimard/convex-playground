@@ -1,14 +1,14 @@
 import { Fragment, useState } from "react";
-import { Link, useMatches, isMatch } from "@tanstack/react-router";
+import { Link, isMatch, useMatches } from "@tanstack/react-router";
 import {
   Breadcrumb,
-  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbEllipsis,
-} from "@/_components/ui/breadcrumb";
+  BreadcrumbSeparator,
+} from "@/_components/ui/breadcrumbs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,9 +63,9 @@ export function Breadcrumbs() {
                         <BreadcrumbEllipsis className="h-4 w-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
-                        {segments.slice(1).map((segment, index) => (
-                          <DropdownMenuItem key={index}>
-                            <Link to={segment.fullPath ?? "#"}>{segment.loaderData?.crumb}</Link>
+                        {segments.slice(1).map((segment) => (
+                          <DropdownMenuItem key={segment.index}>
+                            <Link to={segment.fullPath}>{segment.loaderData?.crumb}</Link>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
@@ -82,15 +82,13 @@ export function Breadcrumbs() {
                         </DrawerHeader>
                         <div className="grid gap-1 px-4">
                           {segments.slice(1).map((segment) => (
-                            <Link key={segment.index} to={segment.fullPath ?? "#"} className="py-1 text-sm">
+                            <Link key={segment.index} to={segment.fullPath} className="py-1 text-sm">
                               {segment.loaderData?.crumb}
                             </Link>
                           ))}
                         </div>
                         <DrawerFooter className="pt-4">
-                          <DrawerClose asChild>
-                            <Button variant="outline">Close</Button>
-                          </DrawerClose>
+                          <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
                         </DrawerFooter>
                       </DrawerContent>
                     </Drawer>
@@ -113,7 +111,7 @@ export function Breadcrumbs() {
             {currentSegment && (
               <BreadcrumbItem>
                 <BreadcrumbPage className="max-w-20 truncate md:max-w-none">
-                  {currentSegment?.loaderData?.crumb}
+                  {currentSegment.loaderData?.crumb}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             )}

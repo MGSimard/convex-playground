@@ -1,47 +1,38 @@
-/* https://aka.ms/tsconfig */
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "include": ["**/*.mjs", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.js"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "dist", ".output", ".nitro", ".tanstack", ".tsbuildinfo", ".featurespace"],
   "compilerOptions": {
-    /* Language and Environment */
-    "target": "ESNext",
-    "lib": ["DOM", "DOM.iterable", "ESNext"],
-    "jsx": "preserve",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-
-    /* Module Resolution & Imports */
+    "tsBuildInfoFile": "./.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "checkJs": true,
-
-    /* Bundler & Build Settings */
-    "noEmit": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "incremental": true,
+    "jsx": "preserve",
     "types": ["vite/client"],
-
-    /* Strict Type Checking */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "isolatedModules": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "noImplicitAny": true,
     "useUnknownInCatchVariables": true,
-    "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
-
-    /* Additional Linting & Quality */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    /* Performance & Completeness */
-    "skipLibCheck": true
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "incremental": true,
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "checkJs": true,
+    "erasableSyntaxOnly": true
   }
 }

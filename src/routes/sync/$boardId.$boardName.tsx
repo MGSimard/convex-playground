@@ -1,23 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
-import { useConvexMutation } from "@convex-dev/react-query";
-import { api } from "../../../convex/_generated/api";
-import { List } from "@/_components/kanban/List";
-import { ListCreate } from "@/_components/kanban/ListCreate";
-import { LoaderLines } from "@/_components/LoaderLines";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+
 import { SquareDashed } from "lucide-react";
 import { toast } from "sonner";
-import type { Id, Doc } from "../../../convex/_generated/dataModel";
+import { useEffect, useRef } from "react";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { api } from "../../../convex/_generated/api";
+import type { Doc, Id } from "../../../convex/_generated/dataModel";
+import { LoaderLines } from "@/_components/LoaderLines";
+import { ListCreate } from "@/_components/kanban/ListCreate";
+import { List } from "@/_components/kanban/List";
 
 type BoardWithListsAndCards = {
   board: Doc<"boards">;
   lists: Doc<"lists">[];
   cards: Doc<"cards">[];
 };
-import { useEffect, useRef } from "react";
-import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 
 export const Route = createFileRoute("/sync/$boardId/$boardName")({
   component: BoardComponent,
@@ -41,7 +41,7 @@ function BoardComponent() {
     mutationFn: useConvexMutation(api.lists.reorderLists),
     onMutate: async (variables: {
       boardId: Id<"boards">;
-      listUpdates: Array<{ listId: Id<"lists">; position: number }>;
+      listUpdates: { listId: Id<"lists">; position: number }[];
     }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
@@ -83,19 +83,11 @@ function BoardComponent() {
         );
       }
     },
-    onSettled: () => {
-      // Always refetch after error or success
-      queryClient.invalidateQueries({
-        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-      });
-    },
   });
 
   const { mutate: updateCardPositions } = useMutation({
     mutationFn: useConvexMutation(api.cards.updateCardPositions),
-    onMutate: async (variables: {
-      cardUpdates: Array<{ cardId: Id<"cards">; listId: Id<"lists">; position: number }>;
-    }) => {
+    onMutate: async (variables: { cardUpdates: { cardId: Id<"cards">; listId: Id<"lists">; position: number }[] }) => {
       await queryClient.cancelQueries({
         queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
       });
@@ -133,14 +125,9 @@ function BoardComponent() {
         );
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: boardId }).queryKey,
-      });
-    },
   });
 
-  const handleReorderLists = (boardId: Id<"boards">, listUpdates: Array<{ listId: Id<"lists">; position: number }>) => {
+  const handleReorderLists = (boardId: Id<"boards">, listUpdates: { listId: Id<"lists">; position: number }[]) => {
     reorderLists(
       { boardId, listUpdates },
       {
@@ -151,7 +138,7 @@ function BoardComponent() {
     );
   };
 
-  const handleReorderCards = (listId: Id<"lists">, cardUpdates: Array<{ cardId: Id<"cards">; position: number }>) => {
+  const handleReorderCards = (listId: Id<"lists">, cardUpdates: { cardId: Id<"cards">; position: number }[]) => {
     const cardUpdatesWithListId = cardUpdates.map((update) => ({
       cardId: update.cardId,
       listId: listId,

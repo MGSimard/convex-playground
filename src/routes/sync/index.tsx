@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import { OverviewActions } from "@/_components/kanban/OverviewActions";
 import { LoaderBlocks } from "@/_components/LoaderBlocks";
-import { Link } from "@tanstack/react-router";
 import { cn, createBoardSlug } from "@/_lib/utils";
 import { Separator } from "@/_components/ui/separator";
 

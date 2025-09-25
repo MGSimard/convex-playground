@@ -1,17 +1,25 @@
-import { createFileRoute, Outlet, redirect, useParams, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { api } from "../../../convex/_generated/api";
 import { BoardCombobox } from "@/_components/kanban/Combobox";
 import { AddBoard } from "@/_components/kanban/AddBoard";
 import { RenameBoardDialog } from "@/_components/kanban/RenameBoardDialog";
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { api } from "../../../convex/_generated/api";
 import { Button } from "@/_components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/_components/ui/alert-dialog";
-import { PencilIcon, Trash2Icon, Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/_components/ui/alert-dialog";
 import { createBoardSlug } from "@/_lib/utils";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/sync")({
   component: RouteComponent,
@@ -35,7 +43,6 @@ function RouteComponent() {
   // Query to get current user data for permission checking
   const { data: currentUser } = useQuery(convexQuery(api.auth.currentUserData, {}));
 
-
   // Query to get board data when viewing a specific board
   const { data: boardData } = useQuery(
     convexQuery(api.boards.getBoardWithListsAndCards, currentShortId ? { shortId: currentShortId } : "skip")
@@ -50,20 +57,7 @@ function RouteComponent() {
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
   // Show edit button when viewing a specific board (for all users)
-  const showEditButton = !!currentShortId && !!(boardData as any)?.board;
-
-  const handleRenameSuccess = () => {
-    // Invalidate board data queries to refresh the UI
-    if (currentShortId) {
-      void queryClient.invalidateQueries({
-        queryKey: convexQuery(api.boards.getBoardWithListsAndCards, { shortId: currentShortId }).queryKey,
-      });
-    }
-    // Also invalidate board list queries in case the name appears elsewhere
-    void queryClient.invalidateQueries({
-      queryKey: convexQuery(api.boards.getBoards, {}).queryKey,
-    });
-  };
+  const showEditButton = !!currentShortId && !!boardData?.board;
 
   const handleDeleteBoard = () => {
     if (!boardData?.board) return;
@@ -85,8 +79,8 @@ function RouteComponent() {
   };
 
   // Check if URL needs updating when board data changes (reactive approach)
-  if ((boardData as any)?.board && currentShortId && currentBoardName) {
-    const currentBoardNameFromData = (boardData as any).board.name;
+  if (boardData?.board && currentShortId && currentBoardName) {
+    const currentBoardNameFromData = boardData.board.name;
     const expectedSlug = createBoardSlug(currentBoardNameFromData);
 
     // If URL slug doesn't match current board name, update it
@@ -107,8 +101,8 @@ function RouteComponent() {
       <header className="shrink-0 flex items-center h-[var(--subHeader-height)] px-6 border-b">
         <BoardCombobox currentShortId={currentShortId} />
         <AddBoard />
-        {showEditButton && (
-          isAdmin ? (
+        {showEditButton &&
+          (isAdmin ? (
             <Button
               variant="ghost"
               size="icon"
@@ -132,10 +126,9 @@ function RouteComponent() {
                 }></TooltipTrigger>
               <TooltipContent>Requires admin role</TooltipContent>
             </Tooltip>
-          )
-        )}
-        {showEditButton && (
-          isAdmin ? (
+          ))}
+        {showEditButton &&
+          (isAdmin ? (
             <Button
               variant="ghost"
               size="icon"
@@ -159,8 +152,7 @@ function RouteComponent() {
                 }></TooltipTrigger>
               <TooltipContent>Requires admin role</TooltipContent>
             </Tooltip>
-          )
-        )}
+          ))}
       </header>
       <Outlet />
       {showEditButton && boardData?.board && isAdmin && (
@@ -169,7 +161,6 @@ function RouteComponent() {
           currentName={boardData.board.name}
           open={renameOpen}
           onOpenChange={setRenameOpen}
-          onSuccess={handleRenameSuccess}
         />
       )}
       {showEditButton && boardData?.board && isAdmin && (
@@ -178,8 +169,8 @@ function RouteComponent() {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the board and all its contents, including lists
-                and cards.
+                This action cannot be undone. This will permanently delete the board and all its contents, including
+                lists and cards.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

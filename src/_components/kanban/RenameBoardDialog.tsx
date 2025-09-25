@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
+import { AlertCircleIcon, Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/_components/ui/button";
@@ -15,8 +17,6 @@ import {
 } from "@/_components/ui/dialog";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
-import { Loader2Icon, AlertCircleIcon } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/_lib/utils";
 
 interface RenameBoardDialogProps {
@@ -24,20 +24,24 @@ interface RenameBoardDialogProps {
   currentName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
 }
 
-export function RenameBoardDialog({ boardId, currentName, open, onOpenChange, onSuccess }: RenameBoardDialogProps) {
+export function RenameBoardDialog({ boardId, currentName, open, onOpenChange }: RenameBoardDialogProps) {
   const [name, setName] = useState(currentName);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when dialog opens/closes or currentName changes
+  // Reset form when dialog opens or currentName changes
   useEffect(() => {
-    if (open) {
-      setName(currentName);
-      setError(null); // Clear any previous errors when dialog opens
+    setName(currentName);
+    setError(null);
+  }, [currentName]);
+
+  // Clear error when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setError(null);
     }
-  }, [open, currentName]);
+  }, [open]);
 
   const { mutate: renameBoard, isPending } = useMutation({
     mutationFn: useConvexMutation(api.boards.renameBoard),
@@ -45,11 +49,10 @@ export function RenameBoardDialog({ boardId, currentName, open, onOpenChange, on
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null); // Clear any previous errors
+    setError(null);
 
     const trimmedName = name.trim();
 
-    // Client-side validation
     if (!trimmedName) {
       const errorMsg = "Board name cannot be empty.";
       setError(errorMsg);
@@ -57,29 +60,28 @@ export function RenameBoardDialog({ boardId, currentName, open, onOpenChange, on
       return;
     }
 
-    // Check if name is the same as current (no-op but allowed)
     if (trimmedName === currentName.trim()) {
       toast.success("SUCCESS: Board renamed.");
       onOpenChange(false);
-      onSuccess?.();
       return;
     }
 
+    // Avoid stale closure by using current values
+    const currentBoardId = boardId;
+    const currentTrimmedName = trimmedName;
+
     renameBoard(
-      { boardId, newName: trimmedName },
+      { boardId: currentBoardId, newName: currentTrimmedName },
       {
         onSuccess: () => {
           setError(null);
           toast.success("SUCCESS: Board renamed.");
           onOpenChange(false);
-          onSuccess?.();
         },
-        onError: (error) => {
-          console.error("Board rename error:", error);
-
-          // Simple error handling pattern
-          toast.error(`ERROR: Failed to rename board: ${error.message}`);
-          setError(error.message);
+        onError: (err) => {
+          console.error("Board rename error:", err);
+          toast.error(`ERROR: Failed to rename board: ${err.message}`);
+          setError(err.message);
         },
       }
     );

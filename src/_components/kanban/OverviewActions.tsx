@@ -1,40 +1,33 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { convexQuery } from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { EllipsisVerticalIcon, Loader2Icon, PencilIcon, StarIcon, Trash2Icon, UsersIcon } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
+import { RenameBoardDialog } from "./RenameBoardDialog";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { useConvexMutation } from "@convex-dev/react-query";
+
 import { Button } from "@/_components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuGroup,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/_components/ui/dropdown-menu";
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/_components/ui/alert-dialog";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/_components/ui/tooltip";
-import {
-  EllipsisVerticalIcon,
-  Loader2Icon,
-  PencilIcon,
-  StarIcon,
-  Trash2Icon,
-  UsersIcon,
-} from "lucide-react";
-import { toast } from "sonner";
-import { RenameBoardDialog } from "./RenameBoardDialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_components/ui/tooltip";
 
 export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">; boardName: string }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -91,13 +84,6 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
     );
   };
 
-  const handleRenameSuccess = () => {
-    // Invalidate board list queries to refresh the UI
-    queryClient.invalidateQueries({
-      queryKey: convexQuery(api.boards.getBoards, {}).queryKey,
-    });
-  };
-
   // Check if user has admin permissions for rename functionality
   const isAdmin = currentUser?.role === "admin" || currentUser?.role === "owner";
 
@@ -112,7 +98,6 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="start">
             <DropdownMenuLabel className="text-sm text-muted-foreground">Board Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleToggleFavorite}>
               <StarIcon className={isFavorited ? "text-foreground fill-foreground" : ""} />
               {isFavorited ? "Unfavorite" : "Favorite"}
@@ -187,13 +172,7 @@ export function OverviewActions({ boardId, boardName }: { boardId: Id<"boards">;
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <RenameBoardDialog
-        boardId={boardId}
-        currentName={boardName}
-        open={renameOpen}
-        onOpenChange={setRenameOpen}
-        onSuccess={handleRenameSuccess}
-      />
+      <RenameBoardDialog boardId={boardId} currentName={boardName} open={renameOpen} onOpenChange={setRenameOpen} />
     </>
   );
 }

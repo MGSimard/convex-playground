@@ -27,7 +27,7 @@ import {
 } from "@/_components/ui/drawer";
 import { Button } from "@/_components/ui/button";
 import { useMediaQuery } from "@/_hooks/useMediaQuery";
-import { ToggleTheme } from "@/_components/ToggleTheme";
+import { ThemeToggle } from "@/_components/ToggleTheme";
 import { SidebarTrigger } from "@/_components/ui/sidebar";
 import { Separator } from "@/_components/ui/separator";
 
@@ -118,7 +118,7 @@ export function Breadcrumbs() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <ToggleTheme />
+      <ThemeToggle />
     </header>
   );
 }
